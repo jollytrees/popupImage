@@ -1,0 +1,766 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		EDE8477CF5B93AD4075E112D /* Qt Preprocess */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 6CC3B5D2136C7CD6A5CF5A59 /* Build configuration list for PBXNativeTarget "popupImage" */;
+			buildPhases = (
+				5E618435888B9D49F8540165 /* Qt Qmake */,
+				7EF0942E79C014DCEC8976BC /* Qt Preprocessors */,
+			);
+			dependencies = (
+			);
+			name = "Qt Preprocess";
+			productName = "Qt Preprocess";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		038C72C37572DEC9D5AFFA3C /* QtGui.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 20E13CF983F51B20C47AB0FB /* QtGui.framework */; };
+		1D89D7064A472DDE2A53D076 /* QtCore.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = BE7C2967AFCD3E305E6F3C40 /* QtCore.framework */; };
+		813B5EBE94F9AF423069971C /* main.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 4C8810D1A995391DB710F6E6 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
+		8771A8C96E9C391044035D99 /* OpenGL.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = D4B32C2222F82AC56BADEB21 /* OpenGL.framework */; };
+		8CAE85CBE6047687623BB1F2 /* mainwindow.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 3050612071D077664872A13A /* mainwindow.cpp */; settings = {ATTRIBUTES = (); }; };
+		8D267F2E4776F0ECA2F49DC8 /* IOKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = A1A67BEAA744704B29168D39 /* IOKit.framework */; };
+		A99B2AA0F9CBBDD12BA126A4 /* DiskArbitration.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 2B774D8E4178765CE52EAAF5 /* DiskArbitration.framework */; };
+		E41CA8311BF775410016060E /* popupObjAlgorithm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA82D1BF775410016060E /* popupObjAlgorithm.cpp */; };
+		E41CA8321BF775410016060E /* popupObject.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA82F1BF775410016060E /* popupObject.cpp */; };
+		E41CA8351BF775510016060E /* drawBoundaryLine.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8331BF775510016060E /* drawBoundaryLine.cpp */; };
+		E41CA84A1BF7757B0016060E /* popupObjAddConnectionLineToMap.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8361BF7757B0016060E /* popupObjAddConnectionLineToMap.cpp */; };
+		E41CA84B1BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8381BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.cpp */; };
+		E41CA84C1BF7757B0016060E /* popupObjClassifyPatches.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA83A1BF7757B0016060E /* popupObjClassifyPatches.cpp */; };
+		E41CA84E1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA83E1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.cpp */; };
+		E41CA84F1BF7757B0016060E /* popupObjExtendFoldLineAndFindActiveBolb.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8401BF7757B0016060E /* popupObjExtendFoldLineAndFindActiveBolb.cpp */; };
+		E41CA8511BF7757B0016060E /* popupObjInitBoundaryFoldLine.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8441BF7757B0016060E /* popupObjInitBoundaryFoldLine.cpp */; };
+		E41CA8581BF7758A0016060E /* popupObjFindClassifiedPatchConnection.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8551BF7758A0016060E /* popupObjFindClassifiedPatchConnection.cpp */; };
+		E41CA8591BF7758A0016060E /* popupObjFindDividedPatchConnection.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E41CA8571BF7758A0016060E /* popupObjFindDividedPatchConnection.cpp */; };
+		E43DEDA51BFB25A9004302BA /* popupObjFindPossiblePatch.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E43DEDA31BFB25A9004302BA /* popupObjFindPossiblePatch.cpp */; };
+		E43DEDA81BFB51CC004302BA /* popupObjFindPossiblePatchConnection.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E43DEDA61BFB51CC004302BA /* popupObjFindPossiblePatchConnection.cpp */; };
+		E43EA0C31C00EE7300E30D27 /* popupObjGraphFindAllPath.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E43EA0C11C00EE7300E30D27 /* popupObjGraphFindAllPath.cpp */; };
+		E45E51A644D5FC9F942ECE55 /* AGL.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8D9815BDB5BD9F90D2BC05C5 /* AGL.framework */; };
+		E47FF7A41C0A23140008D98D /* popupObjOptimization.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E47FF7A01C0A23140008D98D /* popupObjOptimization.cpp */; };
+		E47FF7A51C0A23140008D98D /* popupObjFindFoldLinePath.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E47FF7A21C0A23140008D98D /* popupObjFindFoldLinePath.cpp */; };
+		E47FF7AB1C0A31B30008D98D /* OGLWidget.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E47FF7A91C0A31B30008D98D /* OGLWidget.cpp */; };
+		E4A381FF1C0E4FE100609B42 /* polygonTriangulate.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E4A381FD1C0E4FE100609B42 /* polygonTriangulate.cpp */; };
+		E4A626041BF93F4F00F4E923 /* popupObjFindInsertedLine.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E4A626021BF93F4F00F4E923 /* popupObjFindInsertedLine.cpp */; };
+		E4B0688D1C130D2C00FCF405 /* Utils_Ogl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = E4B0688B1C130D2C00FCF405 /* Utils_Ogl.cpp */; };
+		F8E22365708BF05851023A1D /* moc_mainwindow.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 912FFDB88C3FBD93ADEA58E3 /* moc_mainwindow.cpp */; settings = {ATTRIBUTES = (); }; };
+		FCD74C87294F6DE4E1F66061 /* QtWidgets.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = E4AB03909B12511101131231 /* QtWidgets.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E437C8B41BF76A7800EF351A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EDE8477CF5B93AD4075E112D;
+			remoteInfo = "Qt Preprocess";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0987996CFF30FDFD1E9C5735 /* popupImage.pro */ = {isa = PBXFileReference; lastKnownFileType = text; name = popupImage.pro; path = /Users/jollytrees/Project/popupImage/popupImage.pro; sourceTree = "<absolute>"; };
+		20E13CF983F51B20C47AB0FB /* QtGui.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtGui.framework; path = /Users/jollytrees/Qt/5.5/clang_64/lib/QtGui.framework; sourceTree = "<absolute>"; };
+		2B774D8E4178765CE52EAAF5 /* DiskArbitration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiskArbitration.framework; path = /System/Library/Frameworks/DiskArbitration.framework; sourceTree = "<absolute>"; };
+		3050612071D077664872A13A /* mainwindow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mainwindow.cpp; path = /Users/jollytrees/Project/popupImage/mainwindow.cpp; sourceTree = "<absolute>"; };
+		32BED1DA7492AC16496A8A84 /* popupImage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = popupImage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		431060AC5D2D767FFB59BBC3 /* mainwindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mainwindow.h; path = /Users/jollytrees/Project/popupImage/mainwindow.h; sourceTree = "<absolute>"; };
+		4C8810D1A995391DB710F6E6 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = /Users/jollytrees/Project/popupImage/main.cpp; sourceTree = "<absolute>"; };
+		8D9815BDB5BD9F90D2BC05C5 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
+		912FFDB88C3FBD93ADEA58E3 /* moc_mainwindow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_mainwindow.cpp; path = /Users/jollytrees/Project/popupImage/moc_mainwindow.cpp; sourceTree = "<absolute>"; };
+		A1A67BEAA744704B29168D39 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		AD4F07A906C647ECFCDDC3A7 /* ui_mainwindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ui_mainwindow.h; path = /Users/jollytrees/Project/popupImage/ui_mainwindow.h; sourceTree = "<absolute>"; };
+		BE7C2967AFCD3E305E6F3C40 /* QtCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtCore.framework; path = /Users/jollytrees/Qt/5.5/clang_64/lib/QtCore.framework; sourceTree = "<absolute>"; };
+		D4B32C2222F82AC56BADEB21 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		E4081B531C021F66005A7BEC /* functionFindBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionFindBlob.h; sourceTree = SOURCE_ROOT; };
+		E41CA82B1BF775250016060E /* nanosvg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nanosvg.h; sourceTree = SOURCE_ROOT; };
+		E41CA82C1BF775250016060E /* nanosvgrast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nanosvgrast.h; sourceTree = SOURCE_ROOT; };
+		E41CA82D1BF775410016060E /* popupObjAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjAlgorithm.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA82E1BF775410016060E /* popupObjAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = popupObjAlgorithm.h; sourceTree = SOURCE_ROOT; };
+		E41CA82F1BF775410016060E /* popupObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObject.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8301BF775410016060E /* popupObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = popupObject.h; sourceTree = SOURCE_ROOT; };
+		E41CA8331BF775510016060E /* drawBoundaryLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = drawBoundaryLine.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8341BF775510016060E /* drawBoundaryLine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = drawBoundaryLine.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8361BF7757B0016060E /* popupObjAddConnectionLineToMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjAddConnectionLineToMap.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8371BF7757B0016060E /* popupObjAddConnectionLineToMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjAddConnectionLineToMap.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8381BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjBuildBoundaryLineConnMap.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8391BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjBuildBoundaryLineConnMap.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA83A1BF7757B0016060E /* popupObjClassifyPatches.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjClassifyPatches.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA83B1BF7757B0016060E /* popupObjClassifyPatches.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjClassifyPatches.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA83E1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjDivideBasePatchByMidLine.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA83F1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjDivideBasePatchByMidLine.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8401BF7757B0016060E /* popupObjExtendFoldLineAndFindActiveBolb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjExtendFoldLineAndFindActiveBolb.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8411BF7757B0016060E /* popupObjFindDividedPatchConnection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindDividedPatchConnection.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8441BF7757B0016060E /* popupObjInitBoundaryFoldLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjInitBoundaryFoldLine.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8451BF7757B0016060E /* popupObjInitBoundaryFoldLine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjInitBoundaryFoldLine.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8541BF7758A0016060E /* popupObjExtendFoldLineAndFindActiveBolb.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjExtendFoldLineAndFindActiveBolb.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8551BF7758A0016060E /* popupObjFindClassifiedPatchConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindClassifiedPatchConnection.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA8561BF7758A0016060E /* popupObjFindClassifiedPatchConnection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindClassifiedPatchConnection.hpp; sourceTree = SOURCE_ROOT; };
+		E41CA8571BF7758A0016060E /* popupObjFindDividedPatchConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindDividedPatchConnection.cpp; sourceTree = SOURCE_ROOT; };
+		E41CA85A1BF775970016060E /* functionFindMatIntersection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionFindMatIntersection.h; sourceTree = SOURCE_ROOT; };
+		E41CA85B1BF775970016060E /* functionFindConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionFindConnection.h; sourceTree = SOURCE_ROOT; };
+		E41CA85C1BF775970016060E /* functionFindContour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionFindContour.h; sourceTree = SOURCE_ROOT; };
+		E41CA85D1BF775970016060E /* functionInitPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionInitPatch.h; sourceTree = SOURCE_ROOT; };
+		E41CA85E1BF775970016060E /* functionLineVecToLinePair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionLineVecToLinePair.h; sourceTree = SOURCE_ROOT; };
+		E41CA85F1BF775970016060E /* functionOutputMat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functionOutputMat.h; sourceTree = SOURCE_ROOT; };
+		E41CA8611BF79C550016060E /* functionMat2QImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionMat2QImage.h; sourceTree = SOURCE_ROOT; };
+		E41CA8621BF79DAD0016060E /* functionDrawPatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionDrawPatch.h; sourceTree = SOURCE_ROOT; };
+		E41CA8681BF7C9AF0016060E /* functionFindContourByPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionFindContourByPath.h; sourceTree = SOURCE_ROOT; };
+		E41CA86A1BF8A00C0016060E /* functionDivideBasePatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionDivideBasePatch.h; sourceTree = SOURCE_ROOT; };
+		E41CA86B1BF8BBF60016060E /* functionClickPatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionClickPatch.h; sourceTree = SOURCE_ROOT; };
+		E43DEDA31BFB25A9004302BA /* popupObjFindPossiblePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindPossiblePatch.cpp; sourceTree = SOURCE_ROOT; };
+		E43DEDA41BFB25A9004302BA /* popupObjFindPossiblePatch.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindPossiblePatch.hpp; sourceTree = SOURCE_ROOT; };
+		E43DEDA61BFB51CC004302BA /* popupObjFindPossiblePatchConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindPossiblePatchConnection.cpp; sourceTree = SOURCE_ROOT; };
+		E43DEDA71BFB51CC004302BA /* popupObjFindPossiblePatchConnection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindPossiblePatchConnection.hpp; sourceTree = SOURCE_ROOT; };
+		E43EA0C11C00EE7300E30D27 /* popupObjGraphFindAllPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjGraphFindAllPath.cpp; sourceTree = SOURCE_ROOT; };
+		E43EA0C21C00EE7300E30D27 /* popupObjGraphFindAllPath.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjGraphFindAllPath.hpp; sourceTree = SOURCE_ROOT; };
+		E47FF7A01C0A23140008D98D /* popupObjOptimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjOptimization.cpp; sourceTree = SOURCE_ROOT; };
+		E47FF7A11C0A23140008D98D /* popupObjOptimization.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjOptimization.hpp; sourceTree = SOURCE_ROOT; };
+		E47FF7A21C0A23140008D98D /* popupObjFindFoldLinePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindFoldLinePath.cpp; sourceTree = SOURCE_ROOT; };
+		E47FF7A31C0A23140008D98D /* popupObjFindFoldLinePath.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindFoldLinePath.hpp; sourceTree = SOURCE_ROOT; };
+		E47FF7A91C0A31B30008D98D /* OGLWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGLWidget.cpp; sourceTree = SOURCE_ROOT; };
+		E47FF7AA1C0A31B30008D98D /* OGLWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGLWidget.h; sourceTree = SOURCE_ROOT; };
+		E47FF7AF1C0B817C0008D98D /* simple_svg_1.0.0.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = simple_svg_1.0.0.hpp; sourceTree = SOURCE_ROOT; };
+		E4A381FD1C0E4FE100609B42 /* polygonTriangulate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = polygonTriangulate.cpp; sourceTree = SOURCE_ROOT; };
+		E4A381FE1C0E4FE100609B42 /* polygonTriangulate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = polygonTriangulate.hpp; sourceTree = SOURCE_ROOT; };
+		E4A626001BF8E08800F4E923 /* functionLabelContour.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionLabelContour.h; sourceTree = SOURCE_ROOT; };
+		E4A626021BF93F4F00F4E923 /* popupObjFindInsertedLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = popupObjFindInsertedLine.cpp; sourceTree = SOURCE_ROOT; };
+		E4A626031BF93F4F00F4E923 /* popupObjFindInsertedLine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = popupObjFindInsertedLine.hpp; sourceTree = SOURCE_ROOT; };
+		E4AB03909B12511101131231 /* QtWidgets.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QtWidgets.framework; path = /Users/jollytrees/Qt/5.5/clang_64/lib/QtWidgets.framework; sourceTree = "<absolute>"; };
+		E4B0688B1C130D2C00FCF405 /* Utils_Ogl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils_Ogl.cpp; sourceTree = SOURCE_ROOT; };
+		E4B0688C1C130D2C00FCF405 /* Utils_Ogl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils_Ogl.h; sourceTree = SOURCE_ROOT; };
+		E4D25C8A1C1C872C006B2DC9 /* functionEventFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionEventFilter.h; sourceTree = SOURCE_ROOT; };
+		E4D25C8B1C1EC0E2006B2DC9 /* functionFindAllPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionFindAllPath.h; sourceTree = SOURCE_ROOT; };
+		F199BC071614AA9B24F76B7C /* mainwindow.ui */ = {isa = PBXFileReference; lastKnownFileType = text; name = mainwindow.ui; path = /Users/jollytrees/Project/popupImage/mainwindow.ui; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D1C883685E82D5676953459A /* Link Binary With Libraries */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCD74C87294F6DE4E1F66061 /* QtWidgets.framework in Link Binary With Libraries */,
+				038C72C37572DEC9D5AFFA3C /* QtGui.framework in Link Binary With Libraries */,
+				1D89D7064A472DDE2A53D076 /* QtCore.framework in Link Binary With Libraries */,
+				A99B2AA0F9CBBDD12BA126A4 /* DiskArbitration.framework in Link Binary With Libraries */,
+				8D267F2E4776F0ECA2F49DC8 /* IOKit.framework in Link Binary With Libraries */,
+				8771A8C96E9C391044035D99 /* OpenGL.framework in Link Binary With Libraries */,
+				E45E51A644D5FC9F942ECE55 /* AGL.framework in Link Binary With Libraries */,
+			);
+			name = "Link Binary With Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		12E908B8A1C3C07C115504F5 /* Sources [uic] */ = {
+			isa = PBXGroup;
+			children = (
+				F199BC071614AA9B24F76B7C /* mainwindow.ui */,
+			);
+			name = "Sources [uic]";
+			sourceTree = "<Group>";
+		};
+		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
+			isa = PBXGroup;
+			children = (
+				912FFDB88C3FBD93ADEA58E3 /* moc_mainwindow.cpp */,
+				AD4F07A906C647ECFCDDC3A7 /* ui_mainwindow.h */,
+			);
+			name = "Generated Sources";
+			sourceTree = "<Group>";
+		};
+		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				E47FF7AD1C0B79AA0008D98D /* SVG */,
+				E41CA8691BF89DFE0016060E /* New Group */,
+				E41CA8631BF7B24C0016060E /* Class */,
+				E41CA82A1BF7749A0016060E /* Functions */,
+				E41CA8291BF7748F0016060E /* Stategys */,
+				E41CA8281BF774830016060E /* NanoSvg */,
+				E41CA8271BF774780016060E /* DrawFuction */,
+				E41CA8261BF774530016060E /* Object */,
+				4C8810D1A995391DB710F6E6 /* main.cpp */,
+				3050612071D077664872A13A /* mainwindow.cpp */,
+				431060AC5D2D767FFB59BBC3 /* mainwindow.h */,
+			);
+			name = Sources;
+			sourceTree = "<Group>";
+		};
+		74B182DB50CB5611B5C1C297 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0987996CFF30FDFD1E9C5735 /* popupImage.pro */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<Group>";
+		};
+		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E4AB03909B12511101131231 /* QtWidgets.framework */,
+				20E13CF983F51B20C47AB0FB /* QtGui.framework */,
+				BE7C2967AFCD3E305E6F3C40 /* QtCore.framework */,
+				2B774D8E4178765CE52EAAF5 /* DiskArbitration.framework */,
+				A1A67BEAA744704B29168D39 /* IOKit.framework */,
+				D4B32C2222F82AC56BADEB21 /* OpenGL.framework */,
+				8D9815BDB5BD9F90D2BC05C5 /* AGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<Group>";
+		};
+		E41CA8261BF774530016060E /* Object */ = {
+			isa = PBXGroup;
+			children = (
+				E41CA82D1BF775410016060E /* popupObjAlgorithm.cpp */,
+				E41CA82E1BF775410016060E /* popupObjAlgorithm.h */,
+				E41CA82F1BF775410016060E /* popupObject.cpp */,
+				E41CA8301BF775410016060E /* popupObject.h */,
+			);
+			name = Object;
+			sourceTree = "<group>";
+		};
+		E41CA8271BF774780016060E /* DrawFuction */ = {
+			isa = PBXGroup;
+			children = (
+				E41CA8331BF775510016060E /* drawBoundaryLine.cpp */,
+				E41CA8341BF775510016060E /* drawBoundaryLine.hpp */,
+			);
+			name = DrawFuction;
+			sourceTree = "<group>";
+		};
+		E41CA8281BF774830016060E /* NanoSvg */ = {
+			isa = PBXGroup;
+			children = (
+				E41CA82B1BF775250016060E /* nanosvg.h */,
+				E41CA82C1BF775250016060E /* nanosvgrast.h */,
+			);
+			name = NanoSvg;
+			sourceTree = "<group>";
+		};
+		E41CA8291BF7748F0016060E /* Stategys */ = {
+			isa = PBXGroup;
+			children = (
+				E47FF7A01C0A23140008D98D /* popupObjOptimization.cpp */,
+				E47FF7A11C0A23140008D98D /* popupObjOptimization.hpp */,
+				E47FF7A31C0A23140008D98D /* popupObjFindFoldLinePath.hpp */,
+				E47FF7A21C0A23140008D98D /* popupObjFindFoldLinePath.cpp */,
+				E41CA8441BF7757B0016060E /* popupObjInitBoundaryFoldLine.cpp */,
+				E41CA8451BF7757B0016060E /* popupObjInitBoundaryFoldLine.hpp */,
+				E41CA8401BF7757B0016060E /* popupObjExtendFoldLineAndFindActiveBolb.cpp */,
+				E41CA8541BF7758A0016060E /* popupObjExtendFoldLineAndFindActiveBolb.hpp */,
+				E41CA8551BF7758A0016060E /* popupObjFindClassifiedPatchConnection.cpp */,
+				E41CA8561BF7758A0016060E /* popupObjFindClassifiedPatchConnection.hpp */,
+				E41CA8571BF7758A0016060E /* popupObjFindDividedPatchConnection.cpp */,
+				E41CA8411BF7757B0016060E /* popupObjFindDividedPatchConnection.hpp */,
+				E41CA8361BF7757B0016060E /* popupObjAddConnectionLineToMap.cpp */,
+				E41CA8371BF7757B0016060E /* popupObjAddConnectionLineToMap.hpp */,
+				E41CA8381BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.cpp */,
+				E41CA8391BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.hpp */,
+				E41CA83A1BF7757B0016060E /* popupObjClassifyPatches.cpp */,
+				E41CA83B1BF7757B0016060E /* popupObjClassifyPatches.hpp */,
+				E4A626021BF93F4F00F4E923 /* popupObjFindInsertedLine.cpp */,
+				E4A626031BF93F4F00F4E923 /* popupObjFindInsertedLine.hpp */,
+				E43DEDA31BFB25A9004302BA /* popupObjFindPossiblePatch.cpp */,
+				E43DEDA41BFB25A9004302BA /* popupObjFindPossiblePatch.hpp */,
+				E43DEDA61BFB51CC004302BA /* popupObjFindPossiblePatchConnection.cpp */,
+				E43DEDA71BFB51CC004302BA /* popupObjFindPossiblePatchConnection.hpp */,
+				E43EA0C11C00EE7300E30D27 /* popupObjGraphFindAllPath.cpp */,
+				E43EA0C21C00EE7300E30D27 /* popupObjGraphFindAllPath.hpp */,
+			);
+			name = Stategys;
+			sourceTree = "<group>";
+		};
+		E41CA82A1BF7749A0016060E /* Functions */ = {
+			isa = PBXGroup;
+			children = (
+				E4081B531C021F66005A7BEC /* functionFindBlob.h */,
+				E41CA85A1BF775970016060E /* functionFindMatIntersection.h */,
+				E41CA85B1BF775970016060E /* functionFindConnection.h */,
+				E41CA85C1BF775970016060E /* functionFindContour.h */,
+				E41CA85D1BF775970016060E /* functionInitPatch.h */,
+				E41CA85E1BF775970016060E /* functionLineVecToLinePair.h */,
+				E41CA85F1BF775970016060E /* functionOutputMat.h */,
+				E41CA8611BF79C550016060E /* functionMat2QImage.h */,
+				E41CA8621BF79DAD0016060E /* functionDrawPatch.h */,
+				E41CA8681BF7C9AF0016060E /* functionFindContourByPath.h */,
+				E41CA86A1BF8A00C0016060E /* functionDivideBasePatch.h */,
+				E41CA86B1BF8BBF60016060E /* functionClickPatch.h */,
+				E4A626001BF8E08800F4E923 /* functionLabelContour.h */,
+				E4D25C8A1C1C872C006B2DC9 /* functionEventFilter.h */,
+				E4D25C8B1C1EC0E2006B2DC9 /* functionFindAllPath.h */,
+			);
+			name = Functions;
+			sourceTree = "<group>";
+		};
+		E41CA8631BF7B24C0016060E /* Class */ = {
+			isa = PBXGroup;
+			children = (
+				E4B0688B1C130D2C00FCF405 /* Utils_Ogl.cpp */,
+				E4B0688C1C130D2C00FCF405 /* Utils_Ogl.h */,
+				E47FF7A91C0A31B30008D98D /* OGLWidget.cpp */,
+				E47FF7AA1C0A31B30008D98D /* OGLWidget.h */,
+			);
+			name = Class;
+			sourceTree = "<group>";
+		};
+		E41CA8691BF89DFE0016060E /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				E41CA83E1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.cpp */,
+				E41CA83F1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.hpp */,
+				E4A381FD1C0E4FE100609B42 /* polygonTriangulate.cpp */,
+				E4A381FE1C0E4FE100609B42 /* polygonTriangulate.hpp */,
+			);
+			name = "New Group";
+			sourceTree = "<group>";
+		};
+		E47FF7AD1C0B79AA0008D98D /* SVG */ = {
+			isa = PBXGroup;
+			children = (
+				E47FF7AF1C0B817C0008D98D /* simple_svg_1.0.0.hpp */,
+			);
+			name = SVG;
+			sourceTree = "<group>";
+		};
+		E8C543AB96796ECAA2E65C57 /* popupImage */ = {
+			isa = PBXGroup;
+			children = (
+				2EB56BE3C2D93CDAB0C52E67 /* Sources */,
+				25B08E2869634E9BCBA333A2 /* Generated Sources */,
+				74B182DB50CB5611B5C1C297 /* Supporting Files */,
+				12E908B8A1C3C07C115504F5 /* Sources [uic] */,
+				AF39DD055C3EF8226FBE929D /* Frameworks */,
+				FE0A091FDBFB3E9C31B7A1BD /* Products */,
+			);
+			name = popupImage;
+			sourceTree = "<Group>";
+		};
+		FE0A091FDBFB3E9C31B7A1BD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				32BED1DA7492AC16496A8A84 /* popupImage.app */,
+			);
+			name = Products;
+			sourceTree = "<Group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AEC2B54D352D22497F1235B1 /* popupImage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CC3B5D2136C7CD6A5CF5A59 /* Build configuration list for PBXNativeTarget "popupImage" */;
+			buildPhases = (
+				F7E50F631C51CD5B5DC0BC43 /* Compile Sources */,
+				D1C883685E82D5676953459A /* Link Binary With Libraries */,
+				30414803F31797EB689AE508 /* Copy Bundle Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				70044780CA22267A05A9ACEE /* PBXTargetDependency */,
+			);
+			name = popupImage;
+			productName = popupImage;
+			productReference = 32BED1DA7492AC16496A8A84 /* popupImage.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6DB9C3763D02B1415CD9D565 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0710;
+			};
+			buildConfigurationList = DAC4C1AA5EDEA1C85E9CA5E6 /* Build configuration list for PBXProject "popupImage" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E8C543AB96796ECAA2E65C57 /* popupImage */;
+			productRefGroup = FE0A091FDBFB3E9C31B7A1BD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AEC2B54D352D22497F1235B1 /* popupImage */,
+				EDE8477CF5B93AD4075E112D /* Qt Preprocess */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		30414803F31797EB689AE508 /* Copy Bundle Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "Copy Bundle Resources";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5E618435888B9D49F8540165 /* Qt Qmake */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "Qt Qmake";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/jollytrees/Project/popupImage/ -f popupImage.xcodeproj/qt_makeqmake.mak";
+			showEnvVarsInLog = 0;
+		};
+		7EF0942E79C014DCEC8976BC /* Qt Preprocessors */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "Qt Preprocessors";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/jollytrees/Project/popupImage/ -f popupImage.xcodeproj/qt_preprocess.mak";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F7E50F631C51CD5B5DC0BC43 /* Compile Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E41CA8311BF775410016060E /* popupObjAlgorithm.cpp in Compile Sources */,
+				E41CA84E1BF7757B0016060E /* popupObjDivideBasePatchByMidLine.cpp in Compile Sources */,
+				E43EA0C31C00EE7300E30D27 /* popupObjGraphFindAllPath.cpp in Compile Sources */,
+				E41CA84F1BF7757B0016060E /* popupObjExtendFoldLineAndFindActiveBolb.cpp in Compile Sources */,
+				E41CA84C1BF7757B0016060E /* popupObjClassifyPatches.cpp in Compile Sources */,
+				813B5EBE94F9AF423069971C /* main.cpp in Compile Sources */,
+				E41CA84A1BF7757B0016060E /* popupObjAddConnectionLineToMap.cpp in Compile Sources */,
+				8CAE85CBE6047687623BB1F2 /* mainwindow.cpp in Compile Sources */,
+				E43DEDA81BFB51CC004302BA /* popupObjFindPossiblePatchConnection.cpp in Compile Sources */,
+				E41CA84B1BF7757B0016060E /* popupObjBuildBoundaryLineConnMap.cpp in Compile Sources */,
+				E47FF7A51C0A23140008D98D /* popupObjFindFoldLinePath.cpp in Compile Sources */,
+				E47FF7A41C0A23140008D98D /* popupObjOptimization.cpp in Compile Sources */,
+				E43DEDA51BFB25A9004302BA /* popupObjFindPossiblePatch.cpp in Compile Sources */,
+				E41CA8591BF7758A0016060E /* popupObjFindDividedPatchConnection.cpp in Compile Sources */,
+				E41CA8351BF775510016060E /* drawBoundaryLine.cpp in Compile Sources */,
+				E4B0688D1C130D2C00FCF405 /* Utils_Ogl.cpp in Compile Sources */,
+				F8E22365708BF05851023A1D /* moc_mainwindow.cpp in Compile Sources */,
+				E4A626041BF93F4F00F4E923 /* popupObjFindInsertedLine.cpp in Compile Sources */,
+				E47FF7AB1C0A31B30008D98D /* OGLWidget.cpp in Compile Sources */,
+				E41CA8511BF7757B0016060E /* popupObjInitBoundaryFoldLine.cpp in Compile Sources */,
+				E41CA8581BF7758A0016060E /* popupObjFindClassifiedPatchConnection.cpp in Compile Sources */,
+				E41CA8321BF775410016060E /* popupObject.cpp in Compile Sources */,
+				E4A381FF1C0E4FE100609B42 /* polygonTriangulate.cpp in Compile Sources */,
+			);
+			name = "Compile Sources";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		70044780CA22267A05A9ACEE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EDE8477CF5B93AD4075E112D /* Qt Preprocess */;
+			targetProxy = E437C8B41BF76A7800EF351A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		339EE1B2CC4FC24589A0EA95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CC = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0.0;
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					.,
+					../../Qt/5.5/clang_64/lib/QtWidgets.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtGui.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtCore.framework/Headers,
+					.,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/AGL.framework/Headers,
+					.,
+					"../../Qt/5.5/clang_64/mkspecs/macx-clang",
+				);
+				INFOPLIST_FILE = Info.plist;
+				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
+				LIBRARY_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/System/Library/Frameworks/,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-O2",
+					"-Wall",
+					"-W",
+					"-fPIC",
+					"-DQT_NO_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-O2",
+					"-Wall",
+					"-W",
+					"-fPIC",
+					"-DQT_NO_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB",
+				);
+				OTHER_LDFLAGS = (
+					"-headerpad_max_install_names",
+					"-Wl,-rpath,/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-F/Users/jollytrees/Qt/5.5/clang_64/lib",
+				);
+				PRODUCT_NAME = popupImage;
+				QT_LIBRARY_SUFFIX = "";
+				SDKROOT = macosx;
+				SYMROOT = /Users/jollytrees/Project/popupImage/;
+			};
+			name = Release;
+		};
+		3AA6C32AC930069E80220CF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CC = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1.0;
+				DYLIB_CURRENT_VERSION = 1.0.0;
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					.,
+					../../Qt/5.5/clang_64/lib/QtWidgets.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtGui.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtCore.framework/Headers,
+					.,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/AGL.framework/Headers,
+					.,
+					"../../Qt/5.5/clang_64/mkspecs/macx-clang",
+				);
+				INFOPLIST_FILE = Info.plist;
+				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
+				LIBRARY_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/System/Library/Frameworks/,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-O2",
+					"-Wall",
+					"-W",
+					"-fPIC",
+					"-DQT_NO_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-O2",
+					"-Wall",
+					"-W",
+					"-fPIC",
+					"-DQT_NO_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB",
+				);
+				OTHER_LDFLAGS = (
+					"-headerpad_max_install_names",
+					"-Wl,-rpath,/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-F/Users/jollytrees/Qt/5.5/clang_64/lib",
+				);
+				PRODUCT_NAME = popupImage;
+				QT_LIBRARY_SUFFIX = _debug;
+				SDKROOT = macosx;
+				SYMROOT = /Users/jollytrees/Project/popupImage/;
+			};
+			name = Debug;
+		};
+		6666AA5E688052234F6758D8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/pch.h";
+				HEADER_SEARCH_PATHS = (
+					.,
+					../../Qt/5.5/clang_64/lib/QtOpenGL.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtWidgets.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtGui.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtCore.framework/Headers,
+					.,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/AGL.framework/Headers,
+					.,
+					"../../Qt/5.5/clang_64/mkspecs/macx-clang",
+					/usr/local/include/,
+					/Library/gurobi650/mac64/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/System/Library/Frameworks/,
+					/usr/local/lib,
+					/Library/gurobi650/mac64/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-headerpad_max_install_names",
+					"-Wl,-rpath,/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-F/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-lopencv_core",
+					"-lopencv_highgui",
+					"-lopencv_imgproc",
+					"-lgurobi65",
+					"-lm",
+					"-lgurobi_c++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "YMK.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = popupImage;
+				QT_LIBRARY_SUFFIX = "";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		77418F46922677BB04ED38DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/pch.h";
+				HEADER_SEARCH_PATHS = (
+					.,
+					../../Qt/5.5/clang_64/lib/QtOpenGL.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtWidgets.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtGui.framework/Headers,
+					../../Qt/5.5/clang_64/lib/QtCore.framework/Headers,
+					.,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,
+					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/AGL.framework/Headers,
+					.,
+					"../../Qt/5.5/clang_64/mkspecs/macx-clang",
+					/usr/local/include/,
+					/Library/gurobi650/mac64/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Users/jollytrees/Qt/5.5/clang_64/lib,
+					/System/Library/Frameworks/,
+					/usr/local/lib,
+					/Library/gurobi650/mac64/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-headerpad_max_install_names",
+					"-Wl,-rpath,/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-F/Users/jollytrees/Qt/5.5/clang_64/lib",
+					"-lopencv_core",
+					"-lopencv_highgui",
+					"-lopencv_imgproc",
+					"-lgurobi65",
+					"-lm",
+					"-lgurobi_c++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "YMK.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = popupImage;
+				QT_LIBRARY_SUFFIX = _debug;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6CC3B5D2136C7CD6A5CF5A59 /* Build configuration list for PBXNativeTarget "popupImage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				77418F46922677BB04ED38DD /* Debug */,
+				6666AA5E688052234F6758D8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DAC4C1AA5EDEA1C85E9CA5E6 /* Build configuration list for PBXProject "popupImage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AA6C32AC930069E80220CF1 /* Debug */,
+				339EE1B2CC4FC24589A0EA95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6DB9C3763D02B1415CD9D565 /* Project object */;
+}
