@@ -321,7 +321,7 @@ void OGLWidget::mouseMoveEvent(QMouseEvent *event)
     if( this->beta < range )
         this->beta = range;
     
-    // test
+    //abc
     //cout << this->alpha << " ab " << this->beta << endl;
 }
 
