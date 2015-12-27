@@ -42,9 +42,11 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
   const int FIXED_PIXEL_INCONSISTENCY_COST = 1000000;
   const int SMOOTHNESS_WEIGHT = 10000;
   const int DATA_WEIGHT = 1000;
+  //We may want to change the following values to better compute scores.
   const int FOLD_LINE_INCONSISTENCY_COST = DATA_WEIGHT * (1.0 / FOLD_LINE_WINDOW_HEIGHT);
   const int REGION_INCONSISTENCY_COST = DATA_WEIGHT * (1.0 / (MINIMUM_FOLD_LINE_WINDOW_WIDTH * MINIMUM_FOLD_LINE_WINDOW_HEIGHT));
   const int REGION_COVERAGE_COST = DATA_WEIGHT * (1.0 / (FOLD_LINE_WINDOW_WIDTH * FOLD_LINE_WINDOW_HEIGHT));
+  
   vector<int> data_cost;
   for (int y = 0; y < WINDOW_HEIGHT; y++) {
     for (int x = 0; x < WINDOW_WIDTH; x++) {
@@ -142,10 +144,10 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
   mrf->clearAnswer();
             
   int initial_energy = mrf->totalEnergy();
-  for (int iter = 0; iter < 6; iter++) {
+  for (int iter = 0; iter < 2; iter++) {
     float running_time;
     mrf->optimize(1, running_time);
-    cout << mrf->totalEnergy() << endl;
+    //    cout << mrf->totalEnergy() << endl;
   }
   vector<int> solution_labels(mrf->getAnswerPtr(), mrf->getAnswerPtr() + WINDOW_WIDTH * WINDOW_HEIGHT);
   
@@ -273,6 +275,8 @@ vector<int> findFoldLineWindowSize(const Mat &patch_image, const int left_patch_
   return window_size;
 }
 
+//Input: patch_image is a gray scale image with the gray value of each pixel representing the patch index. patch_index_1 and patch_index_2 are indices for two patch between which the fold line is going to add. fold_line_x is the denoted x position of the fold line. MINIMUM_FOLD_LINE_WINDOW_WIDTH and MINIMUM_FOLD_LINE_WINDOW_HEIGHT are desired fold line region width and fold line length (smaller values will pay penalties).
+//Output: optimal_deformed_patch_image is the image after deformation. optimal_deformation_cost is the cost for the deformation.
 bool deformPatchesBesideFoldLine(const Mat &patch_image, const int patch_index_1, const int patch_index_2, const int fold_line_x, Mat &optimal_deformed_patch_image, double &optimal_deformation_cost, const int MINIMUM_FOLD_LINE_WINDOW_WIDTH, const int MINIMUM_FOLD_LINE_WINDOW_HEIGHT)
 {
   const int IMAGE_WIDTH = patch_image.cols;
@@ -357,7 +361,7 @@ bool deformPatchesBesideFoldLine(const Mat &patch_image, const int patch_index_1
       vector<int> window_size = findFoldLineWindowSize(patch_image, patch_index_1, patch_index_2, fold_line_x, *region_it);
       int fold_line_window_width = max(MINIMUM_FOLD_LINE_WINDOW_WIDTH, window_size[0]);
       int fold_line_window_height = max(MINIMUM_FOLD_LINE_WINDOW_HEIGHT, window_size[1]);
-      cout << fold_line_window_width << '\t' << fold_line_window_height << endl;
+      //cout << fold_line_window_width << '\t' << fold_line_window_height << endl;
       bool success = deformPatchesAtIntersection(patch_image, patch_index_1, patch_index_2, fold_line_x, intersection_y, deformed_patch_image, deformation_cost, fold_line_window_width, fold_line_window_height, MINIMUM_FOLD_LINE_WINDOW_WIDTH, MINIMUM_FOLD_LINE_WINDOW_HEIGHT);
       if (success && deformation_cost < optimal_deformation_cost) {
         optimal_deformed_patch_image = deformed_patch_image.clone();
@@ -372,7 +376,7 @@ bool deformPatchesBesideFoldLine(const Mat &patch_image, const int patch_index_1
       vector<int> window_size = findFoldLineWindowSize(patch_image, patch_index_2, patch_index_1, fold_line_x, *region_it);
       int fold_line_window_width = max(MINIMUM_FOLD_LINE_WINDOW_WIDTH, window_size[0]);
       int fold_line_window_height = max(MINIMUM_FOLD_LINE_WINDOW_HEIGHT, window_size[1]);
-      cout << fold_line_window_width << '\t' << fold_line_window_height << endl;
+      //cout << fold_line_window_width << '\t' << fold_line_window_height << endl;
       bool success = deformPatchesAtIntersection(patch_image, patch_index_2, patch_index_1, fold_line_x, intersection_y, deformed_patch_image, deformation_cost, fold_line_window_width, fold_line_window_height, MINIMUM_FOLD_LINE_WINDOW_WIDTH, MINIMUM_FOLD_LINE_WINDOW_HEIGHT);
       if (success && deformation_cost < optimal_deformation_cost) {
         optimal_deformed_patch_image = deformed_patch_image.clone();
