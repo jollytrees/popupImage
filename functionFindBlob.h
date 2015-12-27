@@ -33,7 +33,7 @@ static int countBlobs(cv::Mat &img)
     
 }
 
-static void ConnectedBlobsBinary(cv::Mat &img, cv::Vector<cv::Mat> &blobMat)
+static void ConnectedBlobsBinary(cv::Mat &img, vector<cv::Mat> &blobMat)
 {
     //cv::Mat img = cv::imread("./newPatch/innerGreyB2_2.png", 0); // force greyscale
     //cout << "in Connnected Bolobs" << endl;
@@ -76,7 +76,7 @@ static void ConnectedBlobsBinary(cv::Mat &img, cv::Vector<cv::Mat> &blobMat)
 }
 
 
-static void ConnectedBlobs(cv::Mat &img, cv::Vector<cv::Mat> &blobMat)
+static void ConnectedBlobs(cv::Mat &img, vector<cv::Mat> &blobMat)
 {
     //cv::Mat img = cv::imread("./newPatch/innerGreyB2_2.png", 0); // force greyscale
     //cout << "in Connnected Bolobs" << endl;

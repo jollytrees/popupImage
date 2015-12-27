@@ -10,6 +10,14 @@
 #define popupObject_h
 #include <iostream>
 #include <vector>
+#include <map>
+#include <list>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv/cv.h>
+//#include <opencv2/imgcodecs/imgcodecs.hpp>
 
 using namespace std;
 
@@ -19,7 +27,7 @@ struct patches{
     cv::Mat pchMat;
 };
 
-typedef std::vector<std::vector<cv::Point>> paths_type;
+typedef std::vector<std::vector<cv::Point> > paths_type;
 
 static bool compareLongest( std::pair<int,int> x, std::pair<int,int> y ) {return x.second > y.second;}
 
@@ -79,7 +87,7 @@ public:
     std::vector< struct patches* > dividedPatches;
     
     //3. find the connection of divided patches
-    std::vector<std::vector<int>> dividedConnMap;
+    std::vector<std::vector<int> > dividedConnMap;
     std::vector<int> dividedConnSize;
     std::vector<std::vector<cv::Mat> > dividedPatchIntersection;
     
@@ -88,7 +96,7 @@ public:
     std::vector< struct patches* > classifiedPatches;
     
     //5. find the connection of classified patched
-    std::vector<std::vector<int>> classifiedConnMap;
+    std::vector<std::vector<int> > classifiedConnMap;
     std::vector<int> classifiedConnSize;
     std::vector<std::vector<cv::Mat> > classifiedPatchIntersection;
     
@@ -99,11 +107,11 @@ public:
     std::vector<std::vector<std::vector<foldLineType*> > > boundaryFoldLineConnGroupMap;
     
     //8. after merge
-    //std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
+    std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
     vector<vector<cv::Mat> >activeBlobMatOfPatch;
-    vector<vector<pair<int,int>> > activeBlobFoldLineOfPatch;
+    vector<vector<pair<int,int> > > activeBlobFoldLineOfPatch;
 
     //inserted line
     std::vector<std::vector<foldLineType*>  > insertedLineOfPatch;
@@ -131,7 +139,7 @@ public:
     vector<double> X;
     vector<double> Y;
     vector<double> oriX;
-    vector<vector<pair<int,int >> > positionLineIdxOfPatch;
+    vector<vector<pair<int,int > > > positionLineIdxOfPatch;
     vector<vector<int> > foldLineToPositionLine;
     map<int, int> positionLineToFoldLine;
     vector<vector<int> > neighborsOfOriginalPatch;

@@ -475,7 +475,7 @@ bool popupObjOptimization::execute(popupObject *obj)
 {
     GRBEnv env = GRBEnv();
     GRBModel model = GRBModel(env);
-    
+
     initialize(obj, model);
 
     model.update();
@@ -494,6 +494,7 @@ bool popupObjOptimization::execute(popupObject *obj)
             GRBobj += (obj->initMatSize.height - dist)/(obj->initMatSize.height)*f[j];
         }
     }
+
     //position cost
     for(size_t i=0; i< obj->positionLineIdxOfPatch.size(); i++){
         for(size_t j=0; j< obj->positionLineIdxOfPatch[i].size(); j++){
@@ -513,7 +514,8 @@ bool popupObjOptimization::execute(popupObject *obj)
     try {
         model.update();
         model.optimize(); 
-        
+        cout << "done" << endl;
+
         //print & set result
         for (size_t i=0;i<foldLineSize;i++) {
             cout << " f[" << i << "] = " << (double)f[i].get(GRB_DoubleAttr_X) <<endl;

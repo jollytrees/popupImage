@@ -15,7 +15,7 @@ void merge_Mat(cv::Mat &dst, cv::Mat img1, cv::Mat img2){
     int cols1 = img1.cols;
     int rows2 = img2.rows;
     int cols2 = img2.cols;
-    dst = cvCreateMat(rows1, cols1 + cols2, img1.type());
+    dst = Mat(rows1, cols1 + cols2, img1.type());
     cv::Mat tmp = dst(cv::Rect(0, 0, cols1, rows1));
     img1.copyTo(tmp);
     tmp = dst(cv::Rect(cols1, 0, cols2, rows2));
@@ -40,7 +40,7 @@ void dividPatch(cv::Mat &input, cv::Mat &out1, cv::Mat &out2, int x){
     
 }
 
-void pushPatches(std::vector< paths_type > &contours, std::vector< struct patches > &out_pchs, cv::Size &matSize){
+void pushPatches(std::vector< paths_type > &contours, std::vector< struct patches *> &out_pchs, cv::Size &matSize){
     
     std::ostringstream oss;
     for(int i =0; i < contours.size(); i++){
@@ -58,7 +58,7 @@ void pushPatches(std::vector< paths_type > &contours, std::vector< struct patche
         pch.pchMat = canvas.clone();
         pch.paths = contours[i];
         
-        out_pchs.push_back(pch);
+        out_pchs.push_back(&pch);
     }
 }
 
@@ -72,11 +72,11 @@ bool popupObjDivideAllByMidLine::execute(popupObject *obj)
         found_contour.setTo(black);
         
         //draw contours
-        for(int j = 0; j < obj->initPatches[i].paths.size(); j++){
+        for(int j = 0; j < obj->initPatches[i]->paths.size(); j++){
             if(j==0)
-                cv::drawContours(found_contour, obj->initPatches[i].paths, j, white, CV_FILLED);
+                cv::drawContours(found_contour, obj->initPatches[i]->paths, j, white, CV_FILLED);
             else
-                cv::drawContours(found_contour, obj->initPatches[i].paths, j, black, CV_FILLED);
+                cv::drawContours(found_contour, obj->initPatches[i]->paths, j, black, CV_FILLED);
         }
         
         //divide patch by x

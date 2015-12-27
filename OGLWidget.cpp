@@ -114,7 +114,7 @@ static void renderColoredGridXY(int xw, int yw, float alpha, float r, float g, f
 
 
 OGLWidget::OGLWidget(QWidget *parent)
-: QOpenGLWidget(parent)
+: QGLWidget(parent)
 {
     isDraw = false;
 

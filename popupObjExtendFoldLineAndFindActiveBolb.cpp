@@ -192,11 +192,11 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         cv::Mat greyMat;
         cv::cvtColor(canvas, greyMat, CV_BGR2GRAY);
         
-        cv::Vector<cv::Mat> blobMat;
+        vector<cv::Mat> blobMat;
         ConnectedBlobs(greyMat, blobMat);
         
         vector<cv::Mat> activePatchBlobMat;
-        vector<pair<int,int>> activePatchFoldLine;
+        vector<pair<int,int> > activePatchFoldLine;
 
         for(size_t j=0; j< blobMat.size(); j++){
         

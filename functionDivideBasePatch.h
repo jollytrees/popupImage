@@ -17,7 +17,7 @@ static void merge_Mat(cv::Mat &dst, cv::Mat img1, cv::Mat img2){
     int cols1 = img1.cols;
     int rows2 = img2.rows;
     int cols2 = img2.cols;
-    dst = cvCreateMat(rows1, cols1 + cols2, img1.type());
+    dst = Mat(rows1, cols1 + cols2, img1.type());
     cv::Mat tmp = dst(cv::Rect(0, 0, cols1, rows1));
     img1.copyTo(tmp);
     tmp = dst(cv::Rect(cols1, 0, cols2, rows2));

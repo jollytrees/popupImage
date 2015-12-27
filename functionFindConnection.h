@@ -11,7 +11,7 @@
 #include "functionFindMatIntersection.h"
 
 static void findConnection(const std::vector< struct patches* > &patches,
-                    std::vector<std::vector<int>> &connMap,
+                    std::vector<std::vector<int> > &connMap,
                     std::vector<int> &connSize,
                     std::vector<std::vector<cv::Mat> > &patchIntersection){
     

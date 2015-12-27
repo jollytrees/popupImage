@@ -10,6 +10,7 @@
 #ifndef functionEventFilter_h
 #define functionEventFilter_h
 
+
 static void eventChooseBackdrop(popupObject *obj, cv::Point p, QLabel *label_backdrop){
 
     obj->assignedPatch = -1;

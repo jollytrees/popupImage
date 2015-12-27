@@ -25,7 +25,7 @@ static void findPossiblePatchesOfPatch(int patchIdx, popupObject *obj){
     }
     
     //find blobs
-    cv::Vector<cv::Mat> blobMatBinary;
+    vector<cv::Mat> blobMatBinary;
     ConnectedBlobsBinary(patchMat, blobMatBinary);
 
     //find contour of each blob and push into possiblePatches
