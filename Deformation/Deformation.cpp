@@ -2,8 +2,8 @@
 #include <iostream>
 #include <sstream>
 
-#include <mrf.h>
-#include <GCoptimization.h>
+#include "MRF2.2/mrf.h"
+#include "MRF2.2/GCoptimization.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
