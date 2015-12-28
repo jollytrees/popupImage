@@ -36,7 +36,7 @@ public:
     GRBVar** fMap= 0;
     GRBVar** cMap= 0;
     GRBVar** oriFMap= 0;
-    GRBVar*** d= 0;
+    GRBVar** d= 0;
     GRBVar**** dp= 0;
 
     

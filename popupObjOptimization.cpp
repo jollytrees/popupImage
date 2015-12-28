@@ -169,22 +169,33 @@ void popupObjOptimization::initialize(popupObject *obj, GRBModel &model){
     k.resize(foldLineSize);
     
     
-    d = new GRBVar**[originalPatchSize];
-    for (size_t w = 0; w < originalPatchSize; ++w){
-        model.update();
-        d[w] = new GRBVar*[originalPatchSize];
-        for( size_t i =0; i < originalPatchSize; i++){
-            d[w][i] = model.addVars((int)originalPatchSize);
-            model.update();
-            for (size_t s = 0; s < originalPatchSize; ++s){
-                d[w][i][s] = model.addVar(0.0, 1.0, 0.0, GRB_INTEGER);
-                model.update();
+//    d = new GRBVar**[originalPatchSize];
+//    for (size_t w = 0; w < originalPatchSize; ++w){
+//        model.update();
+//        d[w] = new GRBVar*[originalPatchSize];
+//        for( size_t i =0; i < originalPatchSize; i++){
+//            d[w][i] = model.addVars((int)originalPatchSize);
+//            model.update();
+//            for (size_t s = 0; s < originalPatchSize; ++s){
+//                d[w][i][s] = model.addVar(0.0, 1.0, 0.0, GRB_INTEGER);
+//                model.update();
                 
 
-            }
+//            }
+//        }
+//    }
+
+    d = new GRBVar*[originalPatchSize];
+    for (size_t w = 0; w < originalPatchSize; ++w){
+        model.update();
+        d[w] = model.addVars((int)originalPatchSize);
+        model.update();
+        for (size_t n = 0; n < originalPatchSize; ++n){
+            d[w][n] = model.addVar(0.0, 1.0, 0.0, GRB_INTEGER);
+//                    model.update();
         }
     }
-    
+
     dp = new GRBVar***[originalPatchSize];
     for (size_t w = 0; w < originalPatchSize; ++w){
         model.update();
@@ -292,14 +303,14 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
             model.addQConstr( c[lineIdx] == 1- f[lineIdx]);
     }
     
-    for(size_t lineIdx =0; lineIdx < obj->foldLine.size(); lineIdx++){
-        if(!obj->foldLine[lineIdx]->isOriginalFoldLine){
-            int idx1 = obj->foldLine[lineIdx]->connOriFoldLine[0];
-            int idx2 = obj->foldLine[lineIdx]->connOriFoldLine[1];
-            model.addQConstr( f[lineIdx] <= f[idx1] + f[idx2] );
-            model.addQConstr( f[lineIdx]*f[idx1] == f[lineIdx]*f[idx2] );
-        }
-    }
+//    for(size_t lineIdx =0; lineIdx < obj->foldLine.size(); lineIdx++){
+//        if(!obj->foldLine[lineIdx]->isOriginalFoldLine){
+//            int idx1 = obj->foldLine[lineIdx]->connOriFoldLine[0];
+//            int idx2 = obj->foldLine[lineIdx]->connOriFoldLine[1];
+//            model.addQConstr( f[lineIdx] <= f[idx1] + f[idx2] );
+//            model.addQConstr( f[lineIdx]*f[idx1] == f[lineIdx]*f[idx2] );
+//        }
+//    }
     
     //set orientation of floor and black patch
     model.addQConstr( o[obj->floorPatch]==0 );
@@ -311,7 +322,6 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
         int pchIdx2 = obj->foldLine[lineIdx]->connPatch[1];
         model.addQConstr( (o[pchIdx1] + f[lineIdx])*(1-c[lineIdx]) == ( 2*k[lineIdx] + o[pchIdx2])*(1-c[lineIdx]) );
     }
-    
     
     for(size_t i=0; i< obj->positionLineIdxOfPatch.size(); i++){
         for(int j=0; j< (int)obj->positionLineIdxOfPatch[i].size()-1; j++){
@@ -333,21 +343,23 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
             }
         }
     }
-    
+
     for(size_t fIdx=0; fIdx< obj->foldLine.size(); fIdx++){
-        int fs = obj->foldLineToPositionLine[fIdx][0];
-        int ft = obj->foldLineToPositionLine[fIdx][1];
-        
         if(obj->foldLine[fIdx]->isOriginalFoldLine){
+            int fs = obj->foldLineToPositionLine[fIdx][0];
+            int ft = obj->foldLineToPositionLine[fIdx][1];
             model.addQConstr( X[fs]*(1-c[fIdx]) ==  X[ft]*(1-c[fIdx]));
             model.addQConstr( Y[fs]*(1-c[fIdx]) ==  Y[ft]*(1-c[fIdx]));
+            model.addQConstr( X[fs] <= obj->centralXPosition );
+            model.addQConstr( X[ft] <= obj->centralXPosition );
+            model.addQConstr( Y[fs] >= 0 );
+            model.addQConstr( Y[ft] >= 0 );
+        } else {
+            int fs = obj->foldLineToPositionLine[fIdx][0];
+            model.addQConstr( X[fs] <= obj->centralXPosition );
+            model.addQConstr( Y[fs] >= 0 );
         }
-        model.addQConstr( X[fs] <= obj->centralXPosition );
-        model.addQConstr( X[ft] <= obj->centralXPosition );
-        model.addQConstr( Y[fs] >= 0 );
-        model.addQConstr( Y[ft] >= 0 );
     }
-
 }
 
 void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
@@ -436,38 +448,42 @@ void popupObjOptimization::connectivity(popupObject *obj, GRBModel &model){
         }
     }
 
+    int starting_patch = -1;
+    for(size_t s=0; s<originalPatchSize; s++){
+        if (!obj->isOriginalBasePatch((int)s)){
+            starting_patch = s;
+            break;
+        }
+    }
     //set d
     for(size_t n = distSize; n>=1; n--){
-        for(size_t s=0; s<originalPatchSize; s++){
+//        for(size_t s=0; s<originalPatchSize; s++){
             for(size_t i=0; i< originalPatchSize; i++){
            
-                if(i==s ) continue;
+                if(i==starting_patch || obj->isOriginalBasePatch((int)i)) continue;
                 if(n==1)
-                    model.addQConstr( d[i][n][s] == oriFMap[i][s] );
+                    model.addQConstr( d[i][n] == oriFMap[i][starting_patch] );
                 else{
                     GRBQuadExpr QRhs = *new GRBQuadExpr(0);
                     for(size_t k =0; k< obj->neighborsOfOriginalPatch[i].size(); k++){
                         int j = obj->neighborsOfOriginalPatch[i][k];
-                        if(j!=(int)s && !obj->isOriginalBasePatch((int)j))
-                            QRhs += d[j][n-1][s]*oriFMap[i][j] ;
+                        if(j!=(int)starting_patch && !obj->isOriginalBasePatch((int)j))
+                            QRhs += d[j][n-1]*oriFMap[i][j] ;
                     }
-                    model.addQConstr( d[i][n][s] <= QRhs );
+                    model.addQConstr( d[i][n] <= QRhs );
                 }
             }
-        }
     }
 
     //For global connectivity, every patch should have a path to ps
-    for(size_t s=0; s<originalPatchSize; s++){
         for(size_t i=0; i< originalPatchSize; i++){
-            if(i==s) continue;
+            if(i==starting_patch || obj->isOriginalBasePatch((int)i)) continue;
             GRBQuadExpr sum;
             for(size_t n=1; n<distSize; n++){
-                sum += d[i][n][s];
+                sum += d[i][n];
             }
-            model.addQConstr( sum >= 1 );
+            model.addQConstr( sum == 1 );
         }
-    }
     
 }
 
@@ -513,8 +529,7 @@ bool popupObjOptimization::execute(popupObject *obj)
 
     try {
         model.update();
-        model.optimize(); 
-        cout << "done" << endl;
+        model.optimize();
 
         //print & set result
         for (size_t i=0;i<foldLineSize;i++) {
