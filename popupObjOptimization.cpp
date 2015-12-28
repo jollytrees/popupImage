@@ -291,6 +291,57 @@ void popupObjOptimization::initialize(popupObject *obj, GRBModel &model){
     model.update();
 
 
+    ps = new GRBVar*[patchSize];
+    pc = new GRBVar*[patchSize];
+    pd = new GRBVar*[patchSize];
+    pdd = new GRBVar*[patchSize];
+    pe = new GRBVar*[patchSize];
+    for (size_t p = 0; p < patchSize; ++p){
+        model.update();
+        ps[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pc[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pd[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pdd[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pe[p] = model.addVars(MAX_STABILITY_DEPTH);
+        model.update();
+        for (size_t d = 0; d < MAX_STABILITY_DEPTH; ++d){
+            ps[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pc[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pd[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pdd[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pe[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+        }
+    }
+
+    fs = new GRBVar*[foldLineSize];
+    fc = new GRBVar*[foldLineSize];
+    fd = new GRBVar*[foldLineSize];
+    fdd = new GRBVar*[foldLineSize];
+    fe = new GRBVar*[foldLineSize];
+    for (size_t f = 0; f < foldLineSize; ++f){
+        model.update();
+        fs[f] = model.addVars(MAX_STABILITY_DEPTH);
+        fc[f] = model.addVars(MAX_STABILITY_DEPTH);
+        fd[f] = model.addVars(MAX_STABILITY_DEPTH);
+        fdd[f] = model.addVars(MAX_STABILITY_DEPTH);
+        fe[f] = model.addVars(MAX_STABILITY_DEPTH);
+        model.update();
+        for (size_t d = 0; d < MAX_STABILITY_DEPTH; ++d){
+            fs[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            fc[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            fd[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            fdd[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            fe[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+        }
+    }
+
+    on_same_patch = new GRBVar*[patchSize];
+    for (size_t p = 0; p < patchSize; ++p){
+        model.update();
+        on_same_patch[p] = model.addVars(MAX_STABILITY_DEPTH);
+        for (size_t f = 0; f < foldLineSize; ++f)
+            on_same_patch[p][f] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
 }
 
 void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
@@ -362,8 +413,77 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
     }
 }
 
-void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
+//void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
     
+//    //set fMap
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t j = 0; j < patchSize; j++){
+//            if(obj->possibleFoldLineConnMap[i][j]!=NULL){
+//                int idx = obj->possibleFoldLineConnMap[i][j]->foldLineIdx;
+//                model.addQConstr( fMap[i][j]==f[idx]);
+//            }else
+//                model.addQConstr( fMap[i][j]==0);
+//        }
+//    }
+    
+//    //set cMap
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t j = 0; j < patchSize; j++){
+//            if(obj->possibleFoldLineConnMap[i][j]!=NULL){
+//                int idx = obj->possibleFoldLineConnMap[i][j]->foldLineIdx;
+//                if(!obj->foldLine[idx]->isOriginalFoldLine)
+//                    model.addQConstr( cMap[i][j] == 0 );
+//                else
+//                    model.addQConstr( cMap[i][j] == 1- f[idx]);
+//            }else
+//                model.addQConstr( cMap[i][j]==0);
+//        }
+//    }
+    
+    
+//    //set a
+//    for (size_t i = 0; i < patchSize; i++)
+//        for (size_t j = 0; j < patchSize; j++)
+//            model.addQConstr( a[i][j]==fMap[i][j]);
+    
+//    //set constraint
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t k = 0; k < patchSize; k++){
+            
+//            GRBQuadExpr QRhs1 = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs2 = *new GRBQuadExpr();
+//            QRhs1= QRhs2 = 0;
+//            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[k].size(); n++){
+//                int j = obj->neighborsOfPossiblePatch[k][n];
+//                QRhs1 += a[i][j]*fMap[j][k];
+//               // QRhs2 += a[i][j]*s[j] + b[i][j]*s[j]*0.5;
+//            }
+//            if(i!=k){
+//                model.addQConstr( b[i][k] <= QRhs1);
+//            }else{
+//                model.addQConstr( b[i][k] == 0);
+//            }
+//           // model.addQConstr( 1.5*s[i] <= QRhs2);
+    
+//        }
+//    }
+    
+//   /*
+//    for(int i=0; i<patchSize; i++){
+//        for(int j=0; j<patchSize; j++){
+//            //1,2,3
+//            //model.addQConstr( s[i]*(1-fMap[i][j]-cMap[i][j]) == s[j]*(1-fMap[i][j]-cMap[i][j]));
+//            for(int k = 0; k<patchSize; k++){
+//                //model.addQConstr( a[i][k]*( 1-fMap[i][j] ) == a[j][k]*( 1-fMap[i][j]) );
+//                //model.addQConstr( b[i][k]*( 1-fMap[i][j]-cMap[i][j] ) == b[j][k]*( 1-fMap[i][j]-cMap[i][j]) );
+//            }
+//        }
+//    }
+//    */
+//}
+
+void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
+
     //set fMap
     for (size_t i = 0; i < patchSize; i++){
         for (size_t j = 0; j < patchSize; j++){
@@ -374,7 +494,7 @@ void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
                 model.addQConstr( fMap[i][j]==0);
         }
     }
-    
+
     //set cMap
     for (size_t i = 0; i < patchSize; i++){
         for (size_t j = 0; j < patchSize; j++){
@@ -388,35 +508,103 @@ void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
                 model.addQConstr( cMap[i][j]==0);
         }
     }
-    
-    
+
+
     //set a
     for (size_t i = 0; i < patchSize; i++)
         for (size_t j = 0; j < patchSize; j++)
             model.addQConstr( a[i][j]==fMap[i][j]);
-    
+
     //set constraint
     for (size_t i = 0; i < patchSize; i++){
-        for (size_t k = 0; k < patchSize; k++){
-            
-            GRBQuadExpr QRhs1 = *new GRBQuadExpr();
-            GRBQuadExpr QRhs2 = *new GRBQuadExpr();
-            QRhs1= QRhs2 = 0;
-            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[k].size(); n++){
-                int j = obj->neighborsOfPossiblePatch[k][n];
-                QRhs1 += a[i][j]*fMap[j][k];
-               // QRhs2 += a[i][j]*s[j] + b[i][j]*s[j]*0.5;
+        for (size_t d = 0; d < MAX_STABILITY_DEPTH - 1; d++){
+
+            GRBQuadExpr QRhs_pcl = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_pccl = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_pdl = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_pdcl = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_pcr = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_pccr = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_fdr = *new GRBQuadExpr();
+            GRBQuadExpr QRhs_fdcr = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_fddl = *new GRBQuadExpr();
+            QRhs_psl = QRhs_pcl = QRhs_pccl = QRhs_pd = QRhs_pdcl = 0;
+            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
+                int j = obj->neighborsOfPossiblePatch[i][n];
+                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
+                    QRhs_pcl += ps[j][d]*fMap[i][j];
+                    QRhs_pccl += pcl[j][d]*fMap[i][j];
+                    QRhs_pdcl += pdl[j][d]*fMap[i][j];
+                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
+                    QRhs_pcr += ps[j][d]*fMap[i][j];
+                    QRhs_pccr += pcr[j][d]*fMap[i][j];
+                    QRhs_pdcr += pdr[j][d]*fMap[i][j];
+                }
             }
-            if(i!=k){
-                model.addQConstr( b[i][k] <= QRhs1);
-            }else{
-                model.addQConstr( b[i][k] == 0);
+
+            for(size_t n = 0; n < obj->patchesOnSameOriginalPatch[i].size(); n++){
+                int j = obj->patchesOnSameOriginalPatch[i][n];
+
+                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
+                    QRhs_pcl += pcl[j][d]*on_same_patch[i][j];
+                    QRhs_pccl += pccl[j][d]*on_same_patch[i][j];
+                    QRhs_pdcl += pdcl[j][d]*on_same_patch[i][j];
+                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
+                    QRhs_pcr += pcr[j][d]*on_same_patch[i][j];
+                    QRhs_pccr += pccr[j][d]*on_same_patch[i][j];
+                    QRhs_pdcr += pdcr[j][d]*on_same_patch[i][j];
+                }
+                QRhs_pdl += pccl[j][d]*on_same_patch[i][j];
+                QRhs_pdr += pccr[j][d]*on_same_patch[i][j];
             }
-           // model.addQConstr( 1.5*s[i] <= QRhs2);
-    
+            model.addQConstr( pcl[i][d] <= QRhs_pcl);
+            model.addQConstr( pccl[i][d] <= QRhs_pccl);
+            model.addQConstr( 2 * pdl[i][d] <= QRhs_pdl);
+            model.addQConstr( pdcl[i][d] <= QRhs_pdcl);
+            model.addQConstr( pcr[i][d] <= QRhs_pcr);
+            model.addQConstr( pccr[i][d] <= QRhs_pccr);
+            model.addQConstr( 2 * pdr[i][d] <= QRhs_pdr);
+            model.addQConstr( pdcr[i][d] <= QRhs_pdcr);
         }
     }
-    
+    for (size_t i = 0; i < patchSize; i++){
+        for (size_t d = 1; d < MAX_STABILITY_DEPTH; d++){
+            GRBQuadExpr QRhs_ps = *new GRBQuadExpr();
+            for (size_t smaller_d = 0; smaller_d < d; smaller_d++){
+                QRhs_ps += pcl[i][d - 1] * pcr[i][smaller_d] + pcl[i][smaller_d] * pcr[i][d - 1];
+
+                QRhs_ps += pdl[i][d - 1] * pdr[i][smaller_d] + pdl[i][smaller_d] * pdr[i][d - 1];
+
+                QRhs_ps += pdcl[i][d - 1] * pdcr[i][smaller_d] + pdcl[i][smaller_d] * pdcr[i][d - 1];
+
+                QRhs_ps += pcl[i][d - 1] * pccr[i][smaller_d] + pcl[i][smaller_d] * pccr[i][d - 1]
+                        + pccl[i][d - 1] * pcr[i][smaller_d] + pccl[i][smaller_d] * pcr[i][d - 1];
+                QRhs_ps += pcl[i][d - 1] * pdr[i][smaller_d] + pcl[i][smaller_d] * pdr[i][d - 1]
+                        + pdl[i][d - 1] * pcr[i][smaller_d] + pdl[i][smaller_d] * pcr[i][d - 1];
+                QRhs_ps += pcl[i][d - 1] * pdcr[i][smaller_d] + pcl[i][smaller_d] * pdcr[i][d - 1]
+                        + pdcl[i][d - 1] * pcr[i][smaller_d] + pdcl[i][smaller_d] * pcr[i][d - 1];
+
+                QRhs_ps += pccl[i][d - 1] * pdr[i][smaller_d] + pccl[i][smaller_d] * pdr[i][d - 1]
+                        + pdl[i][d - 1] * pccr[i][smaller_d] + pdl[i][smaller_d] * pccr[i][d - 1];
+
+                QRhs_ps += pdl[i][d - 1] * pdcr[i][smaller_d] + pdl[i][smaller_d] * pdcr[i][d - 1]
+                        + pdcl[i][d - 1] * pdr[i][smaller_d] + pdcl[i][smaller_d] * pdr[i][d - 1];
+            }
+            model.addQConstr( ps[i][d] <= QRhs_ps );
+        }
+    }
+    model.addQConstr( s[obj->floorPatch][0] == 1 );
+    model.addQConstr( s[obj->backPatch][0] == 1 );
+
+    for (size_t i = 0; i < patchSize; i++){
+        GRBQuadExpr sum = *new GRBQuadExpr(0);
+        sum = 0;
+        for (size_t d = 0; d < MAX_STABILITY_DEPTH; d++){
+            sum += ps[i][d];
+        }
+        model.addQConstr(sum == 1);
+    }
+
    /*
     for(int i=0; i<patchSize; i++){
         for(int j=0; j<patchSize; j++){

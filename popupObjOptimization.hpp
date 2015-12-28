@@ -39,9 +39,28 @@ public:
     GRBVar** d= 0;
     GRBVar**** dp= 0;
 
-    
+    GRBVar** ps = 0;
+    GRBVar** pcl = 0;
+    GRBVar** pccl = 0;
+    GRBVar** pdl = 0;
+    GRBVar** pdcl = 0;
+    GRBVar** pddl = 0;
+    GRBVar** pcr = 0;
+    GRBVar** pccr = 0;
+    GRBVar** pdr = 0;
+    GRBVar** pdcr = 0;
+    GRBVar** pddr = 0;
+
+//    GRBVar** fs = 0;
+//    GRBVar** fc = 0;
+//    GRBVar** fd = 0;
+//    GRBVar** fdd = 0;
+//    GRBVar** fe = 0;
+
+    GRBVar** on_same_patch = 0;
+
     GRBVar** pathIndicator = 0;
 
-
+    const int MAX_STABILITY_DEPTH = 5;
 };
 #endif /* popupObjFindFoldibility_hpp */
