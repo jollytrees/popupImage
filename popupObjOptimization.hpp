@@ -58,6 +58,8 @@ public:
 //    GRBVar** fe = 0;
 
     GRBVar** on_same_patch = 0;
+    GRBVar** on_same_patch_left = 0;
+    GRBVar** on_same_patch_right = 0;
 
     GRBVar** pathIndicator = 0;
 

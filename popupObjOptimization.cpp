@@ -292,55 +292,61 @@ void popupObjOptimization::initialize(popupObject *obj, GRBModel &model){
 
 
     ps = new GRBVar*[patchSize];
-    pc = new GRBVar*[patchSize];
-    pd = new GRBVar*[patchSize];
-    pdd = new GRBVar*[patchSize];
-    pe = new GRBVar*[patchSize];
+    pcl = new GRBVar*[patchSize];
+    pccl = new GRBVar*[patchSize];
+    pdl = new GRBVar*[patchSize];
+    pdcl = new GRBVar*[patchSize];
+    pcr = new GRBVar*[patchSize];
+    pccr = new GRBVar*[patchSize];
+    pdr = new GRBVar*[patchSize];
+    pdcr = new GRBVar*[patchSize];
     for (size_t p = 0; p < patchSize; ++p){
         model.update();
         ps[p] = model.addVars(MAX_STABILITY_DEPTH);
-        pc[p] = model.addVars(MAX_STABILITY_DEPTH);
-        pd[p] = model.addVars(MAX_STABILITY_DEPTH);
-        pdd[p] = model.addVars(MAX_STABILITY_DEPTH);
-        pe[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pcl[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pccl[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pdl[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pdcl[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pcr[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pccr[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pdr[p] = model.addVars(MAX_STABILITY_DEPTH);
+        pdcr[p] = model.addVars(MAX_STABILITY_DEPTH);
         model.update();
         for (size_t d = 0; d < MAX_STABILITY_DEPTH; ++d){
             ps[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            pc[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            pd[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            pdd[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            pe[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-        }
-    }
-
-    fs = new GRBVar*[foldLineSize];
-    fc = new GRBVar*[foldLineSize];
-    fd = new GRBVar*[foldLineSize];
-    fdd = new GRBVar*[foldLineSize];
-    fe = new GRBVar*[foldLineSize];
-    for (size_t f = 0; f < foldLineSize; ++f){
-        model.update();
-        fs[f] = model.addVars(MAX_STABILITY_DEPTH);
-        fc[f] = model.addVars(MAX_STABILITY_DEPTH);
-        fd[f] = model.addVars(MAX_STABILITY_DEPTH);
-        fdd[f] = model.addVars(MAX_STABILITY_DEPTH);
-        fe[f] = model.addVars(MAX_STABILITY_DEPTH);
-        model.update();
-        for (size_t d = 0; d < MAX_STABILITY_DEPTH; ++d){
-            fs[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            fc[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            fd[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            fdd[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-            fe[f][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pcl[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pccl[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pdl[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pdcl[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pcr[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pccr[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pdr[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            pdcr[p][d] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
         }
     }
 
     on_same_patch = new GRBVar*[patchSize];
-    for (size_t p = 0; p < patchSize; ++p){
+    for (size_t i = 0; i < patchSize; ++i){
         model.update();
-        on_same_patch[p] = model.addVars(MAX_STABILITY_DEPTH);
-        for (size_t f = 0; f < foldLineSize; ++f)
-            on_same_patch[p][f] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+        on_same_patch[i] = model.addVars(patchSize);
+        for (size_t j = 0; j < foldLineSize; ++j)
+            on_same_patch[i][j] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
+
+    on_same_patch_left = new GRBVar*[patchSize];
+    for (size_t i = 0; i < patchSize; ++i){
+        model.update();
+        on_same_patch_left[i] = model.addVars(patchSize);
+        for (size_t j = 0; j < foldLineSize; ++j)
+            on_same_patch_left[i][j] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
+
+    on_same_patch_right = new GRBVar*[patchSize];
+    for (size_t i = 0; i < patchSize; ++i){
+        model.update();
+        on_same_patch_right[i] = model.addVars(patchSize);
+        for (size_t j = 0; j < foldLineSize; ++j)
+            on_same_patch_right[i][j] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
 }
 
@@ -483,38 +489,23 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
 //}
 
 void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
-
-    //set fMap
     for (size_t i = 0; i < patchSize; i++){
         for (size_t j = 0; j < patchSize; j++){
-            if(obj->possibleFoldLineConnMap[i][j]!=NULL){
-                int idx = obj->possibleFoldLineConnMap[i][j]->foldLineIdx;
-                model.addQConstr( fMap[i][j]==f[idx]);
-            }else
-                model.addQConstr( fMap[i][j]==0);
+            GRBQuadExpr sum_left = *new GRBQuadExpr();
+            GRBQuadExpr sum_right = *new GRBQuadExpr();
+            sum_left = sum_right = 0;
+            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
+                int k = obj->neighborsOfPossiblePatch[i][n];
+                if (obj->isLeftOrRightNeighbor(j, k) == 0) {
+                    sum_left += on_same_patch_left[i][k];
+                } else if (obj->isLeftOrRightNeighbor(j, k) == 1) {
+                    sum_right += on_same_patch_right[i][k];
+                }
+            }
+            model.addQConstr(on_same_patch_left[i][j] <= sum_left);
+            model.addQConstr(on_same_patch_right[i][j] <= sum_right);
+            model.addQConstr(on_same_patch[i][j] <= on_same_patch_left[i][j] + on_same_patch_right[i][j]);
         }
-    }
-
-    //set cMap
-    for (size_t i = 0; i < patchSize; i++){
-        for (size_t j = 0; j < patchSize; j++){
-            if(obj->possibleFoldLineConnMap[i][j]!=NULL){
-                int idx = obj->possibleFoldLineConnMap[i][j]->foldLineIdx;
-                if(!obj->foldLine[idx]->isOriginalFoldLine)
-                    model.addQConstr( cMap[i][j] == 0 );
-                else
-                    model.addQConstr( cMap[i][j] == 1- f[idx]);
-            }else
-                model.addQConstr( cMap[i][j]==0);
-        }
-    }
-
-
-    //set a
-    for (size_t i = 0; i < patchSize; i++)
-        for (size_t j = 0; j < patchSize; j++)
-            model.addQConstr( a[i][j]==fMap[i][j]);
-
     //set constraint
     for (size_t i = 0; i < patchSize; i++){
         for (size_t d = 0; d < MAX_STABILITY_DEPTH - 1; d++){
