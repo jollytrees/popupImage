@@ -11,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_pic1->installEventFilter(this);
     ui->label_pic2->installEventFilter(this);
     ui->label_pic3->installEventFilter(this);
-    
+
+    cv::Mat a(100,100,CV_8UC3);
+        imwrite("pm1130.png", a);
+        
     cv::Mat img1 = imread("../input/cute_fox.png");
     ui->label_pic1->setGeometry(QRect(50, 300, img1.cols, img1.rows));
     cv::cvtColor(img1, img1, CV_BGR2RGB);
@@ -123,6 +126,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     
     if(watched == ui->label_pic1){
         caseNum = 0;
+        cout << caseNum <<endl;
         return true;
     }else if(watched == ui->label_pic2){
         caseNum = 1;

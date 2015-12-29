@@ -55,7 +55,7 @@ private:
     void createItems();
     void processPopup();
 
-private slots:
+public slots:
     void chooseInputImage();
     void chooseBasePatch();
     void onItemClicked(QListWidgetItem * item);
