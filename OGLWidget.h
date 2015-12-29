@@ -10,14 +10,13 @@
 #define OGLWIDGET_H
 
 #include <QWidget>
-#include <QGLWidget>
-//#include <QOpenGLWidget>
+#include <QOpenGLWidget>
 #include <OpenGL/GL.h>
 #include <OpenGL/GLU.h>
 #include "popupObject.h"
 #include <QMouseEvent>
 
-class OGLWidget : public QGLWidget
+class OGLWidget : public QOpenGLWidget
 {
 public:
     OGLWidget(QWidget *parent = 0);

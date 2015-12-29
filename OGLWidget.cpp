@@ -114,7 +114,7 @@ static void renderColoredGridXY(int xw, int yw, float alpha, float r, float g, f
 
 
 OGLWidget::OGLWidget(QWidget *parent)
-: QGLWidget(parent)
+: QOpenGLWidget(parent)
 {
     isDraw = false;
 
@@ -321,7 +321,7 @@ void OGLWidget::mouseMoveEvent(QMouseEvent *event)
     if( this->beta < range )
         this->beta = range;
     
-    //abc
+    // test
     //cout << this->alpha << " ab " << this->beta << endl;
 }
 
