@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>980</width>
+    <height>946</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>951</width>
+      <height>851</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>3</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>input</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>10</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>choose</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_pic1">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>200</y>
+        <width>100</width>
+        <height>100</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_pic2">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>500</y>
+        <width>100</width>
+        <height>100</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_pic3">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>200</y>
+        <width>100</width>
+        <height>100</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>choose backdrop</string>
+     </attribute>
+     <widget class="QLabel" name="label_backdrop">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>250</y>
+        <width>371</width>
+        <height>421</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>10</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>next</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_5">
+     <attribute name="title">
+      <string notr="true">result</string>
+     </attribute>
+     <widget class="QLabel" name="label_resultLayout">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>100</y>
+        <width>511</width>
+        <height>631</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="listWidget">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>260</y>
+        <width>81</width>
+        <height>301</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>240</y>
+        <width>59</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>fold lines</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>100</y>
+        <width>171</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>labels</string>
+      </property>
+      <widget class="QCheckBox" name="check_labelFoldline">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>30</y>
+         <width>161</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>show fold line index</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="check_labelPatches">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>50</y>
+         <width>151</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>show patche index</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QTextBrowser" name="textBrowser">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>190</y>
+        <width>171</width>
+        <height>41</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>700</x>
+        <y>10</y>
+        <width>171</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Patches</string>
+      </property>
+      <widget class="QRadioButton" name="radio_original">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>161</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>show original patches</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radio_final">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>151</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>show final patches</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_7">
+     <attribute name="title">
+      <string>3d scene</string>
+     </attribute>
+     <widget class="OGLWidget" name="openGLWidget">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>70</y>
+        <width>731</width>
+        <height>711</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="geometry">
+       <rect>
+        <x>790</x>
+        <y>140</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>10</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit">
+      <property name="geometry">
+       <rect>
+        <x>800</x>
+        <y>100</y>
+        <width>113</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>980</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>OGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>OGLWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chooseInputImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>825</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>65</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chooseBasePatch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>825</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>838</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>check_labelFoldline</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showFoldLines()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>786</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>785</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>check_labelPatches</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showPatches()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>747</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>638</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_original</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showOriginalPatches()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>803</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>473</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_final</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showFinalPatches()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>842</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>859</x>
+     <y>61</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setScale()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>825</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>811</x>
+     <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>chooseInputImage()</slot>
+  <slot>chooseBasePatch()</slot>
+  <slot>processPopup()</slot>
+  <slot>showFoldLines()</slot>
+  <slot>showPatches()</slot>
+  <slot>showOriginalPatches()</slot>
+  <slot>showFinalPatches()</slot>
+  <slot>setScale(int)</slot>
+ </slots>
+</ui>
