@@ -10,5 +10,12 @@
 #define popupObjLeftRightNeighbor_hpp
 
 #include <stdio.h>
+#include "popupObjAlgorithm.h"
 
+class popupObjLeftRightNeighbor : public popupObjAlgorithm
+{
+public:
+    virtual bool execute(popupObject *obj);
+    
+};
 #endif /* popupObjLeftRightNeighbor_hpp */

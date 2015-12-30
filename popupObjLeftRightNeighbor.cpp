@@ -7,3 +7,9 @@
 //
 
 #include "popupObjLeftRightNeighbor.hpp"
+
+bool popupObjLeftRightNeighbor::execute(popupObject *obj)
+{
+    
+    return true;
+}
