@@ -30,7 +30,7 @@ static void fillSinglePatch(struct patches *patch, cv::Mat &outMat){
 static void drawSinglePatch(struct patches *patch, cv::Mat &outMat){
     for(int i = 0; i < patch->paths.size(); i++){
         if(i==0)
-            cv::drawContours(outMat, patch->paths, i, white, 2);
+            cv::drawContours(outMat, patch->paths, i, white, 3);
         //else
             //cv::drawContours(outMat, patch.paths, i, white, 2);
     }

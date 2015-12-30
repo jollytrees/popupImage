@@ -24,6 +24,7 @@
 #include "popupObjFindfoldLinePath.hpp"
 #include "popupObjOptimization.hpp"
 #include "popupObjmergeFinalPatches.hpp"
+#include "popupObjFindFinalPath.hpp"
 
 //draw fuction
 #include "functionMat2QImage.h"

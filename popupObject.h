@@ -157,6 +157,9 @@ public:
     //merge patches
     std::vector< struct patches* > mergedPatches;
     std::vector< std::vector< struct patches*> > mergedPatchesOfPatch;
+    
+    //find final path
+    vector<vector<int> > finalPaths;
 
     
 };

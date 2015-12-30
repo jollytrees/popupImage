@@ -38,13 +38,20 @@ bool popupObjmergeFinalPatches::execute(popupObject *obj)
         cv::Mat greyMat;
         cv::cvtColor(canvas, greyMat, CV_BGR2GRAY);
         
+        ostringstream aoss;
+
+        std::string str = "../Merge/mergePatch"+aoss.str()+".png";
+        aoss.str("");
+        aoss << pIdx;
+        //imwrite(str.c_str(), blobMat[i]);
+        
         //find blob
         vector<cv::Mat> blobMat;
         ConnectedBlobs(greyMat, blobMat);
         
-        //find contour of each blob and push into possiblePatches
+        ostringstream oss;
+        //find contour of each blob and push into mergedPatches
         for(size_t i=0; i< blobMat.size(); i++){
-            
             paths_type t_out_contour;
             findContourSimple(blobMat[i], t_out_contour);
             cv::Mat d = blobMat[i].clone();
@@ -59,11 +66,21 @@ bool popupObjmergeFinalPatches::execute(popupObject *obj)
             pch->patchIdx = obj->mergedPatches.size()-1;
             if(out_contour[0].size()>0){
                 obj->mergedPatches.push_back(pch);
+                
                 obj->mergedPatchesOfPatch[pIdx].push_back(pch);
+                oss.str("");
+                oss << obj->mergedPatches.size();
+                std::string str = "../Merge/mergePatch"+oss.str()+".png";
+                imwrite(str.c_str(), blobMat[i]);
+                
+                cout << obj->mergedPatches.size() << " " << out_contour[0].size() << endl;
+
             }else{
                 cout << "patch" << pIdx << "has unvisible blobs"<<endl;
             }
         }
+        
+        
         
         //find connection of active inserted line
         for(size_t fIdx=0; fIdx<obj->insertedLineOfPatch[pIdx].size(); fIdx++){

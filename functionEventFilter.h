@@ -56,9 +56,11 @@ static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat){
     
     for(size_t i=0; i< obj->possiblePatches.size(); i++){
         if(obj->orientation[i]!=0.0){
-            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blueGreen, CV_FILLED);
+            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blue, CV_FILLED);
         }
     }
+    drawPatchWOClearMat(obj->classifiedPatches, resultsMat);
+
     for(size_t i=0; i< obj->foldLine.size(); i++){
         ostringstream oss;
         oss.str("");
@@ -75,7 +77,7 @@ static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat){
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(),p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }else{
             cv::Point p = cv::Point(obj->foldLine[i]->line.first.x,(obj->foldLine[i]->line.first.y + obj->foldLine[i]->line.second.y)/2 );
-            cv::line(resultsMat, op1, op2, blue, 1);
+            cv::line(resultsMat, op1, op2, yellow, 1);
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(), p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }
     }

@@ -34,7 +34,7 @@ static void findPossiblePatchesOfPatch(int patchIdx, popupObject *obj){
         paths_type t_out_contour;
         findContourSimple(blobMatBinary[i], t_out_contour);
         cv::Mat d = blobMatBinary[i].clone();
-        cv::drawContours(d, t_out_contour, 0, 255, 2);
+        cv::drawContours(d, t_out_contour, 0, 255, 1);
 
         paths_type out_contour;
 
