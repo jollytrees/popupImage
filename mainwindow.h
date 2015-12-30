@@ -23,6 +23,7 @@
 #include "popupObjGraphFindAllPath.hpp"
 #include "popupObjFindfoldLinePath.hpp"
 #include "popupObjOptimization.hpp"
+#include "popupObjmergeFinalPatches.hpp"
 
 //draw fuction
 #include "functionMat2QImage.h"

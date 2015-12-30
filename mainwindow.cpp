@@ -192,6 +192,9 @@ void MainWindow::processPopup(){
     //16. find foldibility
     algoList.push_back( new popupObjOptimization);
     
+    //17. merge final patch
+    algoList.push_back( new popupObjmergeFinalPatches);
+    
     algoList.execute(obj, "main", true);
 
     //draw 3d scene
