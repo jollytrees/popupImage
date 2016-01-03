@@ -489,125 +489,125 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
 //}
 
 void popupObjOptimization::stability(popupObject *obj, GRBModel &model){
-    for (size_t i = 0; i < patchSize; i++){
-        for (size_t j = 0; j < patchSize; j++){
-            GRBQuadExpr sum_left = *new GRBQuadExpr();
-            GRBQuadExpr sum_right = *new GRBQuadExpr();
-            sum_left = sum_right = 0;
-            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
-                int k = obj->neighborsOfPossiblePatch[i][n];
-                if (obj->isLeftOrRightNeighbor(j, k) == 0) {
-                    sum_left += on_same_patch_left[i][k];
-                } else if (obj->isLeftOrRightNeighbor(j, k) == 1) {
-                    sum_right += on_same_patch_right[i][k];
-                }
-            }
-            model.addQConstr(on_same_patch_left[i][j] <= sum_left);
-            model.addQConstr(on_same_patch_right[i][j] <= sum_right);
-            model.addQConstr(on_same_patch[i][j] <= on_same_patch_left[i][j] + on_same_patch_right[i][j]);
-        }
-    //set constraint
-    for (size_t i = 0; i < patchSize; i++){
-        for (size_t d = 0; d < MAX_STABILITY_DEPTH - 1; d++){
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t j = 0; j < patchSize; j++){
+//            GRBQuadExpr sum_left = *new GRBQuadExpr();
+//            GRBQuadExpr sum_right = *new GRBQuadExpr();
+//            sum_left = sum_right = 0;
+//            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
+//                int k = obj->neighborsOfPossiblePatch[i][n];
+//                if (obj->isLeftOrRightNeighbor(j, k) == 0) {
+//                    sum_left += on_same_patch_left[i][k];
+//                } else if (obj->isLeftOrRightNeighbor(j, k) == 1) {
+//                    sum_right += on_same_patch_right[i][k];
+//                }
+//            }
+//            model.addQConstr(on_same_patch_left[i][j] <= sum_left);
+//            model.addQConstr(on_same_patch_right[i][j] <= sum_right);
+//            model.addQConstr(on_same_patch[i][j] <= on_same_patch_left[i][j] + on_same_patch_right[i][j]);
+//        }
+//    //set constraint
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t d = 0; d < MAX_STABILITY_DEPTH - 1; d++){
 
-            GRBQuadExpr QRhs_pcl = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_pccl = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_pdl = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_pdcl = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_pcr = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_pccr = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_fdr = *new GRBQuadExpr();
-            GRBQuadExpr QRhs_fdcr = *new GRBQuadExpr();
-//            GRBQuadExpr QRhs_fddl = *new GRBQuadExpr();
-            QRhs_psl = QRhs_pcl = QRhs_pccl = QRhs_pd = QRhs_pdcl = 0;
-            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
-                int j = obj->neighborsOfPossiblePatch[i][n];
-                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
-                    QRhs_pcl += ps[j][d]*fMap[i][j];
-                    QRhs_pccl += pcl[j][d]*fMap[i][j];
-                    QRhs_pdcl += pdl[j][d]*fMap[i][j];
-                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
-                    QRhs_pcr += ps[j][d]*fMap[i][j];
-                    QRhs_pccr += pcr[j][d]*fMap[i][j];
-                    QRhs_pdcr += pdr[j][d]*fMap[i][j];
-                }
-            }
+//            GRBQuadExpr QRhs_pcl = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_pccl = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_pdl = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_pdcl = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_pcr = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_pccr = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_fdr = *new GRBQuadExpr();
+//            GRBQuadExpr QRhs_fdcr = *new GRBQuadExpr();
+////            GRBQuadExpr QRhs_fddl = *new GRBQuadExpr();
+//            QRhs_psl = QRhs_pcl = QRhs_pccl = QRhs_pd = QRhs_pdcl = 0;
+//            for(size_t n = 0; n < obj->neighborsOfPossiblePatch[i].size(); n++){
+//                int j = obj->neighborsOfPossiblePatch[i][n];
+//                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
+//                    QRhs_pcl += ps[j][d]*fMap[i][j];
+//                    QRhs_pccl += pcl[j][d]*fMap[i][j];
+//                    QRhs_pdcl += pdl[j][d]*fMap[i][j];
+//                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
+//                    QRhs_pcr += ps[j][d]*fMap[i][j];
+//                    QRhs_pccr += pcr[j][d]*fMap[i][j];
+//                    QRhs_pdcr += pdr[j][d]*fMap[i][j];
+//                }
+//            }
 
-            for(size_t n = 0; n < obj->patchesOnSameOriginalPatch[i].size(); n++){
-                int j = obj->patchesOnSameOriginalPatch[i][n];
+//            for(size_t n = 0; n < obj->patchesOnSameOriginalPatch[i].size(); n++){
+//                int j = obj->patchesOnSameOriginalPatch[i][n];
 
-                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
-                    QRhs_pcl += pcl[j][d]*on_same_patch[i][j];
-                    QRhs_pccl += pccl[j][d]*on_same_patch[i][j];
-                    QRhs_pdcl += pdcl[j][d]*on_same_patch[i][j];
-                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
-                    QRhs_pcr += pcr[j][d]*on_same_patch[i][j];
-                    QRhs_pccr += pccr[j][d]*on_same_patch[i][j];
-                    QRhs_pdcr += pdcr[j][d]*on_same_patch[i][j];
-                }
-                QRhs_pdl += pccl[j][d]*on_same_patch[i][j];
-                QRhs_pdr += pccr[j][d]*on_same_patch[i][j];
-            }
-            model.addQConstr( pcl[i][d] <= QRhs_pcl);
-            model.addQConstr( pccl[i][d] <= QRhs_pccl);
-            model.addQConstr( 2 * pdl[i][d] <= QRhs_pdl);
-            model.addQConstr( pdcl[i][d] <= QRhs_pdcl);
-            model.addQConstr( pcr[i][d] <= QRhs_pcr);
-            model.addQConstr( pccr[i][d] <= QRhs_pccr);
-            model.addQConstr( 2 * pdr[i][d] <= QRhs_pdr);
-            model.addQConstr( pdcr[i][d] <= QRhs_pdcr);
-        }
-    }
-    for (size_t i = 0; i < patchSize; i++){
-        for (size_t d = 1; d < MAX_STABILITY_DEPTH; d++){
-            GRBQuadExpr QRhs_ps = *new GRBQuadExpr();
-            for (size_t smaller_d = 0; smaller_d < d; smaller_d++){
-                QRhs_ps += pcl[i][d - 1] * pcr[i][smaller_d] + pcl[i][smaller_d] * pcr[i][d - 1];
+//                if (obj->isLeftOrRightNeighbor(i, j) == 0) {
+//                    QRhs_pcl += pcl[j][d]*on_same_patch[i][j];
+//                    QRhs_pccl += pccl[j][d]*on_same_patch[i][j];
+//                    QRhs_pdcl += pdcl[j][d]*on_same_patch[i][j];
+//                } else if (obj->isLeftOrRightNeighbor(i, j) == 1) {
+//                    QRhs_pcr += pcr[j][d]*on_same_patch[i][j];
+//                    QRhs_pccr += pccr[j][d]*on_same_patch[i][j];
+//                    QRhs_pdcr += pdcr[j][d]*on_same_patch[i][j];
+//                }
+//                QRhs_pdl += pccl[j][d]*on_same_patch[i][j];
+//                QRhs_pdr += pccr[j][d]*on_same_patch[i][j];
+//            }
+//            model.addQConstr( pcl[i][d] <= QRhs_pcl);
+//            model.addQConstr( pccl[i][d] <= QRhs_pccl);
+//            model.addQConstr( 2 * pdl[i][d] <= QRhs_pdl);
+//            model.addQConstr( pdcl[i][d] <= QRhs_pdcl);
+//            model.addQConstr( pcr[i][d] <= QRhs_pcr);
+//            model.addQConstr( pccr[i][d] <= QRhs_pccr);
+//            model.addQConstr( 2 * pdr[i][d] <= QRhs_pdr);
+//            model.addQConstr( pdcr[i][d] <= QRhs_pdcr);
+//        }
+//    }
+//    for (size_t i = 0; i < patchSize; i++){
+//        for (size_t d = 1; d < MAX_STABILITY_DEPTH; d++){
+//            GRBQuadExpr QRhs_ps = *new GRBQuadExpr();
+//            for (size_t smaller_d = 0; smaller_d < d; smaller_d++){
+//                QRhs_ps += pcl[i][d - 1] * pcr[i][smaller_d] + pcl[i][smaller_d] * pcr[i][d - 1];
 
-                QRhs_ps += pdl[i][d - 1] * pdr[i][smaller_d] + pdl[i][smaller_d] * pdr[i][d - 1];
+//                QRhs_ps += pdl[i][d - 1] * pdr[i][smaller_d] + pdl[i][smaller_d] * pdr[i][d - 1];
 
-                QRhs_ps += pdcl[i][d - 1] * pdcr[i][smaller_d] + pdcl[i][smaller_d] * pdcr[i][d - 1];
+//                QRhs_ps += pdcl[i][d - 1] * pdcr[i][smaller_d] + pdcl[i][smaller_d] * pdcr[i][d - 1];
 
-                QRhs_ps += pcl[i][d - 1] * pccr[i][smaller_d] + pcl[i][smaller_d] * pccr[i][d - 1]
-                        + pccl[i][d - 1] * pcr[i][smaller_d] + pccl[i][smaller_d] * pcr[i][d - 1];
-                QRhs_ps += pcl[i][d - 1] * pdr[i][smaller_d] + pcl[i][smaller_d] * pdr[i][d - 1]
-                        + pdl[i][d - 1] * pcr[i][smaller_d] + pdl[i][smaller_d] * pcr[i][d - 1];
-                QRhs_ps += pcl[i][d - 1] * pdcr[i][smaller_d] + pcl[i][smaller_d] * pdcr[i][d - 1]
-                        + pdcl[i][d - 1] * pcr[i][smaller_d] + pdcl[i][smaller_d] * pcr[i][d - 1];
+//                QRhs_ps += pcl[i][d - 1] * pccr[i][smaller_d] + pcl[i][smaller_d] * pccr[i][d - 1]
+//                        + pccl[i][d - 1] * pcr[i][smaller_d] + pccl[i][smaller_d] * pcr[i][d - 1];
+//                QRhs_ps += pcl[i][d - 1] * pdr[i][smaller_d] + pcl[i][smaller_d] * pdr[i][d - 1]
+//                        + pdl[i][d - 1] * pcr[i][smaller_d] + pdl[i][smaller_d] * pcr[i][d - 1];
+//                QRhs_ps += pcl[i][d - 1] * pdcr[i][smaller_d] + pcl[i][smaller_d] * pdcr[i][d - 1]
+//                        + pdcl[i][d - 1] * pcr[i][smaller_d] + pdcl[i][smaller_d] * pcr[i][d - 1];
 
-                QRhs_ps += pccl[i][d - 1] * pdr[i][smaller_d] + pccl[i][smaller_d] * pdr[i][d - 1]
-                        + pdl[i][d - 1] * pccr[i][smaller_d] + pdl[i][smaller_d] * pccr[i][d - 1];
+//                QRhs_ps += pccl[i][d - 1] * pdr[i][smaller_d] + pccl[i][smaller_d] * pdr[i][d - 1]
+//                        + pdl[i][d - 1] * pccr[i][smaller_d] + pdl[i][smaller_d] * pccr[i][d - 1];
 
-                QRhs_ps += pdl[i][d - 1] * pdcr[i][smaller_d] + pdl[i][smaller_d] * pdcr[i][d - 1]
-                        + pdcl[i][d - 1] * pdr[i][smaller_d] + pdcl[i][smaller_d] * pdr[i][d - 1];
-            }
-            model.addQConstr( ps[i][d] <= QRhs_ps );
-        }
-    }
-    model.addQConstr( s[obj->floorPatch][0] == 1 );
-    model.addQConstr( s[obj->backPatch][0] == 1 );
+//                QRhs_ps += pdl[i][d - 1] * pdcr[i][smaller_d] + pdl[i][smaller_d] * pdcr[i][d - 1]
+//                        + pdcl[i][d - 1] * pdr[i][smaller_d] + pdcl[i][smaller_d] * pdr[i][d - 1];
+//            }
+//            model.addQConstr( ps[i][d] <= QRhs_ps );
+//        }
+//    }
+//    model.addQConstr( s[obj->floorPatch][0] == 1 );
+//    model.addQConstr( s[obj->backPatch][0] == 1 );
 
-    for (size_t i = 0; i < patchSize; i++){
-        GRBQuadExpr sum = *new GRBQuadExpr(0);
-        sum = 0;
-        for (size_t d = 0; d < MAX_STABILITY_DEPTH; d++){
-            sum += ps[i][d];
-        }
-        model.addQConstr(sum == 1);
-    }
+//    for (size_t i = 0; i < patchSize; i++){
+//        GRBQuadExpr sum = *new GRBQuadExpr(0);
+//        sum = 0;
+//        for (size_t d = 0; d < MAX_STABILITY_DEPTH; d++){
+//            sum += ps[i][d];
+//        }
+//        model.addQConstr(sum == 1);
+//    }
 
-   /*
-    for(int i=0; i<patchSize; i++){
-        for(int j=0; j<patchSize; j++){
-            //1,2,3
-            //model.addQConstr( s[i]*(1-fMap[i][j]-cMap[i][j]) == s[j]*(1-fMap[i][j]-cMap[i][j]));
-            for(int k = 0; k<patchSize; k++){
-                //model.addQConstr( a[i][k]*( 1-fMap[i][j] ) == a[j][k]*( 1-fMap[i][j]) );
-                //model.addQConstr( b[i][k]*( 1-fMap[i][j]-cMap[i][j] ) == b[j][k]*( 1-fMap[i][j]-cMap[i][j]) );
-            }
-        }
-    }
-    */
+//   /*
+//    for(int i=0; i<patchSize; i++){
+//        for(int j=0; j<patchSize; j++){
+//            //1,2,3
+//            //model.addQConstr( s[i]*(1-fMap[i][j]-cMap[i][j]) == s[j]*(1-fMap[i][j]-cMap[i][j]));
+//            for(int k = 0; k<patchSize; k++){
+//                //model.addQConstr( a[i][k]*( 1-fMap[i][j] ) == a[j][k]*( 1-fMap[i][j]) );
+//                //model.addQConstr( b[i][k]*( 1-fMap[i][j]-cMap[i][j] ) == b[j][k]*( 1-fMap[i][j]-cMap[i][j]) );
+//            }
+//        }
+//    }
+//    */
 }
 
 void popupObjOptimization::connectivity(popupObject *obj, GRBModel &model){

@@ -55,6 +55,9 @@ private:
     void createItems();
     void processPopup();
 
+
+    void createMenus();
+
 private slots:
     void chooseInputImage();
     void chooseBasePatch();

@@ -4,7 +4,6 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
-            
     ui->setupUi(this);
     ui->label_backdrop->installEventFilter(this);
     ui->label_resultLayout->installEventFilter(this);
@@ -36,11 +35,24 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, SLOT(setScalse(int)));
         
     ui->tabWidget->setCurrentIndex(0);
+
+    createMenus();
+
 }
 
 MainWindow::~MainWindow(){
     delete obj;
     delete ui;
+}
+
+void MainWindow::createMenus()
+{
+    QMenu *file_menu = menuBar()->addMenu(tr("&File"));
+
+    QAction *load_act = file_menu->addAction(tr("Load"));
+    load_act->setShortcut(tr("Ctrl+L"));
+    connect(load_act, SIGNAL(triggered()),
+            this, SLOT(loadImage()));
 }
 
 void MainWindow::onItemClicked(QListWidgetItem *item){
