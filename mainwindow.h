@@ -58,6 +58,7 @@ private:
     void processPopup();
 
     void createMenus();
+    void loadImage();
 
 private slots:
 public slots:

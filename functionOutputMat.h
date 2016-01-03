@@ -9,6 +9,8 @@
 #ifndef functionOutputMat_h
 #define functionOutputMat_h
 
+#include <opencv2/highgui/highgui.hpp>
+
 static void outputMat(int i, std::string folder, std::string title, cv::Mat &output){
     
     std::ostringstream oss;

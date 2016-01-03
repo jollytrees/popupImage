@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QFileDialog>
+#include <QMessageBox>
+
+#include <opencv2/highgui/highgui.hpp>
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
@@ -37,7 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->horizontalSlider, SIGNAL(valueChanged(int)),
                      this, SLOT(setScalse(int)));
         
-    ui->tabWidget->setCurrentIndex(0);
+//    image_segmentation_widget = new ImageSegmentationWidget();
+    ui->tabWidget->setCurrentIndex(4);
 
     createMenus();
 
@@ -56,6 +63,27 @@ void MainWindow::createMenus()
     load_act->setShortcut(tr("Ctrl+L"));
     connect(load_act, SIGNAL(triggered()),
             this, SLOT(loadImage()));
+}
+
+
+void MainWindow::loadImage()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Please select the image."), tr("/Users/chenliu/Project/Popup/popupImage"));
+
+
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QImage image(filename);
+    if (image.isNull()) {
+        QMessageBox::information(this, tr("popupImage"),
+                                 tr("Cannot load %1.").arg(filename));
+        return;
+    }
+
+    ui->image_segmentation_widget->setImage(image);
+
 }
 
 void MainWindow::onItemClicked(QListWidgetItem *item){
@@ -213,7 +241,7 @@ void MainWindow::processPopup(){
     algoList.execute(obj, "main", true);
 
     //draw 3d scene
-    ui->openGLWidget->setObj(obj);
+//    ui->openGLWidget->setObj(obj);
     
     //set label_resultLayout
     cv::Mat possiblePatchMat = drawPatch(obj->possiblePatches, obj->initMatSize);

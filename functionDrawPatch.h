@@ -9,6 +9,8 @@
 #ifndef functionDrawPatch_h
 #define functionDrawPatch_h
 
+#include <opencv/cv.h>
+
 static void drawBinaryPatchByPath(paths_type &paths, cv::Mat &outMat){
     for(int i = 0; i < paths.size(); i++){
         if(i==0)

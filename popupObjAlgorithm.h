@@ -11,6 +11,9 @@
 
 #include "popupObject.h"
 
+#include <list>
+
+
 //interface of algorithms
 class popupObjAlgorithm
 {

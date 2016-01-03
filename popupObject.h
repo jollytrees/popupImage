@@ -10,6 +10,12 @@
 #define popupObject_h
 #include <iostream>
 #include <vector>
+#include <map>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv/cv.h>
 
 using namespace std;
 
@@ -105,7 +111,7 @@ public:
     std::vector<std::vector<std::vector<foldLineType*> > > boundaryFoldLineConnGroupMap;
     
     //8. after merge
-    //std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
+    std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
     vector<vector<cv::Mat> >activeBlobMatOfPatch;

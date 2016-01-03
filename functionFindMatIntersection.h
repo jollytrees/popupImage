@@ -9,6 +9,9 @@
 #ifndef fuctionFindMatIntersection_h
 #define fuctionFindMatIntersection_h
 
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv/cv.h>
+
 static void checkType(cv::Mat &input){
     if(input.type() == CV_8UC3) input.convertTo(input, CV_8UC1);
 }

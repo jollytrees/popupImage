@@ -8,6 +8,9 @@
 
 #include "drawBoundaryLine.hpp"
 #include "functionOutputMat.h"
+
+#include <opencv2/imgproc/imgproc.hpp>
+
 using namespace std;
 
 bool drawBoundaryLine::execute(popupObject *obj)
@@ -23,7 +26,7 @@ bool drawBoundaryLine::execute(popupObject *obj)
         /// draw contours
         for( int j = 0; j< contours.size(); j++ )
         {
-            drawContours( canvas, contours, j, blue, 2, 8 );
+            cv::drawContours( canvas, contours, j, blue, 2, 8 );
         }
 
         outputMat(i, "drawBoundaryLine", "boundaryLine", canvas);

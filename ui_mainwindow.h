@@ -29,8 +29,7 @@
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
-#include "OGLWidget.h"
-
+#include <imagesegmentationwidget.h>
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
@@ -58,7 +57,9 @@ public:
     QRadioButton *radio_original;
     QRadioButton *radio_final;
     QWidget *tab_7;
-    OGLWidget *openGLWidget;
+    QWidget *tab_3;
+    ImageSegmentationWidget *image_segmentation_widget;
+//    OGLWidget *openGLWidget;
     QSlider *horizontalSlider;
     QLineEdit *lineEdit;
     QMenuBar *menuBar;
@@ -136,9 +137,16 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab_5), QStringLiteral("result"));
         tab_7 = new QWidget();
         tab_7->setObjectName(QStringLiteral("tab_7"));
-        openGLWidget = new OGLWidget(tab_7);
-        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
-        openGLWidget->setGeometry(QRect(50, 70, 731, 711));
+//        openGLWidget = new OGLWidget(tab_7);
+//        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
+//        openGLWidget->setGeometry(QRect(50, 70, 731, 711));
+        tab_3 = new QWidget();
+        tab_3->setObjectName(QStringLiteral("tab_3"));
+        image_segmentation_widget = new ImageSegmentationWidget(tab_3);
+        image_segmentation_widget->setObjectName(QStringLiteral("image_segmentation_widget"));
+        image_segmentation_widget->setGeometry(QRect(50, 70, 731, 711));
+        tabWidget->addTab(tab_3, QString());
+
         horizontalSlider = new QSlider(tab_7);
         horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
         horizontalSlider->setGeometry(QRect(790, 140, 141, 22));

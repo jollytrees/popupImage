@@ -10,6 +10,7 @@
 #ifndef functionEventFilter_h
 #define functionEventFilter_h
 
+#include <opencv/cv.h>
 
 static void eventChooseBackdrop(popupObject *obj, cv::Point p, QLabel *label_backdrop){
 
@@ -56,7 +57,7 @@ static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat){
     
     for(size_t i=0; i< obj->possiblePatches.size(); i++){
         if(obj->orientation[i]!=0.0){
-            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blue, CV_FILLED);
+            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blue, cv::FILLED);
         }
     }
     drawPatchWOClearMat(obj->classifiedPatches, resultsMat);

@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -250,7 +250,7 @@
      <attribute name="title">
       <string>3d scene</string>
      </attribute>
-     <widget class="OGLWidget" name="openGLWidget">
+     <widget class="OGLWidget" name="openGLWidget" native="true">
       <property name="geometry">
        <rect>
         <x>50</x>
@@ -293,6 +293,21 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>ImageSegmentation</string>
+     </attribute>
+     <widget class="ImageSegmentationWidget" name="image_segmentation_widget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>59</x>
+        <y>20</y>
+        <width>741</width>
+        <height>311</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -319,8 +334,14 @@
  <customwidgets>
   <customwidget>
    <class>OGLWidget</class>
-   <extends>QOpenGLWidget</extends>
+   <extends>QWidget</extends>
    <header>OGLWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ImageSegmentationWidget</class>
+   <extends>QWidget</extends>
+   <header>imagesegmentationwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
