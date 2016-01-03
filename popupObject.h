@@ -10,14 +10,6 @@
 #define popupObject_h
 #include <iostream>
 #include <vector>
-#include <map>
-#include <list>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv/cv.h>
-//#include <opencv2/imgcodecs/imgcodecs.hpp>
 
 using namespace std;
 
@@ -25,6 +17,7 @@ using namespace std;
 struct patches{
     std::vector<std::vector<cv::Point> > paths;
     cv::Mat pchMat;
+    int patchIdx;
 };
 
 typedef std::vector<std::vector<cv::Point> > paths_type;
@@ -49,11 +42,16 @@ public:
     bool isConnLine;
     bool isOriginalFoldLine;
     vector<int> originalConnPatch;
+    vector<int> finalConnPatch;
     vector<int> connPatch;
     vector<int> connOriFoldLine;
     int foldLineIdx;
 };
 
+class lineType{
+public:
+    std::pair<cv::Point, cv::Point> line;
+};
 
 
 class popupObject
@@ -107,7 +105,7 @@ public:
     std::vector<std::vector<std::vector<foldLineType*> > > boundaryFoldLineConnGroupMap;
     
     //8. after merge
-    std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
+    //std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
     vector<vector<cv::Mat> >activeBlobMatOfPatch;
@@ -139,7 +137,7 @@ public:
     vector<double> X;
     vector<double> Y;
     vector<double> oriX;
-    vector<vector<pair<int,int > > > positionLineIdxOfPatch;
+    vector<vector<pair<int,int> > > positionLineIdxOfPatch;
     vector<vector<int> > foldLineToPositionLine;
     map<int, int> positionLineToFoldLine;
     vector<vector<int> > neighborsOfOriginalPatch;
@@ -155,6 +153,15 @@ public:
     
     vector<double> activeFoldLine;
     vector<double> orientation;
+    
+    //merge patches
+    std::vector< struct patches* > mergedPatches;
+    std::vector< std::vector< struct patches*> > mergedPatchesOfPatch;
+    
+    //find final path
+    vector<vector<int> > finalPaths;
+
+    
 };
 
 

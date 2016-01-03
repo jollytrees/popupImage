@@ -185,7 +185,7 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         }
         std::ostringstream oss;
         oss << i;
-        std::string str = "./ExtendFoldLineAndFindActiveBolb/"+oss.str()+".png";
+        std::string str = "../ExtendFoldLineAndFindActiveBolb/"+oss.str()+".png";
         imwrite(str, canvas);
         
         //find blob
@@ -197,6 +197,8 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         
         vector<cv::Mat> activePatchBlobMat;
         vector<pair<int,int> > activePatchFoldLine;
+        vector< pair<lineType, lineType> > activeExtentedLine;
+
 
         for(size_t j=0; j< blobMat.size(); j++){
         
@@ -210,23 +212,29 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
                 bool isActive = isActiveBlob( greyMat, patchExtendedLine, (int)i, (int)j, maxIdx);
                 if(isActive){
                     
-                    std::string str = "./ExtendFoldLineAndFindActiveBolb/blobMat"+oss.str()+".png";
-                    //imwrite(str, blobMat[j]);
+                    std::string str = "../ExtendFoldLineAndFindActiveBolb/blobMat"+oss.str()+".png";
+                    imwrite(str, blobMat[j]);
                     int fidx1 = patchExtendedLineToFoldLine[maxIdx.first];
                     int fidx2 = patchExtendedLineToFoldLine[maxIdx.second];
+                    //cout << fidx1 <<" " <<fidx2 << endl;
+
                     activePatchBlobMat.push_back(blobMat[j]);
                     activePatchFoldLine.push_back(make_pair(fidx1, fidx2));
+                    lineType line1, line2;
+                    line1.line = patchExtendedLine[maxIdx.first];
+                    line2.line = patchExtendedLine[maxIdx.second];
+                    activeExtentedLine.push_back(make_pair(line1, line2));
+                    
                 }
             }
-            std::string str = "./ExtendFoldLineAndFindActiveBolb/allblobMat"+oss.str()+".png";
-            //imwrite(str, blobMat[j]);
-
-
+            std::string str = "../ExtendFoldLineAndFindActiveBolb/allblobMat"+oss.str()+".png";
+            imwrite(str, blobMat[j]);
         
         }
         
-       obj->activeBlobMatOfPatch.push_back(activePatchBlobMat);
-       obj->activeBlobFoldLineOfPatch.push_back(activePatchFoldLine);
+        obj->activeBlobMatOfPatch.push_back(activePatchBlobMat);
+        obj->activeBlobFoldLineOfPatch.push_back(activePatchFoldLine);
+        //obj->activeExtendedLineOfPatch.push_back(activeExtentedLine);
 
     }
     return true;

@@ -33,6 +33,25 @@ static int findMatIntersectionRInt( cv::Mat input1,  cv::Mat input2, cv::Mat &ou
     
 }
 
+static int findMatIntersectionInt( cv::Mat input1,  cv::Mat input2, cv::Mat &output){
+    
+    cv::Mat addImg(input1.size(), CV_8UC1);
+    checkType(input1);
+    checkType(input2);
+    
+    addImg = input1 & input2;
+    
+    int count = cv::countNonZero(addImg);
+    
+    if(count>3){
+        output = addImg.clone();
+        return count;
+    }
+    
+    return count;
+    
+}
+
 static bool findMatIntersection( cv::Mat input1,  cv::Mat input2, cv::Mat &output){
     
     cv::Mat addImg(input1.size(), CV_8UC1);
@@ -68,6 +87,28 @@ static bool isLineAndMatConn(foldLineType &line, cv::Mat &inputMat, std::vector<
             return true;
     }
     return false;
+    
+}
+
+static int isLineAndPatchConnInt(struct patches &pch, foldLineType &line, cv::Size &matSize){
+    cv::Mat lineImg(matSize, CV_8UC1);
+    cv::Mat patchImg(matSize, CV_8UC1);
+    cv::Mat addImg(matSize, CV_8UC1);
+    lineImg.setTo(0);
+    patchImg.setTo(0);
+    addImg.setTo(0);
+    
+    //line
+    cv::line(lineImg, line.line.first, line.line.second, 255, 8);
+    
+    //patch
+    cv::drawContours(patchImg, pch.paths, 0, 255, CV_FILLED);
+    
+    
+    int isConn = findMatIntersectionInt(lineImg, patchImg, addImg);
+    //if(isConn) imshow("aa", addImg);
+    
+    return isConn;
     
 }
 

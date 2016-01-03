@@ -23,11 +23,13 @@
 #include "popupObjGraphFindAllPath.hpp"
 #include "popupObjFindfoldLinePath.hpp"
 #include "popupObjOptimization.hpp"
+#include "popupObjmergeFinalPatches.hpp"
+#include "popupObjFindFinalPath.hpp"
 
 //draw fuction
 #include "functionMat2QImage.h"
 #include "functionDrawPatch.h"
-#include "drawBoundaryLine.hpp"
+#include "drawBoundaryLine.hpp"
 #include "functionLabelContour.h"
 #include "functionEventFilter.h"
 
@@ -55,10 +57,10 @@ private:
     void createItems();
     void processPopup();
 
-
     void createMenus();
 
 private slots:
+public slots:
     void chooseInputImage();
     void chooseBasePatch();
     void onItemClicked(QListWidgetItem * item);

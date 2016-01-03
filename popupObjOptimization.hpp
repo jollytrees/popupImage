@@ -17,7 +17,7 @@ class popupObjOptimization : public popupObjAlgorithm
 {
 public:
     virtual bool execute(popupObject *obj);
-    
+    //push
     void initialize(popupObject *obj, GRBModel &model);
     void foldability(popupObject *obj, GRBModel &model);
     void stability(popupObject *obj, GRBModel &model);
