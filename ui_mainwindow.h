@@ -29,7 +29,11 @@
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QBoxLayout>
+#include <oglwidget.h>
 #include <imagesegmentationwidget.h>
+
+
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
@@ -39,6 +43,12 @@ public:
     QTabWidget *tabWidget;
     QWidget *tab;
     QPushButton *pushButton;
+    QGroupBox *segmentation_button_group;
+    QVBoxLayout *segmentation_button_layout;
+    QPushButton *start_segmentation_button;
+    QPushButton *refine_segmentation_button;
+    QPushButton *clear_segmentation_button;
+    QPushButton *confirm_segmentation_button;
     QLabel *label_pic1;
     QLabel *label_pic2;
     QLabel *label_pic3;
@@ -59,7 +69,7 @@ public:
     QWidget *tab_7;
     QWidget *tab_3;
     ImageSegmentationWidget *image_segmentation_widget;
-//    OGLWidget *openGLWidget;
+    OGLWidget *openGLWidget;
     QSlider *horizontalSlider;
     QLineEdit *lineEdit;
     QMenuBar *menuBar;
@@ -137,16 +147,9 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab_5), QStringLiteral("result"));
         tab_7 = new QWidget();
         tab_7->setObjectName(QStringLiteral("tab_7"));
-//        openGLWidget = new OGLWidget(tab_7);
-//        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
-//        openGLWidget->setGeometry(QRect(50, 70, 731, 711));
-        tab_3 = new QWidget();
-        tab_3->setObjectName(QStringLiteral("tab_3"));
-        image_segmentation_widget = new ImageSegmentationWidget(tab_3);
-        image_segmentation_widget->setObjectName(QStringLiteral("image_segmentation_widget"));
-        image_segmentation_widget->setGeometry(QRect(50, 70, 731, 711));
-        tabWidget->addTab(tab_3, QString());
-
+        openGLWidget = new OGLWidget(tab_7);
+        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
+        openGLWidget->setGeometry(QRect(50, 70, 731, 711));
         horizontalSlider = new QSlider(tab_7);
         horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
         horizontalSlider->setGeometry(QRect(790, 140, 141, 22));
@@ -157,6 +160,31 @@ public:
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
         lineEdit->setGeometry(QRect(800, 100, 113, 21));
         tabWidget->addTab(tab_7, QString());
+
+        tab_3 = new QWidget();
+        tab_3->setObjectName(QStringLiteral("tab_3"));
+        image_segmentation_widget = new ImageSegmentationWidget(tab_3);
+        image_segmentation_widget->setObjectName(QStringLiteral("image_segmentation_widget"));
+        image_segmentation_widget->setGeometry(QRect(50, 70, 731, 600));
+        tabWidget->addTab(tab_3, QString());
+        tabWidget->setTabText(tabWidget->indexOf(tab_3), QStringLiteral("Image Segmentation"));
+        segmentation_button_group = new QGroupBox(tab_3);
+        segmentation_button_group->setGeometry(QRect(800, 100, 100, 200));
+        start_segmentation_button = new QPushButton(segmentation_button_group);
+        start_segmentation_button->setText("Segment");
+        refine_segmentation_button = new QPushButton(segmentation_button_group);
+        refine_segmentation_button->setText("Refine");
+        clear_segmentation_button = new QPushButton(segmentation_button_group);
+        clear_segmentation_button->setText("Clear");
+        confirm_segmentation_button = new QPushButton(segmentation_button_group);
+        confirm_segmentation_button->setText("Confirm");
+        segmentation_button_layout = new QVBoxLayout(tab_3);
+        segmentation_button_layout->addWidget(start_segmentation_button);
+        segmentation_button_layout->addWidget(refine_segmentation_button);
+        segmentation_button_layout->addWidget(clear_segmentation_button);
+        segmentation_button_layout->addWidget(confirm_segmentation_button);
+        segmentation_button_group->setLayout(segmentation_button_layout);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -177,6 +205,11 @@ public:
         QObject::connect(radio_original, SIGNAL(clicked()), MainWindow, SLOT(showOriginalPatches()));
         QObject::connect(radio_final, SIGNAL(clicked()), MainWindow, SLOT(showFinalPatches()));
         QObject::connect(horizontalSlider, SIGNAL(valueChanged(int)), MainWindow, SLOT(setScale()));
+
+        QObject::connect(start_segmentation_button, SIGNAL(clicked()), MainWindow, SLOT(startSegmentation()));
+        QObject::connect(refine_segmentation_button, SIGNAL(clicked()), MainWindow, SLOT(refineSegmentation()));
+        QObject::connect(clear_segmentation_button, SIGNAL(clicked()), MainWindow, SLOT(clearSegmentation()));
+        QObject::connect(confirm_segmentation_button, SIGNAL(clicked()), MainWindow, SLOT(confirmSegmentation()));
 
         tabWidget->setCurrentIndex(3);
 

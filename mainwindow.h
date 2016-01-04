@@ -54,14 +54,22 @@ private:
     popupObject *obj;
     popupObjAlgorithmList algoList;
     int caseNum;
+
+    int image_width;
+    int image_height;
+    std::vector<int> patch_index_mask;
+
     void createItems();
     void processPopup();
 
     void createMenus();
-    void loadImage();
 
 private slots:
 public slots:
+    void loadImage();
+    void saveSegmentation();
+    void loadSegmentation();
+
     void chooseInputImage();
     void chooseBasePatch();
     void onItemClicked(QListWidgetItem * item);
@@ -70,6 +78,11 @@ public slots:
     void showOriginalPatches();
     void showFinalPatches();
     void setScalse(int);
+
+    void startSegmentation();
+    void refineSegmentation();
+    void clearSegmentation();
+    void confirmSegmentation();
 };
 
 #endif // MAINWINDOW_H

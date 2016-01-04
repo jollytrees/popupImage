@@ -47,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setCurrentIndex(4);
 
     createMenus();
-
 }
 
 MainWindow::~MainWindow(){
@@ -59,16 +58,27 @@ void MainWindow::createMenus()
 {
     QMenu *file_menu = menuBar()->addMenu(tr("&File"));
 
-    QAction *load_act = file_menu->addAction(tr("Load"));
-    load_act->setShortcut(tr("Ctrl+L"));
-    connect(load_act, SIGNAL(triggered()),
+    QAction *load_image_act = file_menu->addAction(tr("Load Image"));
+    load_image_act->setShortcut(tr("Ctrl+L"));
+    connect(load_image_act, SIGNAL(triggered()),
             this, SLOT(loadImage()));
+
+    QAction *load_segmentation_act = file_menu->addAction(tr("Load Segmentation"));
+    load_segmentation_act->setShortcut(tr("Ctrl+P"));
+    connect(load_segmentation_act, SIGNAL(triggered()),
+            this, SLOT(loadSegmentation()));
+
+    QAction *save_segmentation_act = file_menu->addAction(tr("Save Segmentation"));
+    save_segmentation_act->setShortcut(tr("Ctrl+S"));
+    connect(save_segmentation_act, SIGNAL(triggered()),
+            this, SLOT(saveSegmentation()));
+
 }
 
 
 void MainWindow::loadImage()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr("Please select the image."), tr("/Users/chenliu/Project/Popup/popupImage"));
+    QString filename = QFileDialog::getOpenFileName(this, tr("Please select the image."));
 
 
     if (filename.isEmpty()) {
@@ -83,7 +93,41 @@ void MainWindow::loadImage()
     }
 
     ui->image_segmentation_widget->setImage(image);
+    image_width = image.width();
+    image_height = image.height();
+}
 
+void MainWindow::loadSegmentation()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Please select the segmentation file."), QString(), tr("Text Files(*.txt)"));
+
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    ifstream in_str(filename.toStdString().c_str());
+    in_str >> image_width >> image_height;
+    patch_index_mask.assign(image_width * image_height, 0);
+    for (int pixel = 0; pixel < image_width * image_height; pixel++)
+        in_str >> patch_index_mask[pixel];
+    in_str.close();
+
+    ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
+}
+
+void MainWindow::saveSegmentation()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save Segmentation"), QString(), tr("Text Files(*.txt)"));
+
+    if (filename.isEmpty())
+        return;
+
+    ofstream out_str(filename.toStdString().c_str());
+    out_str << image_width << '\t' << image_height << endl;
+
+    for (int i = 0; i < image_width * image_height; i++)
+        out_str << patch_index_mask[i] << endl;
+    out_str.close();
 }
 
 void MainWindow::onItemClicked(QListWidgetItem *item){
@@ -278,4 +322,26 @@ void MainWindow::chooseInputImage(){
     ui->label_backdrop->setPixmap(QPixmap::fromImage(image));
     ui->tabWidget->setCurrentIndex(1);
     
+}
+
+void MainWindow::startSegmentation()
+{
+    ui->image_segmentation_widget->segmentImage();
+    patch_index_mask = ui->image_segmentation_widget->getSegmentation();
+    ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
+}
+
+void MainWindow::refineSegmentation()
+{
+    ui->image_segmentation_widget->showOriginalImage();
+}
+
+void MainWindow::clearSegmentation()
+{
+    ui->image_segmentation_widget->clearUserIndication();
+    ui->image_segmentation_widget->showOriginalImage();
+}
+
+void MainWindow::confirmSegmentation()
+{
 }

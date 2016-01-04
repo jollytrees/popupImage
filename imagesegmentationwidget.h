@@ -6,10 +6,6 @@
 #include <QPoint>
 
 #include <vector>
-#include <set>
-
-
-using namespace std;
 
 class ImageSegmentationWidget : public QWidget
 {
@@ -21,14 +17,16 @@ public:
     ~ImageSegmentationWidget();
 
     void setImage(const QImage &image);
-    void setSegmentation(const vector<int> &segmentation);
+    void setSegmentation(const std::vector<int> &segmentation, const int IMAGE_WIDTH, const int IMAGE_HEIGHT);
     void updateImages();
-    vector<int> getSegmentation();
+    std::vector<int> getSegmentation();
+    void segmentImage();
+    void clearUserIndication();
 
 private:
     QImage *image_;
     QImage *segmentation_image_;
-    vector<int> segmentation_;
+    std::vector<int> segmentation_;
 
     int num_segments_;
 
@@ -38,20 +36,22 @@ private:
     float zoom_scale_;
     QPoint last_position_;
 
-    vector<QPoint> user_indication_points_;
-    vector<int> indicated_points_;
+    std::vector<QPoint> user_indication_points_;
+    std::vector<int> indicated_points_;
 
 
 
-    vector<int> convertPoints(const vector<QPoint> &drawed_points);
+    std::vector<int> convertPoints(const std::vector<QPoint> &drawed_points);
     int readIndex(const QPoint point);
 
-    void drawSegmentation();
+    void drawSegmentation(const int IMAGE_WIDTH, const int IMAGE_HEIGHT);
 
+    std::vector<QPoint> calcIntermediatePoints(const QPoint &point_1, const QPoint &point_2);
 
 protected:
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 
 public slots:

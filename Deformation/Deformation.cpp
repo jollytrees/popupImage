@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <map>
 #include <set>
 #include <tuple>
@@ -35,6 +36,8 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
 
   for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
     int patch_index = patch_index_mask[pixel];
+    if (patch_index == -1)
+      continue;
     int x = pixel % IMAGE_WIDTH;
     int y = pixel / IMAGE_WIDTH;
     if (x < patch_min_xs[patch_index])
@@ -62,7 +65,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
     
     for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
       int neighbor_patch_index = patch_index_mask[*neighbor_pixel_it];
-      if (neighbor_patch_index != patch_index)
+      if (neighbor_patch_index != patch_index && neighbor_patch_index != -1)
 	patch_neighbors[patch_index].insert(neighbor_patch_index);
     }
   }
@@ -119,7 +122,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
     int y = pixel / IMAGE_WIDTH;
     for (int delta_y = -FOLD_LINE_WINDOW_HEIGHT / 2; delta_y <= FOLD_LINE_WINDOW_HEIGHT / 2; delta_y++) {
       for (int delta_x = -FOLD_LINE_WINDOW_WIDTH / 2; delta_x <= FOLD_LINE_WINDOW_WIDTH / 2; delta_x++) {
-	if (delta_x == 0)
+	if (delta_x == 0 || patch_index_mask[(y + delta_y) * IMAGE_WIDTH + (x + delta_x)] == -1)
 	  continue;
 	if (x + delta_x < 0 || x + delta_x >= IMAGE_WIDTH || y + delta_y < 0 || y + delta_y >= IMAGE_HEIGHT)
 	  continue;
@@ -188,8 +191,8 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
   }
 
   set<int> background_patches;
-  background_patches.insert(patch_index_mask[0]);
-  background_patches.insert(patch_index_mask[IMAGE_WIDTH * IMAGE_HEIGHT - 1]);
+  background_patches.insert(patch_index_mask[IMAGE_WIDTH + 1]);
+  background_patches.insert(patch_index_mask[(IMAGE_HEIGHT - 2) * IMAGE_WIDTH + (IMAGE_WIDTH - 2)]);
   for (int patch_index = 0; patch_index < num_patches; patch_index++) {
     if (background_patches.count(patch_index) > 0)
       continue;
@@ -684,8 +687,8 @@ int main(int argc, char *argv[])
 {
   string image_name = "bear_ill";
   Mat image = imread("Test/" + image_name + ".png");
-  grabCut(image);
-  exit(1);
+  //  grabCut(image);
+  //exit(1);
   const int IMAGE_WIDTH = image.cols;
   const int IMAGE_HEIGHT = image.rows;
   vector<int> patch_index_mask(IMAGE_WIDTH * IMAGE_HEIGHT, -1);
@@ -829,6 +832,14 @@ int main(int argc, char *argv[])
       cout << "Cannot deform patch image." << endl;
   }
 
+  ifstream patch_index_mask_in_str("Test/bear_segmentation.txt");
+  int width, height;
+  patch_index_mask_in_str >> width >> height;
+  patch_index_mask.assign(width * height, 0);
+  for (int pixel = 0; pixel < width * height; pixel++)
+    patch_index_mask_in_str >> patch_index_mask[pixel];
+  patch_index_mask_in_str.close();
+  
   vector<vector<int> > patch_pair_fold_line_positions;
   vector<map<int, double> > fold_line_x_score_map;
   const int FOLD_LINE_WINDOW_WIDTH = 10;
