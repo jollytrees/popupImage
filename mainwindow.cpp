@@ -343,7 +343,7 @@ void MainWindow::processPopup(){
     algoList.push_back( new popupObjAssignNeighbor);
     
     //17. find foldibility
-    //algoList.push_back( new popupObjOptimization);
+    algoList.push_back( new popupObjOptimization);
     
     //find final path
     //algoList.push_back( new popupObjFindFinalPath);
