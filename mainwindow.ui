@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -135,8 +135,8 @@
       <property name="geometry">
        <rect>
         <x>700</x>
-        <y>260</y>
-        <width>81</width>
+        <y>320</y>
+        <width>91</width>
         <height>301</height>
        </rect>
       </property>
@@ -145,7 +145,7 @@
       <property name="geometry">
        <rect>
         <x>700</x>
-        <y>240</y>
+        <y>300</y>
         <width>59</width>
         <height>16</height>
        </rect>
@@ -159,7 +159,7 @@
        <rect>
         <x>700</x>
         <y>100</y>
-        <width>171</width>
+        <width>201</width>
         <height>80</height>
        </rect>
       </property>
@@ -198,8 +198,8 @@
        <rect>
         <x>700</x>
         <y>190</y>
-        <width>171</width>
-        <height>41</height>
+        <width>201</width>
+        <height>101</height>
        </rect>
       </property>
      </widget>
@@ -208,7 +208,7 @@
        <rect>
         <x>700</x>
         <y>10</y>
-        <width>171</width>
+        <width>201</width>
         <height>80</height>
        </rect>
       </property>
@@ -244,6 +244,29 @@
         <bool>true</bool>
        </property>
       </widget>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>300</y>
+        <width>59</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>patches</string>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="listWidget_patch">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>320</y>
+        <width>91</width>
+        <height>301</height>
+       </rect>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_7">
@@ -385,8 +408,8 @@
    <slot>showFoldLines()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>786</x>
-     <y>234</y>
+     <x>789</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>785</x>
@@ -401,8 +424,8 @@
    <slot>showPatches()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>256</y>
+     <x>750</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
      <x>638</x>
@@ -417,8 +440,8 @@
    <slot>showOriginalPatches()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>803</x>
-     <y>145</y>
+     <x>806</x>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>473</x>
@@ -433,8 +456,8 @@
    <slot>showFinalPatches()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>157</y>
+     <x>845</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>859</x>
@@ -449,8 +472,8 @@
    <slot>setScale()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>238</y>
+     <x>828</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>

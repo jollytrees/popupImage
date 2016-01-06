@@ -12,9 +12,9 @@ class ImageSegmentationWidget : public QWidget
     Q_OBJECT
 
 public:
-    ImageSegmentationWidget(const QImage &image);
-    ImageSegmentationWidget(QWidget *parent = 0);
-    ~ImageSegmentationWidget();
+     ImageSegmentationWidget(const QImage &image);
+     ImageSegmentationWidget(QWidget *parent = 0);
+     ~ImageSegmentationWidget();
 
     void setImage(const QImage &image);
     void setSegmentation(const std::vector<int> &segmentation, const int IMAGE_WIDTH, const int IMAGE_HEIGHT);
@@ -63,5 +63,4 @@ public slots:
     void refine();
 private slots:
 };
-
 #endif // IMAGESEGMENTATIONWIDGET_H

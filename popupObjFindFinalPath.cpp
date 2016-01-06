@@ -30,12 +30,28 @@ bool popupObjFindFinalPath::execute(popupObject *obj)
         cout << obj->floorPatch << " " << i << endl;
         findAllPaths(Paths, obj->floorPatch, i,  obj->possiblePatches.size(), originalSize);
         obj->finalPaths.push_back(Paths[0]);
+        //cout << "pathsize "<<Paths.size() << endl;
+
         
-        for(int j=0; j<Paths[0].size(); j++){
+       /* for(int j=0; j<Paths[0].size(); j++){
         
             cout << Paths[0][j] << " ";
         }
         cout << endl;
+        */
+        
+        //cout << "Verification" << endl;
+        int baseSize = Paths[0].size()%2;
+        
+        
+        /*for(int j=1; j<Paths.size(); j++){
+            
+            //if(Paths[j].size()%2 != baseSize)
+             cout << Paths[j].size() << " diff bese" << baseSize ;
+        }
+        cout << endl;
+        
+        */
     }
     
     return true;

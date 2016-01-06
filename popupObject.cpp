@@ -53,6 +53,19 @@ bool popupObject::isOriginalBasePatch(int idx){
     return false;
 }
 
+int popupObject::isLeftOrRightNeighbor(int p1, int p2){
+    
+    std::vector<int>::iterator it;
+    it = find (possiblePatches[p1]->leftPatchIdx.begin(), possiblePatches[p1]->leftPatchIdx.end(), p2);
+    if (it != possiblePatches[p1]->leftPatchIdx.end()) return 0;
+    
+    it = find (possiblePatches[p2]->leftPatchIdx.begin(), possiblePatches[p2]->leftPatchIdx.end(), p1);
+    if (it != possiblePatches[p2]->leftPatchIdx.end()) return 1;
+
+    return -1;
+};
+
+
 void popupObject::initPatch(std::string fileName){
     
     isShowPatches = false;
@@ -113,7 +126,7 @@ void popupObject::initPatch(std::string fileName){
         reverse(_paths.begin(), _paths.end());
         _pch.pchMat = contourImgB.clone();
         _pch.paths = findContourByPath( contourImgB.size(), _paths);
-        struct patches *pch = new struct patches(_pch);;
+        struct patches *pch = new struct    patches(_pch);;
 
         if(_pch.paths.size() > 0) initPatches.push_back(pch);
         

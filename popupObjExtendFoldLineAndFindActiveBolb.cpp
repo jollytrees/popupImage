@@ -9,9 +9,9 @@
 #include "popupObjExtendFoldLineAndFindActiveBolb.hpp"
 #include "functionFindBlob.h"
 #include "functionFindContour.h"
-static void  extendFoldline(popupObject *obj ,int pIdx1, int pIdx2,int lineIdx, cv::Mat canvas, vector< pair<cv::Point, cv::Point> > &patchExtendedLine){
+static bool  extendFoldline(popupObject *obj ,int pIdx1, int pIdx2,int lineIdx, cv::Mat canvas, vector< pair<cv::Point, cv::Point> > &patchExtendedLine){
 
-    if(obj->isBasePatch(pIdx1)) return;
+    if(obj->isBasePatch(pIdx1)) return false;
 
     foldLineType *line = obj->boundaryFoldLineConnGroupMap[pIdx1][pIdx2][lineIdx];
     cv::Point top, bottom;
@@ -89,7 +89,7 @@ static void  extendFoldline(popupObject *obj ,int pIdx1, int pIdx2,int lineIdx, 
 
     patchExtendedLine.push_back(make_pair(extendTop, extendBottom));
 
-    
+    return true;
 }
 
 bool isActiveBlob( cv::Mat greyMat, vector< pair<cv::Point, cv::Point> > &patchExtendedLine, int patchIdx, int blobIdx, pair<int, int> &maxIdxs){
@@ -178,7 +178,20 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
             for(size_t k=0; k<obj->originalFoldLineConnMap[i][j].size(); k++){
                // cout << i <<" " <<j << " extend " << obj->originalFoldLineConnMap[i][j][k]->foldLineIdx<<endl;;
                 patchExtendedLineToFoldLine.push_back(obj->originalFoldLineConnMap[i][j][k]->foldLineIdx);
-                extendFoldline(obj , (int)i, (int)j, (int)k, canvas, patchExtendedLine);
+                
+                
+                bool isAddFoldLine = extendFoldline(obj , (int)i, (int)j, (int)k, canvas, patchExtendedLine);
+                
+                if(!isAddFoldLine) continue;
+                
+                extendLine etLine;
+                etLine.line = patchExtendedLine.back();
+                etLine.patchIdx = i;
+                etLine.foldLineIdx = obj->originalFoldLineConnMap[i][j][k]->foldLineIdx;
+                
+                obj->originalFoldLineConnMap[i][j][k]->extendLines.push_back(etLine);
+                
+               // cout << "foldLine " <<etLine.foldLineIdx << " " << obj->originalFoldLineConnMap[i][j][k]->extendLines.size() << endl;
 
             }
 
@@ -196,7 +209,9 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         ConnectedBlobs(greyMat, blobMat);
         
         vector<cv::Mat> activePatchBlobMat;
+        activePatchBlobMat.clear();
         vector<pair<int,int> > activePatchFoldLine;
+        activePatchFoldLine.clear();
         vector< pair<lineType, lineType> > activeExtentedLine;
 
 
@@ -216,13 +231,13 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
                     imwrite(str, blobMat[j]);
                     int fidx1 = patchExtendedLineToFoldLine[maxIdx.first];
                     int fidx2 = patchExtendedLineToFoldLine[maxIdx.second];
-                    //cout << fidx1 <<" " <<fidx2 << endl;
 
                     activePatchBlobMat.push_back(blobMat[j]);
                     activePatchFoldLine.push_back(make_pair(fidx1, fidx2));
                     lineType line1, line2;
                     line1.line = patchExtendedLine[maxIdx.first];
                     line2.line = patchExtendedLine[maxIdx.second];
+                    
                     activeExtentedLine.push_back(make_pair(line1, line2));
                     
                 }

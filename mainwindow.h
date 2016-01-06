@@ -25,6 +25,8 @@
 #include "popupObjOptimization.hpp"
 #include "popupObjmergeFinalPatches.hpp"
 #include "popupObjFindFinalPath.hpp"
+#include "popupObjLeftRightNeighbor.hpp"
+#include "popupObjAssignNeighbor.hpp"
 
 //draw fuction
 #include "functionMat2QImage.h"
@@ -32,6 +34,8 @@
 #include "drawBoundaryLine.hpp"
 #include "functionLabelContour.h"
 #include "functionEventFilter.h"
+
+#include "imagesegmentationwidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -60,29 +64,35 @@ private:
     std::vector<int> patch_index_mask;
 
     void createItems();
+    void createItems_patch();
     void processPopup();
 
-    void createMenus();
+    //image segmentation
+    //void createMenus();
 
 private slots:
 public slots:
-    void loadImage();
+    //image segmentation
+    /*void loadImage();
     void saveSegmentation();
-    void loadSegmentation();
+    void loadSegmentation();*/
 
     void chooseInputImage();
     void chooseBasePatch();
     void onItemClicked(QListWidgetItem * item);
+    void onItemClicked_patch(QListWidgetItem * item);
+
     void showPatches();
     void showFoldLines();
     void showOriginalPatches();
     void showFinalPatches();
     void setScalse(int);
 
-    void startSegmentation();
+    //image segmentation
+    /*void startSegmentation();
     void refineSegmentation();
     void clearSegmentation();
-    void confirmSegmentation();
+    void confirmSegmentation();*/
 };
 
 #endif // MAINWINDOW_H

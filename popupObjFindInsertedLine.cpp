@@ -170,8 +170,8 @@ static void findInsertedLine(int patchIdx, popupObject *obj){
             ostringstream oss;
             oss << patchIdx << "_" << i;
             
-            std::string str = "./popupObjFindInsertedLine/blobMat"+oss.str()+".png";
-            //imwrite(str, greyBlobMat);
+            std::string str = "../popupObjFindInsertedLine/blobMat"+oss.str()+".png";
+            imwrite(str, greyBlobMat);
             
             
             

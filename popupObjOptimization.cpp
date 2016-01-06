@@ -8,7 +8,7 @@
 
 #include "popupObjOptimization.hpp"
 
-static void printPath(int s, int n, int tar,  popupObject *obj, string str, vector<int> root, vector<vector<vector<int> > >   &tempPath){
+static void printPath(int s, int n, int tar,  popupObject *obj, string str, vector<int> root, vector<vector<vector<int> > >  &tempPath){
     
     if (n!= 1){
         n = n-1;
@@ -325,7 +325,7 @@ void popupObjOptimization::initialize(popupObject *obj, GRBModel &model){
         }
     }
 
-    on_same_patch = new GRBVar*[patchSize];
+ /*   on_same_patch = new GRBVar*[patchSize];
     for (size_t i = 0; i < patchSize; ++i){
         model.update();
         on_same_patch[i] = model.addVars(patchSize);
@@ -347,7 +347,7 @@ void popupObjOptimization::initialize(popupObject *obj, GRBModel &model){
         on_same_patch_right[i] = model.addVars(patchSize);
         for (size_t j = 0; j < foldLineSize; ++j)
             on_same_patch_right[i][j] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-    }
+    }*/
 }
 
 void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){

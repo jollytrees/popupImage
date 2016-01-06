@@ -48,16 +48,20 @@ static void drawClickedItem(popupObject *obj, cv::Mat &resultsMat, int idx, QLab
     if(obj->isShowPatches && !obj->isShowOriginalPatches) LabelPatchContourPoint(obj->possiblePatches, obj->initMatSize, resultsMat);
     if(obj->isShowPatches && obj->isShowOriginalPatches) LabelPatchContourPoint(obj->classifiedPatches, obj->initMatSize, resultsMat);
 
+    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
     QImage image = mat2QImage(resultsMat , QImage::Format_RGB888);
     label_resultLayout->setPixmap(QPixmap::fromImage(image));
     
 }
 
-static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat){
+
+static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat, bool drawOrient){
+    
     
     for(size_t i=0; i< obj->possiblePatches.size(); i++){
+        if(!drawOrient) break;
         if(obj->orientation[i]!=0.0){
-            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blue, cv::FILLED);
+            cv::drawContours(resultsMat, obj->possiblePatches[i]->paths, 0, blue, CV_FILLED);
         }
     }
     drawPatchWOClearMat(obj->classifiedPatches, resultsMat);
@@ -77,16 +81,19 @@ static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat){
             
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(),p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }else{
+            cv::Scalar c = orange;
+            if(obj->foldLine[i]->isCuttedLine) c = purple;
             cv::Point p = cv::Point(obj->foldLine[i]->line.first.x,(obj->foldLine[i]->line.first.y + obj->foldLine[i]->line.second.y)/2 );
-            cv::line(resultsMat, op1, op2, yellow, 1);
+            cv::line(resultsMat, op1, op2, c, 1);
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(), p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }
     }
     if(obj->isShowPatches) LabelPatchContourPoint(obj->possiblePatches, obj->initMatSize, resultsMat);
-    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
+    //cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
    
     
 }
+
 
 static void drawOriginalFoldline(popupObject *obj, cv::Mat &resultsMat){
     
@@ -103,18 +110,37 @@ static void drawOriginalFoldline(popupObject *obj, cv::Mat &resultsMat){
         cv::Point p = cv::Point(obj->foldLine[i]->line.first.x,(obj->foldLine[i]->line.first.y + obj->foldLine[i]->line.second.y)/2 );
         cv::line(resultsMat, op1, op2, red, 2);
         if(obj->isShowFoldlines) putText(resultsMat, oss.str(), p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
-
+        
     }
     
     if(obj->isShowPatches) LabelPatchContourPoint(obj->classifiedPatches, obj->initMatSize, resultsMat);
-    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
 }
+
+static void drawClickedPatch(popupObject *obj, cv::Mat &resultsMat, int idx, QLabel *label_resultLayout){
+
+    if(obj->isShowOriginalPatches) drawOriginalFoldline(obj, resultsMat);
+    else drawActiveFoldline(obj, resultsMat, true);
+    
+    if(obj->isShowOriginalPatches) cv::drawContours(resultsMat, obj->classifiedPatches[idx]->paths, 0, blueGreen, CV_FILLED);
+    else
+        cv::drawContours(resultsMat, obj->possiblePatches[idx]->paths, 0, blueGreen, CV_FILLED);
+    
+    if(obj->isShowPatches && !obj->isShowOriginalPatches) LabelPatchContourPoint(obj->possiblePatches, obj->initMatSize, resultsMat);
+    if(obj->isShowPatches && obj->isShowOriginalPatches) LabelPatchContourPoint(obj->classifiedPatches, obj->initMatSize, resultsMat);
+    
+    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
+    QImage image = mat2QImage(resultsMat , QImage::Format_RGB888);
+    label_resultLayout->setPixmap(QPixmap::fromImage(image));
+    
+}
+
 
 static void showChanged(popupObject *obj, QLabel *label_resultLayout){
     
     cv::Mat resultsMat = drawPatch(obj->classifiedPatches, obj->initMatSize);
     if(obj->isShowOriginalPatches) drawOriginalFoldline(obj, resultsMat);
-    else drawActiveFoldline(obj, resultsMat);
+    else drawActiveFoldline(obj, resultsMat, true);
+    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
     QImage image = mat2QImage(resultsMat , QImage::Format_RGB888);
     label_resultLayout->setPixmap(QPixmap::fromImage(image));
 }
@@ -131,7 +157,9 @@ static void drawResultLayout(popupObject *obj, cv::Point p, QLabel *label_result
     }
     
     drawPatchWOClearMat(obj->classifiedPatches, resultsMat);
-    drawActiveFoldline(obj, resultsMat);
+    drawActiveFoldline(obj, resultsMat, true);
+    
+    cv::cvtColor(resultsMat, resultsMat, CV_BGR2RGB);
     QImage image = mat2QImage(resultsMat , QImage::Format_RGB888);
     label_resultLayout->setPixmap(QPixmap::fromImage(image));
 }

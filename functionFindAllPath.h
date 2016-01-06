@@ -5,7 +5,6 @@
 //  Created by jollytrees on 12/14/15.
 //
 //
-
 #ifndef functionFindAllPath_h
 #define functionFindAllPath_h
 #include <stdio.h>
@@ -20,7 +19,6 @@ using namespace std;
 static vector<vector<int> >GRAPH(100);
 static vector<vector<int> >PATHS;
 static int num = 0;
-
 
 static inline void print_path(vector<int>path)
 {
@@ -61,7 +59,6 @@ static int findpaths(int source ,int target ,int totalnode,int totaledge )
         int last_nodeof_path=path[path.size()-1];
         if(last_nodeof_path==target)
         {
-            
             //cout << num << " ";
             num++;
             print_path(path);
@@ -81,9 +78,6 @@ static int findpaths(int source ,int target ,int totalnode,int totaledge )
                 q.push(new_path);
             }
         }
-        
-        
-        
         
     }
     return 1;
@@ -119,6 +113,7 @@ static void createEdgeM(int u, int v){
 static void findAllPaths(vector<vector<int> > &paths, int source, int target, int N, int M){
     
     findpaths(source, target, N, M);
+    //cout << " PATHS" << PATHS.size() << endl;
     paths = PATHS;
     
 }

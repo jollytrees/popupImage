@@ -48,7 +48,7 @@ static void fit_right(cv::Mat &patchMat, foldLineType &rightLine,
     if(count == 1){
         lineVecToLinePair(rightLineVec, matSize, rightLine.line);
     }else{
-        std::cout << "rightLine is empty or count > 1" << std::endl;
+        std::cout << "rightLine is empty or count > 1 :" << count << std::endl;
     }
 }
 
@@ -126,8 +126,9 @@ bool popupObjInitBoundaryFoldLine::execute(popupObject *obj)
     for(int i =0; i < obj->classifiedPatches.size(); i++){
         
         if(obj->isBasePatch(i)) continue;
-        
         findBoundaryFoldLine(obj, i);
+        //cout << i<<":" << obj->boundaryFoldLineOfPatch[i].size() << endl;
+
     }
 
     

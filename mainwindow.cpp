@@ -40,20 +40,25 @@ MainWindow::MainWindow(QWidget *parent) :
     
     QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
                      this, SLOT(onItemClicked(QListWidgetItem *)));
+        
+    QObject::connect(ui->listWidget_patch, SIGNAL(itemClicked(QListWidgetItem *)),
+                         this, SLOT(onItemClicked_patch(QListWidgetItem *)));
+        
+        
     QObject::connect(ui->horizontalSlider, SIGNAL(valueChanged(int)),
                      this, SLOT(setScalse(int)));
         
-//    image_segmentation_widget = new ImageSegmentationWidget();
+    //image_segmentation_widget = new ImageSegmentationWidget();
     ui->tabWidget->setCurrentIndex(4);
 
-    createMenus();
+    //createMenus();
 }
 
 MainWindow::~MainWindow(){
     delete obj;
     delete ui;
 }
-
+/*
 void MainWindow::createMenus()
 {
     QMenu *file_menu = menuBar()->addMenu(tr("&File"));
@@ -92,7 +97,7 @@ void MainWindow::loadImage()
         return;
     }
 
-    ui->image_segmentation_widget->setImage(image);
+    //ui->image_segmentation_widget->setImage(image);
     image_width = image.width();
     image_height = image.height();
 }
@@ -112,7 +117,7 @@ void MainWindow::loadSegmentation()
         in_str >> patch_index_mask[pixel];
     in_str.close();
 
-    ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
+    //ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
 }
 
 void MainWindow::saveSegmentation()
@@ -129,8 +134,41 @@ void MainWindow::saveSegmentation()
         out_str << patch_index_mask[i] << endl;
     out_str.close();
 }
+*/
+void MainWindow::onItemClicked_patch(QListWidgetItem *item){
+    QVariant variant = item->data(Qt::UserRole);
+    int data = variant.toInt();
+    QString text = QString("%1:%2 is clicked.").arg(item->text()).arg(data);
+    int idx = atoi(text.toStdString().c_str());
+    cv::Mat resultsMat = drawPatch(obj->classifiedPatches, obj->initMatSize);
+    drawClickedPatch(obj, resultsMat, idx, ui->label_resultLayout);
+    
+    ostringstream oss;
+    oss << "patch fold lines:" << endl;
+    for(int i=0; i< obj->possiblePatches[idx]->foldLine.size(); i++)
+        oss <<  "f"<<obj->possiblePatches[idx]->foldLine[i]->foldLineIdx<< ", ";
+    oss << endl;
+    oss << "left patches: ";
+    for(vector<int>::iterator it = obj->possiblePatches[idx]->leftPatchIdx.begin();
+        it!=obj->possiblePatches[idx]->leftPatchIdx.end(); ++it){
+        oss << (*it) <<" ";
+    }
+    oss << endl;
 
+    oss << "right patches: ";
+    for(vector<int>::iterator it = obj->possiblePatches[idx]->rightPatchIdx.begin();
+        it!=obj->possiblePatches[idx]->rightPatchIdx.end(); ++it){
+        oss << (*it) <<" ";
+    }
+    oss << endl;
+
+    
+    QString qstr = QString::fromStdString(oss.str());
+    ui->textBrowser->setText(qstr);
+
+}
 void MainWindow::onItemClicked(QListWidgetItem *item){
+    
     
     QVariant variant = item->data(Qt::UserRole);
     int data = variant.toInt();
@@ -138,7 +176,7 @@ void MainWindow::onItemClicked(QListWidgetItem *item){
     int idx = atoi(text.toStdString().c_str());
 
     cv::Mat resultsMat = drawPatch(obj->classifiedPatches, obj->initMatSize);
-    if(!obj->isShowOriginalPatches) drawActiveFoldline(obj, resultsMat);
+    if(!obj->isShowOriginalPatches) drawActiveFoldline(obj, resultsMat, true);
     else drawOriginalFoldline(obj, resultsMat);
     drawClickedItem(obj, resultsMat, idx, ui->label_resultLayout);
     ostringstream oss;
@@ -147,7 +185,9 @@ void MainWindow::onItemClicked(QListWidgetItem *item){
         <<", patch" << obj->foldLine[idx]->originalConnPatch[1];
     }else{
         oss << "f" << idx << " is connected to patch" << obj->foldLine[idx]->connPatch[0]
-        <<", patch" << obj->foldLine[idx]->connPatch[1];
+        <<", patch" << obj->foldLine[idx]->connPatch[1] << endl;
+        oss << "left patch: " << obj->foldLine[idx]->leftIdx << endl;
+        oss << "right patch: " << obj->foldLine[idx]->rightIdx << endl;
     }
 
     QString qstr = QString::fromStdString(oss.str());
@@ -170,6 +210,29 @@ void MainWindow::createItems(){
     }
 }
 
+void MainWindow::createItems_patch(){
+    ui->listWidget_patch->clear();
+    ostringstream oss;
+    
+    if(obj->isShowOriginalPatches){
+        for(size_t i=0; i< obj->classifiedPatches.size(); i++){
+            oss.str("");
+            oss << (int)i ;
+            QString qstr = QString::fromStdString(oss.str());
+            ui->listWidget_patch->addItem(qstr);
+        }
+    
+    }else{
+        for(size_t i=0; i< obj->possiblePatches.size(); i++){
+            oss.str("");
+            oss << (int)i ;
+            QString qstr = QString::fromStdString(oss.str());
+            ui->listWidget_patch->addItem(qstr);
+        }
+    }
+}
+
+
 void MainWindow::setScalse(int scale){
     int pos = ui->horizontalSlider->sliderPosition();
     obj->scale = pos;
@@ -181,12 +244,14 @@ void MainWindow::showOriginalPatches(){
     obj->isShowOriginalPatches = true;
     showChanged(obj, ui->label_resultLayout);
     createItems();
+    createItems_patch();
 }
 
 void MainWindow::showFinalPatches(){
     obj->isShowOriginalPatches = false;
     showChanged(obj, ui->label_resultLayout);
     createItems();
+    createItems_patch();
 }
 
 void MainWindow::showPatches(){
@@ -273,20 +338,25 @@ void MainWindow::processPopup(){
     //15. find fold line path
     algoList.push_back( new popupObjFindFoldLinePath);
 
-    //16. find foldibility
-    algoList.push_back( new popupObjOptimization);
+    //16. find left & right patch
+    algoList.push_back( new popupObjLeftRightNeighbor);
+    algoList.push_back( new popupObjAssignNeighbor);
+    
+    //17. find foldibility
+    //algoList.push_back( new popupObjOptimization);
     
     //find final path
-    algoList.push_back( new popupObjFindFinalPath);
+    //algoList.push_back( new popupObjFindFinalPath);
     
-    //17. merge final patch
-    algoList.push_back( new popupObjmergeFinalPatches);
+    //merge final patch
+    //algoList.push_back( new popupObjmergeFinalPatches);
     
     algoList.execute(obj, "main", true);
-
-    //draw 3d scene
-//    ui->openGLWidget->setObj(obj);
     
+    //draw 3d scene
+    // ui->openGLWidget->setObj(obj);
+    
+
     //set label_resultLayout
     cv::Mat possiblePatchMat = drawPatch(obj->possiblePatches, obj->initMatSize);
     QImage imagePossible = mat2QImage(possiblePatchMat , QImage::Format_RGB888);
@@ -296,6 +366,7 @@ void MainWindow::processPopup(){
 
     //list widget
     createItems();
+    createItems_patch();
 }
 
 void MainWindow::chooseBasePatch(){
@@ -323,7 +394,7 @@ void MainWindow::chooseInputImage(){
     ui->tabWidget->setCurrentIndex(1);
     
 }
-
+/*
 void MainWindow::startSegmentation()
 {
     ui->image_segmentation_widget->segmentImage();
@@ -344,4 +415,4 @@ void MainWindow::clearSegmentation()
 
 void MainWindow::confirmSegmentation()
 {
-}
+}*/

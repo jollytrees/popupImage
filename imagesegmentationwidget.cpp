@@ -1,7 +1,7 @@
-#include "ImageSegmentationWidget.h"
+#include "imagesegmentationwidget.h"
 
 //#include <Qt\qwidget.h>
-#include <QPainter>>
+#include <QPainter>
 #include <Qmessagebox>
 #include <Qevent>
 #include <Qmouseeventtransition>
@@ -16,12 +16,12 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
+//#include <opencv2/imgcodecs/imgcodecs.hpp>
 
 using namespace std;
 using namespace cv;
 
-ImageSegmentationWidget::ImageSegmentationWidget(const QImage &image) : image_(new QImage(image))
+ ImageSegmentationWidget::ImageSegmentationWidget(const QImage &image) : image_(new QImage(image))
 {
     ori_width_ = image_->width();
     zoom_scale_ = 1.0;
@@ -34,7 +34,7 @@ ImageSegmentationWidget::ImageSegmentationWidget(const QImage &image) : image_(n
     setMouseTracking(true);
 }
 
-ImageSegmentationWidget::ImageSegmentationWidget(QWidget *parent) : QWidget(parent)
+  ImageSegmentationWidget::ImageSegmentationWidget(QWidget *parent) : QWidget(parent)
 {
     image_ = NULL;
     segmentation_image_ = NULL;
@@ -48,7 +48,7 @@ ImageSegmentationWidget::ImageSegmentationWidget(QWidget *parent) : QWidget(pare
     setMouseTracking(true);
 }
 
-ImageSegmentationWidget::~ImageSegmentationWidget()
+ ImageSegmentationWidget::~ImageSegmentationWidget()
 {
 }
 

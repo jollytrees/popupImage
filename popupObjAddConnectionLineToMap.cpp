@@ -100,6 +100,7 @@ bool popupObjAddConnectionLineToMap::execute(popupObject *obj)
                 
                 obj->foldLine.push_back(line);
                 obj->foldLine.back()->foldLineIdx = obj->foldLine.size()-1;
+               // cout << i <<" " <<  j  << " "<< obj->foldLine.back()->foldLineIdx<< " " << boolalpha << line->isConnLine << endl;;
                 
                 obj->originalFoldLineConnMap[i][j].push_back(line);
                 obj->originalFoldLineConnMap[j][i].push_back(line);

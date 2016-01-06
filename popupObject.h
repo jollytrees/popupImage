@@ -18,17 +18,71 @@
 #include <opencv/cv.h>
 
 using namespace std;
+typedef std::vector<std::vector<cv::Point> > paths_type;
 
-//pch
-struct patches{
-    std::vector<std::vector<cv::Point> > paths;
-    cv::Mat pchMat;
+class extendLine{
+public:
+    std::pair<cv::Point, cv::Point> line;
+    int foldLineIdx;
     int patchIdx;
 };
 
-typedef std::vector<std::vector<cv::Point> > paths_type;
+
+//pch
+class foldLineType{
+public:
+    foldLineType(){
+        leftIdx = -1;
+        rightIdx = -1;
+        isCuttedLine = false;
+    }
+    std::pair<cv::Point, cv::Point> line;
+    bool isCentralLine;
+    bool isEmpty;
+    bool isConnLine;
+    bool isOriginalFoldLine;
+    bool isCuttedLine;
+    vector<int> originalConnPatch;
+    vector<int> finalConnPatch;
+    vector<int> connPatch;
+    vector<int> connOriFoldLine;
+    int foldLineIdx;
+    int xPosition;
+    int leftIdx;
+    int rightIdx;
+    
+    vector<extendLine> extendLines;
+    
+    void removeConnPatch(int pIdx){
+        for(int i=0; i<connPatch.size(); i++){
+            if(connPatch[i]== pIdx){
+                connPatch.erase(connPatch.begin()+i);
+            }
+        }
+        
+    }
+    
+    void printConnPatch(){
+        for(int i=0; i<connPatch.size(); i++){
+            cout << connPatch[i] << " ";
+        }
+        cout << endl;
+    }
+    
+    int returnExtendLineIdx(int patchIdx){
+        for(int i=0; i< extendLines.size(); i++){
+            if(extendLines[i].patchIdx == patchIdx){
+                return i;
+            }
+        }
+        return -1;
+        
+    }
+    
+};
 
 static bool compareLongest( std::pair<int,int> x, std::pair<int,int> y ) {return x.second > y.second;}
+static bool compareIncrement( foldLineType* x, foldLineType* y ) {return x->xPosition < y->xPosition;}
 
 static cv::Scalar green = cv::Scalar(0, 255 , 0);
 static cv::Scalar red = cv::Scalar(0, 0 , 255);
@@ -38,20 +92,90 @@ static cv::Scalar yellow = cv::Scalar(0, 255 , 255);
 static cv::Scalar blueGreen = cv::Scalar(255, 255 , 0);
 static cv::Scalar white = cv::Scalar(255, 255, 255);
 static cv::Scalar black = cv::Scalar(0, 0, 0);
+static cv::Scalar orange = cv::Scalar(0, 128, 255);
+static cv::Scalar lemonYellow= cv::Scalar(173, 240, 255);
+
 
 //pch
-class foldLineType{
+class patches{
 public:
-    std::pair<cv::Point, cv::Point> line;
-    bool isCentralLine;
-    bool isEmpty;
-    bool isConnLine;
-    bool isOriginalFoldLine;
-    vector<int> originalConnPatch;
-    vector<int> finalConnPatch;
-    vector<int> connPatch;
-    vector<int> connOriFoldLine;
-    int foldLineIdx;
+    std::vector<std::vector<cv::Point> > paths;
+    cv::Mat pchMat;
+    int patchIdx;
+    
+    vector<foldLineType*> foldLine;
+
+    vector<int> leftPatchIdx;
+    vector<int> rightPatchIdx;
+
+    void addLine( foldLineType* line){
+        foldLine.push_back(line);
+        sort(foldLine.begin(), foldLine.end(), compareIncrement);
+    }
+    
+    void removeLine(int pIdx){
+        for(int i=0; i<foldLine.size(); i++){
+            if(foldLine[i]->foldLineIdx== pIdx){
+                foldLine.erase(foldLine.begin()+i);
+            }
+        }
+        
+    }
+    
+    bool isBoundaryLine(int idx){
+        for(vector<foldLineType*>::iterator it = foldLine.begin(); it!=foldLine.end(); ++it){
+            if( (*it)->foldLineIdx==idx ){
+                if(it==foldLine.begin() || it==foldLine.end()-1){
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+    bool isLeftLine(int idx){
+        for(vector<foldLineType*>::iterator it = foldLine.begin(); it!=foldLine.end(); ++it){
+            if( (*it)->foldLineIdx==idx ){
+                if(it==foldLine.begin()){
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+    bool isRightLine(int idx){
+        for(vector<foldLineType*>::iterator it = foldLine.begin(); it!=foldLine.end(); ++it){
+            if( (*it)->foldLineIdx==idx ){
+                if(it==foldLine.end()-1){
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+    
+    void printFoldLine(){
+        cout << "patch " << patchIdx <<" foldLines" << endl;
+        for(vector<foldLineType*>::iterator it = foldLine.begin(); it!=foldLine.end(); ++it){
+            cout << (*it)->foldLineIdx <<" ";
+        }
+        cout << endl;
+    }
+    
+    void printLeftPatch(){
+        cout << "patch " << patchIdx <<" left patches" << endl;
+        for(vector<int>::iterator it = leftPatchIdx.begin(); it!=leftPatchIdx.end(); ++it){
+            cout << (*it) <<" ";
+        }
+        cout << endl;
+    }
+    
+    void printRightPatch(){
+        cout << "patch " << patchIdx <<" right patches" << endl;
+        for(vector<int>::iterator it = rightPatchIdx.begin(); it!=rightPatchIdx.end(); ++it){
+            cout << (*it) <<" ";
+        }
+        cout << endl;
+    }
 };
 
 class lineType{
@@ -111,12 +235,12 @@ public:
     std::vector<std::vector<std::vector<foldLineType*> > > boundaryFoldLineConnGroupMap;
     
     //8. after merge
-    std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
+    //std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
     vector<vector<cv::Mat> >activeBlobMatOfPatch;
     vector<vector<pair<int,int> > > activeBlobFoldLineOfPatch;
-
+    
     //inserted line
     std::vector<std::vector<foldLineType*>  > insertedLineOfPatch;
     
@@ -131,7 +255,7 @@ public:
     
     //find connection of possible patches
     std::vector<std::vector<foldLineType*>  > possibleFoldLineConnMap;
-
+    
     //find all path
     vector<vector<int> > paths;
     
@@ -166,7 +290,9 @@ public:
     
     //find final path
     vector<vector<int> > finalPaths;
-
+    
+    int isLeftOrRightNeighbor(int p1, int p2);
+    
     
 };
 

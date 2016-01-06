@@ -1,11 +1,3 @@
-//
-//  fuctionFindMatIntersection.h
-//  Color_Segmentation
-//
-//  Created by jollytrees on 11/8/15.
-//  Copyright © 2015 jollytrees. All rights reserved.
-//
-
 #ifndef fuctionFindMatIntersection_h
 #define fuctionFindMatIntersection_h
 
@@ -71,7 +63,7 @@ static bool findMatIntersection( cv::Mat input1,  cv::Mat input2, cv::Mat &outpu
     }
     
     return false;
-
+    
 }
 
 static bool isLineAndMatConn(foldLineType &line, cv::Mat &inputMat, std::vector<cv::Vec4i> &lineVec){
