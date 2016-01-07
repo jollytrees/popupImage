@@ -444,7 +444,7 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
             }
         }
         
-        obj->foldLine[lIdx]->isCuttedLine = true;
+        obj->foldLine[lIdx]->isCuttedLine = false;
         obj->foldLine[lIdx]->connPatch.clear();
         
         foldLineType* lineClone = new foldLineType();
