@@ -83,7 +83,7 @@ static void findFoldlinePositionOfPatch(size_t &positionLineSize, popupObject *o
     int Idx = 0;
     for(size_t lineIdx=0; lineIdx< obj->foldLine.size(); lineIdx++){
 
-        if(obj->foldLine[lineIdx]->isOriginalFoldLine){
+        if(obj->foldLine[lineIdx]->isOriginalType){
             obj->positionLineIdxOfPatch[obj->foldLine[lineIdx]->connPatch[0]].push_back(make_pair(Idx, obj->foldLine[lineIdx]->line.first.x));
             obj->positionLineToFoldLine[Idx] = (int)lineIdx;
             obj->foldLineToPositionLine[lineIdx].push_back(Idx);
@@ -120,7 +120,7 @@ static bool isExist(vector<int> &neighbors, int p){
 
 static void findNeighborsOfOriginalPatch(popupObject *obj){
     for(size_t lineIdx=0; lineIdx< obj->foldLine.size(); lineIdx++){
-        if(obj->foldLine[lineIdx]->isOriginalFoldLine){
+        if(obj->foldLine[lineIdx]->isOriginalType){
             int sPch = obj->foldLine[lineIdx]->originalConnPatch[0];
             int tPch = obj->foldLine[lineIdx]->originalConnPatch[1];
             if(!isExist(obj->neighborsOfOriginalPatch[sPch], tPch)) obj->neighborsOfOriginalPatch[sPch].push_back(tPch);
@@ -354,7 +354,7 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
 
     //set c : cut indicator
     for(size_t lineIdx =0; lineIdx < obj->foldLine.size(); lineIdx++){
-        if(!obj->foldLine[lineIdx]->isOriginalFoldLine)
+        if(!obj->foldLine[lineIdx]->isOriginalType)
             model.addQConstr( c[lineIdx] == 0 );
         else
             model.addQConstr( c[lineIdx] == 1- f[lineIdx]);
@@ -402,7 +402,7 @@ void popupObjOptimization::foldability(popupObject *obj, GRBModel &model){
     }
 
     for(size_t fIdx=0; fIdx< obj->foldLine.size(); fIdx++){
-        if(obj->foldLine[fIdx]->isOriginalFoldLine){
+        if(obj->foldLine[fIdx]->isOriginalType){
             int fs = obj->foldLineToPositionLine[fIdx][0];
             int ft = obj->foldLineToPositionLine[fIdx][1];
             model.addQConstr( X[fs]*(1-c[fIdx]) ==  X[ft]*(1-c[fIdx]));
@@ -684,7 +684,7 @@ bool popupObjOptimization::execute(popupObject *obj)
     GRBQuadExpr GRBobj = 0;
     for (size_t j = 0; j < foldLineSize; j++){
         //length cost
-        if(!obj->foldLine[j]->isOriginalFoldLine){
+        if(!obj->foldLine[j]->isOriginalType){
             double dist = sqrt(pow((double)obj->foldLine[j]->line.first.y-obj->foldLine[j]->line.second.y,2.0));
             GRBobj += (obj->initMatSize.height - dist)/(obj->initMatSize.height)*f[j];
         }
@@ -705,6 +705,13 @@ bool popupObjOptimization::execute(popupObject *obj)
     foldability(obj, model);
     /*stability(obj, model);*/
     connectivity(obj, model);
+    
+    for(size_t lineIdx=0; lineIdx< obj->foldLine.size(); lineIdx++){
+        if(obj->foldLine[lineIdx]->isCuttedLine){
+            cout << lineIdx << " " << endl;
+            model.addQConstr( f[lineIdx] == 0 );
+        }
+    }
 
     try {
         model.update();

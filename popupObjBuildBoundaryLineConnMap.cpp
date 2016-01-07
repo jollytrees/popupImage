@@ -58,6 +58,7 @@ static bool searchTheMaxOverlapPatch(popupObject *obj, foldLineType *inputLine, 
             
         }else{*/
         
+            inputLine->isConnLine = false;
             obj->boundaryFoldLineConnGroupMap[intSecList[0].first][idx1].push_back(inputLine);
             obj->boundaryFoldLineConnGroupMap[idx1][intSecList[0].first].push_back(inputLine);
        // }

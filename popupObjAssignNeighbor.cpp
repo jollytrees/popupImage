@@ -158,8 +158,7 @@ bool popupObjAssignNeighbor::execute(popupObject *obj)
         
     }
     
-    obj->orientation.resize(obj->foldLine.size(), 0);
-    obj->activeFoldLine.resize(obj->foldLine.size(), 0);
+
     
     return true;
 }

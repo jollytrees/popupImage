@@ -139,17 +139,15 @@ static bool findActiveInsertedLine(pair<cv::Point, cv::Point> midLinePair, cv::R
 
 
 static void findInsertedLine(int patchIdx, popupObject *obj){
-    
 
-    obj->insertedLineOfPatch.resize(obj->activeBlobMatOfPatch.size());
+    obj->insertedLineOfPatch.resize(obj->activeBlobOfPatch.size());
 
-    
-    for(int i=0; i< obj->activeBlobMatOfPatch[patchIdx].size(); i++){
+    for(int i=0; i< obj->activeBlobOfPatch[patchIdx].size(); i++){
         cv::Mat greyBlobMat;
-        cv::cvtColor(obj->activeBlobMatOfPatch[patchIdx][i], greyBlobMat, CV_BGR2GRAY);
+        cv::cvtColor(obj->activeBlobOfPatch[patchIdx][i].blobMat, greyBlobMat, CV_BGR2GRAY);
         
         paths_type out_contour;
-        findContourSimple(obj->activeBlobMatOfPatch[patchIdx][i], out_contour);
+        findContourSimple(obj->activeBlobOfPatch[patchIdx][i].blobMat, out_contour);
         
         cv::Rect boundingRect = cv::boundingRect(out_contour[0]);
         cv::Point midTop = cv::Point( (boundingRect.tl().x + boundingRect.br().x)/2, boundingRect.tl().y);
@@ -161,48 +159,37 @@ static void findInsertedLine(int patchIdx, popupObject *obj){
         //find active line
         pair<cv::Point, cv::Point> activeLine;
         if(findActiveInsertedLine(midLinePair, boundingRect, greyBlobMat, activeLine)){
+            
             foldLineType *line = new foldLineType();
             line->line = activeLine;
-            line->connOriFoldLine.push_back(obj->activeBlobFoldLineOfPatch[patchIdx][i].first);
-            line->connOriFoldLine.push_back(obj->activeBlobFoldLineOfPatch[patchIdx][i].second);
+            line->setInsertedType();
+            line->originalConnPatch.push_back(patchIdx);
+            //line->connOriLeftFoldLine = obj->activeBlobOfPatch[patchIdx][i].leftLineIdx;
+            //line->connOriRightFoldLine = obj->activeBlobOfPatch[patchIdx][i].rightLineIdx;
+            line->oriPatchIdx = patchIdx;
+
             obj->insertedLineOfPatch[patchIdx].push_back(line);
+            obj->foldLine.push_back(line);
+            obj->foldLine.back()->foldLineIdx = obj->foldLine.size()-1;
             
             ostringstream oss;
             oss << patchIdx << "_" << i;
-            
             std::string str = "../popupObjFindInsertedLine/blobMat"+oss.str()+".png";
             imwrite(str, greyBlobMat);
             
-            
-            
         }else{
-            cout << "find inerted line : not active" << endl;
-
+            cout << patchIdx << " " << i<<" find inerted line : not active" << endl;
         }
-        
     }
-    
-    
 }
 
 bool popupObjFindInsertedLine::execute(popupObject *obj)
 {
-    for(int i=0; i< obj->activeBlobMatOfPatch.size(); i++){
-    
+    for(int i=0; i< obj->activeBlobOfPatch.size(); i++){
         findInsertedLine(i, obj);
-    
     }
     
-    /*cv::Mat canvas(obj->initMatSize, CV_8UC3, black);
-    
-    drawSinglePatch( obj->classifiedPatches[4], canvas);
-    for(int i=0; i< obj->insertedLineOfPatch[4].size(); i++){
-        cv::line(canvas, obj->insertedLineOfPatch[4][i]->line.first, obj->insertedLineOfPatch[4][i]->line.second, blueGreen);
-    
-    }
-    
-    imwrite("inserted4.png", canvas);
-    */
+
     
     return true;
 }

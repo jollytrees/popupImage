@@ -160,9 +160,6 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         int pIdx1 = obj->foldLine[lIdx]->connPatch[0];
         int pIdx2 = obj->foldLine[lIdx]->connPatch[1];
         obj->foldLine[lIdx]->xPosition = obj->foldLine[lIdx]->line.first.x;
-
-        obj->possiblePatches[pIdx1]->addLine(obj->foldLine[lIdx]);
-        obj->possiblePatches[pIdx2]->addLine(obj->foldLine[lIdx]);
     }
     
     for(int pIdx =0; pIdx < obj->possiblePatches.size(); pIdx++){
@@ -175,8 +172,12 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
     
     for(int lIdx= 0; lIdx < obj->foldLine.size(); lIdx++){
         
-        if(!obj->foldLine[lIdx]->isOriginalFoldLine) continue;
+        
+        if(!obj->foldLine[lIdx]->isOriginalType) continue;
         if(!obj->foldLine[lIdx]->isConnLine) continue;
+        
+        cout << "lIdx " <<lIdx << endl;
+
         //is connection line
         //find connected patch
         int oriPIdx1 = obj->foldLine[lIdx]->originalConnPatch[0];
@@ -184,6 +185,11 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         int pIdx1 = obj->foldLine[lIdx]->connPatch[0];
         int pIdx2 = obj->foldLine[lIdx]->connPatch[1];
         
+        cout << lIdx << " :ori  " << oriPIdx1 << "," << oriPIdx2 << endl;
+
+        cout << lIdx << " : " << pIdx1 << "," << pIdx2 << endl;
+        
+        cout << obj->floorPatch <<" "<<obj->backPatch<< obj->possiblePatches.size()-1 << endl;
         
         // is not connected to background
         if(obj->isBasePatch(pIdx1)) continue;
@@ -197,18 +203,21 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         cv::drawContours(canvas1, obj->possiblePatches[pIdx1]->paths, 0, 255, CV_FILLED);
         cv::drawContours(canvas2, obj->possiblePatches[pIdx2]->paths, 0, 255, CV_FILLED);
         
-        
+        cout << "t" << endl;
         cv::Mat canvas3(obj->initMatSize, CV_8UC3);
         canvas3.setTo(black);
         cv::Mat canvas4(obj->initMatSize, CV_8UC3);
         canvas4.setTo(black);
         cv::drawContours(canvas3, obj->possiblePatches[pIdx1]->paths, 0, white, CV_FILLED);
         cv::drawContours(canvas4, obj->possiblePatches[pIdx2]->paths, 0, white, CV_FILLED);
-        
+        cout << "t1" << endl;
+
        
         //get extended line
         int exIdx1 = obj->foldLine[lIdx]->returnExtendLineIdx(oriPIdx1);
         int exIdx2 = obj->foldLine[lIdx]->returnExtendLineIdx(oriPIdx2);
+        
+        cout << exIdx1 << " " << exIdx2 <<" "<<obj->foldLine[lIdx]->extendLines.size()<< endl;
         
         cv::Point p1 = obj->foldLine[lIdx]->extendLines[exIdx1].line.first;
         cv::Point p2 = obj->foldLine[lIdx]->extendLines[exIdx1].line.second;
@@ -222,6 +231,7 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         pair<cv::Point, cv::Point> cuttedLine2 = make_pair(p3, p4);
         cv::line(canvas2, p3, p4, 0);
         cv::line(canvas4, p3, p4, red);
+        cout << "t2" << endl;
 
         
         //find new blob
@@ -259,6 +269,8 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
             }
         }
         
+        cout << "t3" << endl;
+
         //find
         if (blobs.size() == 3) {
             if (mapActive[1]==0 || mapActive[2]==0) {
@@ -281,6 +293,8 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
 
             continue;
         }
+
+        cout << "4" << endl;
 
         
         foldLineType *line1 = new foldLineType();
@@ -391,7 +405,7 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         l1->line = line1->line;
         l1->isCentralLine = false;
         l1->isConnLine = false;
-        l1->isOriginalFoldLine = false;
+        l1->isOriginalType = false;
         l1->isCuttedLine = true;
         l1->xPosition = line1->line.first.x;
         
@@ -399,7 +413,7 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         l2->line = line2->line;
         l2->isCentralLine = false;
         l2->isConnLine = false;
-        l2->isOriginalFoldLine = false;
+        l2->isOriginalType = false;
         l2->isCuttedLine = true;
         l2->xPosition = line2->line.first.x;
 
@@ -445,15 +459,16 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
             }
         }
         
-        obj->foldLine[lIdx]->isCuttedLine = true;
+        obj->foldLine[lIdx]->isCuttedLine = false;
         obj->foldLine[lIdx]->connPatch.clear();
         
         foldLineType* lineClone = new foldLineType();
         lineClone->line = obj->foldLine[lIdx]->line;
         lineClone->isCentralLine = obj->foldLine[lIdx]->isCentralLine;
         lineClone->isConnLine = obj->foldLine[lIdx]->isConnLine;
-        lineClone->isOriginalFoldLine = false;
-        lineClone->isCuttedLine = true;
+        lineClone->isOriginalType = false;
+        lineClone->isCuttedLine = false;
+        lineClone->isCloneLine = true;
         lineClone->xPosition = obj->foldLine[lIdx]->line.first.x;
         
         obj->foldLine.push_back(lineClone);

@@ -202,7 +202,7 @@ void MainWindow::createItems(){
         oss.str("");
         oss << (int)i ;
         QString qstr = QString::fromStdString(oss.str());
-        if(obj->isShowOriginalPatches && obj->foldLine[i]->isOriginalFoldLine){
+        if(obj->isShowOriginalPatches && obj->foldLine[i]->isOriginalType){
             ui->listWidget->addItem(qstr);
         }else if(!obj->isShowOriginalPatches){
             ui->listWidget->addItem(qstr);
@@ -330,20 +330,21 @@ void MainWindow::processPopup(){
     algoList.push_back( new popupObjFindPossiblePatch);
     
     //13. find possible patches connection
-    algoList.push_back( new popupObjFindPossiblePatchConnection);
+    //algoList.push_back( new popupObjFindPossiblePatchConnection);
     
     //14. find all path
-    algoList.push_back( new popupObjGraphFindAllPath);
+    //algoList.push_back( new popupObjGraphFindAllPath);
        
     //15. find fold line path
-    algoList.push_back( new popupObjFindFoldLinePath);
+    //algoList.push_back( new popupObjFindFoldLinePath);
 
     //16. find left & right patch
     algoList.push_back( new popupObjLeftRightNeighbor);
+    
     algoList.push_back( new popupObjAssignNeighbor);
     
     //17. find foldibility
-    //algoList.push_back( new popupObjOptimization);
+    algoList.push_back( new popupObjOptimization);
     
     //find final path
     //algoList.push_back( new popupObjFindFinalPath);

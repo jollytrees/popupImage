@@ -20,7 +20,7 @@
 
 using namespace std;
 using namespace cv;
-
+/*
  ImageSegmentationWidget::ImageSegmentationWidget(const QImage &image) : image_(new QImage(image))
 {
     ori_width_ = image_->width();
@@ -351,4 +351,4 @@ void ImageSegmentationWidget::segmentImage()
 void ImageSegmentationWidget::clearUserIndication()
 {
     user_indication_points_.clear();
-}
+}*/

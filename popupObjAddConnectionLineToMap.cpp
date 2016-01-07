@@ -56,6 +56,7 @@ void addConnectionLine(popupObject *obj, int idx1, int idx2){
         maxLine.isCentralLine = false;
         maxLine.isConnLine = true;
         maxLine.isEmpty = false;
+        maxLine.setOriginalType();
         foldLineType *foldLine = new foldLineType(maxLine);;
         
         obj->boundaryFoldLineConnGroupMap[idx1][idx2].push_back(foldLine);
@@ -75,6 +76,7 @@ bool popupObjAddConnectionLineToMap::execute(popupObject *obj)
             if(obj->isBasePatch(i)) continue;
             if(obj->boundaryFoldLineConnGroupMap[i][j].size()==0 && obj->classifiedConnMap[i][j]==1) {
                 addConnectionLine(obj, i ,j);
+                cout << "add" << endl;
             }
         }
     }
@@ -94,13 +96,14 @@ bool popupObjAddConnectionLineToMap::execute(popupObject *obj)
             
             for(size_t k=0; k<obj->boundaryFoldLineConnGroupMap[i][j].size(); k++){
                 foldLineType *line = new foldLineType(*obj->boundaryFoldLineConnGroupMap[i][j][k]);
-                line->isOriginalFoldLine = true;
+                line->setOriginalType();
                 line->originalConnPatch.push_back((int)i);
                 line->originalConnPatch.push_back((int)j);
                 
+                
                 obj->foldLine.push_back(line);
                 obj->foldLine.back()->foldLineIdx = obj->foldLine.size()-1;
-               // cout << i <<" " <<  j  << " "<< obj->foldLine.back()->foldLineIdx<< " " << boolalpha << line->isConnLine << endl;;
+                cout << i <<" " <<  j  << " "<< obj->foldLine.back()->foldLineIdx<< " " << boolalpha << line->isConnLine << endl;;
                 
                 obj->originalFoldLineConnMap[i][j].push_back(line);
                 obj->originalFoldLineConnMap[j][i].push_back(line);

@@ -42,6 +42,8 @@ static void drawClickedItem(popupObject *obj, cv::Mat &resultsMat, int idx, QLab
 
         cv::Point p = cv::Point(obj->foldLine[i]->line.first.x,(obj->foldLine[i]->line.first.y + obj->foldLine[i]->line.second.y)/2 );
         cv::line(resultsMat, op1, op2, purple, 3);
+        cv::circle(resultsMat, p, 15, green, 2);
+
         putText(resultsMat, oss.str(),p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
     }
     
@@ -82,9 +84,14 @@ static void drawActiveFoldline(popupObject *obj, cv::Mat &resultsMat, bool drawO
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(),p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }else{
             cv::Scalar c = orange;
-            if(obj->foldLine[i]->isCuttedLine) c = purple;
+            int lw = 2;
+            if(obj->foldLine[i]->isCuttedLine) {
+                c = yellow;
+                lw = 2;
+                
+            }
             cv::Point p = cv::Point(obj->foldLine[i]->line.first.x,(obj->foldLine[i]->line.first.y + obj->foldLine[i]->line.second.y)/2 );
-            cv::line(resultsMat, op1, op2, c, 1);
+            cv::line(resultsMat, op1, op2, c, lw);
             if(obj->isShowFoldlines) putText(resultsMat, oss.str(), p, FONT_HERSHEY_SIMPLEX, 0.5, purple, 1);
         }
     }
@@ -99,7 +106,7 @@ static void drawOriginalFoldline(popupObject *obj, cv::Mat &resultsMat){
     
     for(size_t i=0; i< obj->foldLine.size(); i++){
         
-        if(!obj->foldLine[i]->isOriginalFoldLine) continue;
+        if(!obj->foldLine[i]->isOriginalType) continue;
         ostringstream oss;
         oss.str("");
         oss<< "f" << i;
