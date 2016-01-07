@@ -174,7 +174,6 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
     }
     
     for(int lIdx= 0; lIdx < obj->foldLine.size(); lIdx++){
-        
         if(!obj->foldLine[lIdx]->isOriginalFoldLine) continue;
         if(!obj->foldLine[lIdx]->isConnLine) continue;
         //is connection line
@@ -455,7 +454,8 @@ bool popupObjLeftRightNeighbor::execute(popupObject *obj)
         lineClone->isOriginalFoldLine = false;
         lineClone->isCuttedLine = true;
         lineClone->xPosition = obj->foldLine[lIdx]->line.first.x;
-        
+
+
         obj->foldLine.push_back(lineClone);
         lineClone->foldLineIdx = obj->foldLine.size()-1;
         //cout << "add foldLine " << lineClone->foldLineIdx << endl;

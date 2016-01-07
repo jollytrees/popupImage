@@ -58,6 +58,7 @@ public:
     QWidget *tab_5;
     QLabel *label_resultLayout;
     QListWidget *listWidget;
+    QListWidget *listWidget_patch;
     QLabel *label;
     QGroupBox *groupBox;
     QCheckBox *check_labelFoldline;
@@ -118,6 +119,9 @@ public:
         listWidget = new QListWidget(tab_5);
         listWidget->setObjectName(QStringLiteral("listWidget"));
         listWidget->setGeometry(QRect(700, 260, 81, 301));
+        listWidget_patch = new QListWidget(tab_5);
+        listWidget_patch->setObjectName(QStringLiteral("listWidget"));
+        listWidget_patch->setGeometry(QRect(800, 260, 81, 301));
         label = new QLabel(tab_5);
         label->setObjectName(QStringLiteral("label"));
         label->setGeometry(QRect(700, 240, 59, 16));

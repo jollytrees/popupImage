@@ -235,7 +235,7 @@ public:
     std::vector<std::vector<std::vector<foldLineType*> > > boundaryFoldLineConnGroupMap;
     
     //8. after merge
-    //std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
+    std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
     vector<vector<cv::Mat> >activeBlobMatOfPatch;

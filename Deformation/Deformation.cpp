@@ -15,6 +15,44 @@
 using namespace std;
 using namespace cv;
 
+vector<int> zoomMask(const vector<int> &mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int NEW_IMAGE_WIDTH, const int NEW_IMAGE_HEIGHT)
+{
+  vector<int> zoomed_mask(NEW_IMAGE_WIDTH * NEW_IMAGE_HEIGHT);
+  for (int zoomed_pixel = 0; zoomed_pixel < NEW_IMAGE_WIDTH * NEW_IMAGE_HEIGHT; zoomed_pixel++) {
+    int zoomed_x = zoomed_pixel % NEW_IMAGE_WIDTH;
+    int zoomed_y = zoomed_pixel / NEW_IMAGE_WIDTH;
+    int x = round(1.0 * zoomed_x / NEW_IMAGE_WIDTH * IMAGE_WIDTH);
+    x = min(x, IMAGE_WIDTH - 1);
+    int y = round(1.0 * zoomed_y / NEW_IMAGE_HEIGHT * IMAGE_HEIGHT);
+    y = min(y, IMAGE_HEIGHT - 1);
+    zoomed_mask[zoomed_pixel] = mask[y * IMAGE_WIDTH + x];
+  }
+  return zoomed_mask;
+}
+  
+vector<int> findNeighbors(const int pixel, const int IMAGE_WIDTH, const int IMAGE_HEIGHT)
+{
+  int x = pixel % IMAGE_WIDTH;
+  int y = pixel / IMAGE_WIDTH;
+  vector<int> neighbor_pixels;
+  if (x > 0)
+    neighbor_pixels.push_back(pixel - 1);
+  if (x < IMAGE_WIDTH - 1)
+    neighbor_pixels.push_back(pixel + 1);
+  if (y > 0)
+    neighbor_pixels.push_back(pixel - IMAGE_WIDTH);
+  if (y < IMAGE_HEIGHT - 1)
+    neighbor_pixels.push_back(pixel + IMAGE_WIDTH);
+  if (x > 0 && y > 0)
+    neighbor_pixels.push_back(pixel - IMAGE_WIDTH - 1);
+  if (x < IMAGE_WIDTH - 1 && y > 0)
+    neighbor_pixels.push_back(pixel - IMAGE_WIDTH + 1);
+  if (x > 0 && y < IMAGE_HEIGHT - 1)
+    neighbor_pixels.push_back(pixel + IMAGE_WIDTH - 1);
+  if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
+    neighbor_pixels.push_back(pixel + IMAGE_WIDTH + 1);
+  return neighbor_pixels;
+}
 
 //This function compute the approximate deformation costs for all cases and return the position of initial fold lines.
 //Input: patch_index_mask is a vector with a size same with the number of pixels. patch_index_mask[y * IMAGE_WIDTH + x] is the patch index at pixel (x, y). IMAGE_WIDTH and IMAGE_HEIGHT define the image dimension. FOLD_LINE_WINDOW_WIDTH and FOLD_LINE_WINDOW_HEIGHT are desired fold line region width and fold line length (smaller values will pay penalties).
@@ -23,8 +61,9 @@ using namespace cv;
 void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, vector<vector<int> > &patch_pair_fold_line_positions, vector<map<int, double> > &fold_line_x_score_map)
 {
   int num_patches = 0;
-  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++)
+  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
     num_patches = max(patch_index_mask[pixel] + 1, num_patches);
+  }
   
   map<int, int> patch_min_xs;
   map<int, int> patch_max_xs;
@@ -45,23 +84,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
     if (x > patch_max_xs[patch_index])
       patch_max_xs[patch_index] = x;
     
-    vector<int> neighbor_pixels;
-    if (x > 0)
-      neighbor_pixels.push_back(pixel - 1);
-    if (x < IMAGE_WIDTH - 1)
-      neighbor_pixels.push_back(pixel + 1);
-    if (y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH);
-    if (y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH);
-    if (x > 0 && y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH - 1);
-    if (x < IMAGE_WIDTH - 1 && y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH + 1);
-    if (x > 0 && y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH - 1);
-    if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH + 1);
+    vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
     
     for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
       int neighbor_patch_index = patch_index_mask[*neighbor_pixel_it];
@@ -134,6 +157,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
     }
   }
 
+  cout << "done" << endl;  
   vector<pair<int, double> > fold_line_score_pairs(num_patches * num_patches, make_pair(-1, 0));
   vector<map<int, vector<double> > > fold_line_x_scores(num_patches * num_patches);
   vector<vector<tuple<int, int, double> > > left_fold_line_tuples(num_patches, vector<tuple<int, int, double> >(IMAGE_WIDTH, make_tuple(-1, -1, 0)));
@@ -143,6 +167,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
     map<int, int> right_window_num_pixels = pixel_right_window_num_pixels[pixel];
     for (map<int, int>::const_iterator left_window_it = left_window_num_pixels.begin(); left_window_it != left_window_num_pixels.end(); left_window_it++) {
       for (map<int, int>::const_iterator right_window_it = right_window_num_pixels.begin(); right_window_it != right_window_num_pixels.end(); right_window_it++) {
+	//cout << left_window_it->first << '\t' << right_window_it->first << endl;
 	if (left_window_it->first != right_window_it->first && patch_neighbors[left_window_it->first].count(right_window_it->first) == 0)
 	  continue;
 	double score = 1.0 * (left_window_it->second * right_window_it->second) / pow((FOLD_LINE_WINDOW_HEIGHT / 2 * 2 + 1) * (FOLD_LINE_WINDOW_WIDTH / 2), 2);
@@ -160,6 +185,7 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
       }
     }
   }
+  cout << "done" << endl;  
 
   fold_line_x_score_map.assign(num_patches * num_patches, map<int, double>());
   for (int patch_index_1 = 0; patch_index_1 < num_patches; patch_index_1++) {
@@ -239,6 +265,493 @@ void computeDeformationCostsApproximately(const vector<int> &patch_index_mask, c
   }
 }
 
+void findAllFoldLines(const vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const vector<vector<int> > &patch_pair_fold_line_positions, const vector<map<int, double> > &fold_line_x_score_map)
+{
+  cout << "done" << endl;  
+  int num_original_patches = 0;
+  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++)
+    num_original_patches = max(patch_index_mask[pixel] + 1, num_original_patches);
+
+  vector<int> line_segment_indices(IMAGE_WIDTH * IMAGE_HEIGHT, -1);
+  int line_segment_index = -1;
+  for (int x = 0; x < IMAGE_WIDTH; x++) {
+    int previous_patch_index = -1;
+    for (int y = 0; y < IMAGE_HEIGHT; y++) {
+      if (patch_index_mask[y * IMAGE_WIDTH + x] != previous_patch_index)
+	line_segment_index++;
+      line_segment_indices[y * IMAGE_WIDTH + x] = line_segment_index;
+      previous_patch_index = patch_index_mask[y * IMAGE_WIDTH + x];
+    }
+  }
+  
+  int num_line_segments = line_segment_index;
+  vector<int> original_fold_line_patch_pairs;
+  int original_fold_line_index = 0;
+  vector<vector<int> > patch_fold_line_segment_indices(num_original_patches);
+  vector<vector<int> > patch_fold_line_index_map(num_original_patches);
+  for (int patch_index_1 = 0; patch_index_1 < num_original_patches; patch_index_1++) {
+    for (int patch_index_2 = 0; patch_index_2 < num_original_patches; patch_index_2++) {
+      for (vector<int>::const_iterator position_it = patch_pair_fold_line_positions[patch_index_1 * num_original_patches + patch_index_2].begin(); position_it != patch_pair_fold_line_positions[patch_index_1 * num_original_patches + patch_index_2].end(); position_it++) {
+	int fold_line_x = *position_it % IMAGE_WIDTH;
+	int intersection_y = *position_it / IMAGE_WIDTH;
+	int line_segment_index_1 = -1;
+	int line_segment_index_2 = -1;
+	for (int delta_x = -FOLD_LINE_WINDOW_WIDTH / 2; delta_x <= 0; delta_x++) {
+	  set<int> line_segments;
+	  for (int delta_y = -FOLD_LINE_WINDOW_HEIGHT / 2; delta_y <= FOLD_LINE_WINDOW_HEIGHT / 2; delta_y++) {
+	    if (fold_line_x + delta_x >= 0 && fold_line_x + delta_x < IMAGE_WIDTH && intersection_y + delta_y >= 0 && intersection_y + delta_y < IMAGE_HEIGHT) {
+	      int pixel = (intersection_y + delta_y) * IMAGE_WIDTH + (fold_line_x + delta_x);
+	      if (patch_index_mask[pixel] == patch_index_1)
+		line_segments.insert(line_segment_indices[pixel]);
+	    }
+	  }
+	  if (line_segments.size() == 1)
+            line_segment_index_1 = *line_segments.begin();
+	  else if (line_segments.size() > 1)
+	    break;
+	}
+	for (int delta_x = FOLD_LINE_WINDOW_WIDTH / 2; delta_x >= 0; delta_x--) {
+          set<int> line_segments;
+          for (int delta_y = -FOLD_LINE_WINDOW_HEIGHT / 2; delta_y <= FOLD_LINE_WINDOW_HEIGHT / 2; delta_y++) {
+            if (fold_line_x + delta_x >= 0 && fold_line_x + delta_x < IMAGE_WIDTH && intersection_y + delta_y >= 0 && intersection_y + delta_y < IMAGE_HEIGHT) {
+              int pixel = (intersection_y + delta_y) * IMAGE_WIDTH + (fold_line_x + delta_x);
+              if (patch_index_mask[pixel] == patch_index_2)
+                line_segments.insert(line_segment_indices[pixel]);
+            }
+          }
+          if (line_segments.size() == 1)
+            line_segment_index_2 = *line_segments.begin();
+          else if (line_segments.size() > 1)
+            break;
+        }
+	if (line_segment_index_1 == -1 || line_segment_index_2 == -1)
+	  continue;
+	
+	patch_fold_line_segment_indices[patch_index_1].push_back(line_segment_index_1);
+	patch_fold_line_index_map[patch_index_1].push_back(original_fold_line_index);
+	//line_segment_fold_line_indices[line_segment_index_1] = patch_fold_line_segment_indices[patch_index_1].size();
+        patch_fold_line_segment_indices[patch_index_2].push_back(line_segment_index_2);
+	patch_fold_line_index_map[patch_index_2].push_back(original_fold_line_index);
+        //line_segment_fold_line_indices[line_segment_index_2] = patch_fold_line_segment_indices[patch_index_2].size();
+
+	original_fold_line_patch_pairs.push_back(patch_index_1 * num_original_patches + patch_index_2);
+	original_fold_line_index++;
+      }
+    }
+  }
+  int num_original_fold_lines = original_fold_line_index;
+  cout << "done" << endl;
+  
+  vector<int> line_segment_fold_line_indices(num_line_segments, -1);
+  vector<int> line_segment_left_fold_lines(num_line_segments, 0);
+  vector<int> line_segment_right_fold_lines(num_line_segments, 0);
+  vector<int> line_segment_original_fold_lines(num_line_segments, -1);
+  vector<int> line_segment_new_fold_lines(num_line_segments, -1);
+  int attendant_fold_line_index = num_original_fold_lines;
+  map<int, int> attendant_fold_line_index_map;
+  for (vector<vector<int> >::const_iterator patch_it = patch_fold_line_segment_indices.begin(); patch_it != patch_fold_line_segment_indices.end(); patch_it++) {
+    for (vector<int>::const_iterator line_segment_it = patch_it->begin(); line_segment_it != patch_it->end(); line_segment_it++) {
+      line_segment_fold_line_indices[*line_segment_it] = pow(2, line_segment_it - patch_it->begin());
+      line_segment_left_fold_lines[*line_segment_it] = pow(2, line_segment_it - patch_it->begin());
+      line_segment_right_fold_lines[*line_segment_it] = pow(2, line_segment_it - patch_it->begin());
+      int original_fold_line_index = patch_fold_line_index_map[patch_it - patch_fold_line_segment_indices.begin()][line_segment_it - patch_it->begin()];
+      line_segment_original_fold_lines[*line_segment_it] = original_fold_line_index;
+      line_segment_new_fold_lines[*line_segment_it] = attendant_fold_line_index;
+      attendant_fold_line_index_map[attendant_fold_line_index] = original_fold_line_index;
+      attendant_fold_line_index++;
+    }
+  }
+  cout << "done" << endl;  
+  while (true) {
+    bool has_change = false;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (pixel % IMAGE_WIDTH == IMAGE_WIDTH - 1)
+	continue;
+      int neighbor_pixel = pixel + 1;
+      if (patch_index_mask[pixel] != patch_index_mask[neighbor_pixel])
+	continue;
+      int line_segment_index = line_segment_indices[pixel];
+      int neighbor_line_segment_index = line_segment_indices[neighbor_pixel];
+      if (line_segment_fold_line_indices[neighbor_line_segment_index] != -1)
+	continue;
+      int left_fold_lines = (line_segment_left_fold_lines[line_segment_index] | line_segment_left_fold_lines[neighbor_line_segment_index]);
+      if (line_segment_left_fold_lines[neighbor_line_segment_index] != left_fold_lines) {
+	line_segment_left_fold_lines[neighbor_line_segment_index] = left_fold_lines;
+	has_change = true;
+      }
+    }
+    if (has_change == false)
+      break;
+  }
+
+  while (true) {
+    bool has_change = false;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (pixel % IMAGE_WIDTH == 0)
+        continue;
+      int neighbor_pixel = pixel - 1;
+      if (patch_index_mask[pixel] != patch_index_mask[neighbor_pixel])
+        continue;
+      int line_segment_index = line_segment_indices[pixel];
+      int neighbor_line_segment_index = line_segment_indices[neighbor_pixel];
+      if (line_segment_fold_line_indices[neighbor_line_segment_index] != -1)
+        continue;
+      int right_fold_lines = (line_segment_right_fold_lines[line_segment_index] | line_segment_right_fold_lines[neighbor_line_segment_index]);
+      if (line_segment_right_fold_lines[neighbor_line_segment_index] != right_fold_lines) {
+        line_segment_right_fold_lines[neighbor_line_segment_index] = right_fold_lines;
+        has_change = true;
+      }
+    }
+    if (has_change == false)
+      break;
+  }
+  
+
+  vector<int> line_segment_xs(num_line_segments);
+  vector<int> line_segment_patch_index_mask(num_line_segments);
+  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+    line_segment_xs[line_segment_indices[pixel]] = pixel % IMAGE_WIDTH;
+    line_segment_patch_index_mask[line_segment_indices[pixel]] = patch_index_mask[pixel];
+  }
+  
+  int max_index = 0;
+  for (int line_segment_index = 0; line_segment_index < num_line_segments; line_segment_index++)
+    max_index = max(max_index, max(line_segment_left_fold_lines[line_segment_index], line_segment_right_fold_lines[line_segment_index]));
+
+  
+  vector<map<long, vector<int> > > patch_group_line_segments(num_original_patches);
+  for (int line_segment_index = 0; line_segment_index < num_line_segments; line_segment_index++) {
+    if (line_segment_left_fold_lines[line_segment_index] == 0 || line_segment_right_fold_lines[line_segment_index] == 0 || line_segment_new_fold_lines[line_segment_index] != -1)
+      continue;
+    long group_index = static_cast<long>(line_segment_left_fold_lines[line_segment_index]) * (max_index + 1) + line_segment_right_fold_lines[line_segment_index];
+    patch_group_line_segments[line_segment_patch_index_mask[line_segment_index]][group_index].push_back(line_segment_index);
+  }
+  cout << "done" << endl;  
+
+  int num_attendant_fold_lines = attendant_fold_line_index - num_original_fold_lines;
+  int new_fold_line_index = num_original_fold_lines + num_attendant_fold_lines;
+  map<int, set<int> > fold_line_xs;
+  for (vector<map<long, vector<int> > >::const_iterator patch_it = patch_group_line_segments.begin(); patch_it != patch_group_line_segments.end(); patch_it ++) {
+    for (map<long, vector<int> >::const_iterator group_it = patch_it->begin(); group_it != patch_it->end(); group_it++) {
+      vector<int> line_segments = group_it->second;
+      int selected_line_segment = -1;
+      set<int> xs;
+      for (vector<int>::const_iterator line_segment_it = line_segments.begin(); line_segment_it != line_segments.end(); line_segment_it++) {
+	xs.insert(line_segment_xs[*line_segment_it]);
+	if (line_segment_it - line_segments.begin() <= (line_segments.size() - 1) / 2)
+	  selected_line_segment = *line_segment_it;
+      }
+      line_segment_new_fold_lines[selected_line_segment] = new_fold_line_index;
+      fold_line_xs[new_fold_line_index] = xs;
+      new_fold_line_index++;
+    }
+  }
+  
+  vector<int> new_patch_index_mask(IMAGE_WIDTH * IMAGE_HEIGHT, -1);
+  int new_patch_index = 0;
+  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+    if (new_patch_index_mask[pixel] != -1 || line_segment_new_fold_lines[line_segment_indices[pixel]] != -1)
+      continue;
+    vector<int> border_pixels;
+    border_pixels.push_back(pixel);
+    new_patch_index_mask[pixel] = new_patch_index;
+    while (border_pixels.size() > 0) {
+      vector<int> new_border_pixels;
+      for (vector<int>::const_iterator border_pixel_it = border_pixels.begin(); border_pixel_it != border_pixels.end(); border_pixel_it++) {
+        int pixel = *border_pixel_it;
+        vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
+        for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
+          if (patch_index_mask[*neighbor_pixel_it] != patch_index_mask[pixel] || new_patch_index_mask[*neighbor_pixel_it] != -1 || line_segment_new_fold_lines[line_segment_indices[*neighbor_pixel_it]] != -1)
+            continue;
+          new_border_pixels.push_back(*neighbor_pixel_it);
+          new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
+        }
+      }
+      border_pixels = new_border_pixels;
+    }
+    new_patch_index++;
+  }
+  
+  int num_new_patches = new_patch_index;
+  map<int, set<int> > patch_left_fold_lines;
+  map<int, set<int> > patch_right_fold_lines;
+  map<int, set<int> > fold_line_left_patches;
+  map<int, set<int> > fold_line_right_patches;
+  
+  for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+    if (pixel % IMAGE_WIDTH == IMAGE_WIDTH - 1)
+      continue;
+    int neighbor_pixel = pixel + 1;
+    if (patch_index_mask[pixel] != patch_index_mask[neighbor_pixel])
+      continue;
+    int left_new_patch_index = new_patch_index_mask[pixel];
+    int right_new_patch_index = new_patch_index_mask[neighbor_pixel];
+    int left_new_fold_line_index = line_segment_new_fold_lines[line_segment_indices[pixel]];
+    int right_new_fold_line_index = line_segment_new_fold_lines[line_segment_indices[neighbor_pixel]];
+    int left_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[pixel]];
+    int right_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[neighbor_pixel]];
+
+    if (left_new_patch_index != -1 && right_new_fold_line_index != -1) {
+      patch_right_fold_lines[left_new_patch_index].insert(right_new_fold_line_index);
+      fold_line_left_patches[right_new_fold_line_index].insert(left_new_patch_index);
+      if (right_original_fold_line_index != -1) {
+	patch_right_fold_lines[left_new_patch_index].insert(right_original_fold_line_index);
+        fold_line_left_patches[right_original_fold_line_index].insert(left_new_patch_index);
+      }
+    }
+    if (right_new_patch_index != -1 && left_new_fold_line_index != -1) {
+      patch_left_fold_lines[right_new_patch_index].insert(left_new_fold_line_index);
+      fold_line_right_patches[left_new_fold_line_index].insert(right_new_patch_index);
+      if (left_original_fold_line_index != -1) {
+        patch_left_fold_lines[right_new_patch_index].insert(left_original_fold_line_index);
+        fold_line_right_patches[left_original_fold_line_index].insert(right_new_patch_index);
+      }
+    }
+  }
+
+  set<int> invalid_patches;
+  set<int> invalid_fold_lines;
+  if (true) {
+    for (int new_patch_index = 0; new_patch_index < num_new_patches; new_patch_index++) {
+      if (patch_left_fold_lines[new_patch_index].size() > 0 && patch_right_fold_lines[new_patch_index].size() > 0)
+	continue;
+      invalid_patches.insert(new_patch_index);
+      string left_or_right_patch = patch_left_fold_lines[new_patch_index].size() == 0 ? "left" : "right";
+      vector<int> attendant_fold_lines;
+      attendant_fold_lines.insert(attendant_fold_lines.end(), patch_left_fold_lines[new_patch_index].begin(), patch_left_fold_lines[new_patch_index].end());
+      attendant_fold_lines.insert(attendant_fold_lines.end(), patch_right_fold_lines[new_patch_index].begin(), patch_right_fold_lines[new_patch_index].end());
+      for (vector<int>::const_iterator attendant_fold_line_it = attendant_fold_lines.begin(); attendant_fold_line_it != attendant_fold_lines.end(); attendant_fold_line_it++) {
+	if (*attendant_fold_line_it < num_original_fold_lines || *attendant_fold_line_it >= num_original_fold_lines + num_attendant_fold_lines)
+	  continue;
+	invalid_fold_lines.insert(*attendant_fold_line_it);
+	int original_fold_line = attendant_fold_line_index_map[*attendant_fold_line_it];
+	for (map<int, int>::const_iterator another_attendant_fold_line_it = attendant_fold_line_index_map.begin(); another_attendant_fold_line_it != attendant_fold_line_index_map.end(); another_attendant_fold_line_it++) {
+	  if (another_attendant_fold_line_it->first == *attendant_fold_line_it || another_attendant_fold_line_it->second != original_fold_line)
+	    continue;
+	  invalid_fold_lines.insert(another_attendant_fold_line_it->first);
+	  if (left_or_right_patch == "left")
+	    for (set<int>::const_iterator patch_it = fold_line_right_patches[another_attendant_fold_line_it->first].begin(); patch_it != fold_line_right_patches[another_attendant_fold_line_it->first].end(); patch_it++)
+	      invalid_patches.insert(*patch_it);
+	  else
+	    for (set<int>::const_iterator patch_it = fold_line_left_patches[another_attendant_fold_line_it->first].begin(); patch_it != fold_line_left_patches[another_attendant_fold_line_it->first].end(); patch_it++)
+	      invalid_patches.insert(*patch_it);
+	}
+      }
+    }
+  
+    for (int attendant_fold_line_index = num_original_fold_lines; attendant_fold_line_index < num_original_fold_lines + num_attendant_fold_lines; attendant_fold_line_index++) {
+      if (invalid_fold_lines.count(attendant_fold_line_index) > 0)
+	continue;
+      if (fold_line_left_patches[attendant_fold_line_index].size() > 0 && fold_line_right_patches[attendant_fold_line_index].size() > 0) {
+	invalid_fold_lines.insert(attendant_fold_line_index);
+	string left_or_right_fold_line = fold_line_left_patches[attendant_fold_line_index].size() == 0 ? "left" : "right";
+	int original_fold_line = attendant_fold_line_index_map[attendant_fold_line_index];
+	for (map<int, int>::const_iterator another_attendant_fold_line_it = attendant_fold_line_index_map.begin(); another_attendant_fold_line_it != attendant_fold_line_index_map.end(); another_attendant_fold_line_it++) {
+	  if (another_attendant_fold_line_it->first == attendant_fold_line_index || another_attendant_fold_line_it->second != original_fold_line)
+	    continue;
+	  invalid_fold_lines.insert(another_attendant_fold_line_it->first);
+	  if (left_or_right_fold_line == "left")
+	    for (set<int>::const_iterator patch_it = fold_line_right_patches[another_attendant_fold_line_it->first].begin(); patch_it != fold_line_right_patches[another_attendant_fold_line_it->first].end(); patch_it++)
+	      invalid_patches.insert(*patch_it);
+	  else
+	    for (set<int>::const_iterator patch_it = fold_line_left_patches[another_attendant_fold_line_it->first].begin(); patch_it != fold_line_left_patches[another_attendant_fold_line_it->first].end(); patch_it++)
+	      invalid_patches.insert(*patch_it);
+	}
+      }
+    }
+      
+      
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (invalid_patches.count(new_patch_index_mask[pixel]) > 0)
+	new_patch_index_mask[pixel] = -1;
+      if (invalid_fold_lines.count(line_segment_new_fold_lines[line_segment_indices[pixel]]) > 0)
+	line_segment_new_fold_lines[line_segment_indices[pixel]] = -1;
+    }
+
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (new_patch_index_mask[pixel] == -1)
+	continue;
+      new_patch_index = new_patch_index_mask[pixel];
+      vector<int> border_pixels;
+      border_pixels.push_back(pixel);
+      while (border_pixels.size() > 0) {
+	vector<int> new_border_pixels;
+	for (vector<int>::const_iterator border_pixel_it = border_pixels.begin(); border_pixel_it != border_pixels.end(); border_pixel_it++) {
+	  int pixel = *border_pixel_it;
+	  vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
+	  for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
+	    if (patch_index_mask[*neighbor_pixel_it] != patch_index_mask[pixel] || new_patch_index_mask[*neighbor_pixel_it] != -1 || line_segment_new_fold_lines[line_segment_indices[*neighbor_pixel_it]] != -1)
+	      continue;
+	    new_border_pixels.push_back(*neighbor_pixel_it);
+	    new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
+	  }
+	}
+	border_pixels = new_border_pixels;
+      }
+    }
+    patch_left_fold_lines.clear();
+    patch_right_fold_lines.clear();
+    fold_line_left_patches.clear();
+    fold_line_right_patches.clear();
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (pixel % IMAGE_WIDTH == IMAGE_WIDTH - 1)
+	continue;
+      int neighbor_pixel = pixel + 1;
+      if (patch_index_mask[pixel] != patch_index_mask[neighbor_pixel])
+	continue;
+      int left_new_patch_index = new_patch_index_mask[pixel];
+      int right_new_patch_index = new_patch_index_mask[neighbor_pixel];
+      int left_new_fold_line_index = line_segment_new_fold_lines[line_segment_indices[pixel]];
+      int right_new_fold_line_index = line_segment_new_fold_lines[line_segment_indices[neighbor_pixel]];
+      int left_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[pixel]];
+      int right_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[neighbor_pixel]];
+
+      if (left_new_patch_index != -1 && right_new_fold_line_index != -1) {
+	patch_right_fold_lines[left_new_patch_index].insert(right_new_fold_line_index);
+	fold_line_left_patches[right_new_fold_line_index].insert(left_new_patch_index);
+	if (right_original_fold_line_index != -1) {
+	  patch_right_fold_lines[left_new_patch_index].insert(right_original_fold_line_index);
+	  fold_line_left_patches[right_original_fold_line_index].insert(left_new_patch_index);
+	}
+      }
+      if (right_new_patch_index != -1 && left_new_fold_line_index != -1) {
+	patch_left_fold_lines[right_new_patch_index].insert(left_new_fold_line_index);
+	fold_line_right_patches[left_new_fold_line_index].insert(right_new_patch_index);
+	if (left_original_fold_line_index != -1) {
+	  patch_left_fold_lines[right_new_patch_index].insert(left_original_fold_line_index);
+	  fold_line_right_patches[left_original_fold_line_index].insert(right_new_patch_index);
+	}
+      }
+    }
+  }
+  
+  if (true) {
+    Mat original_graph_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    //Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    map<int, Vec3b> patch_color_table;
+    map<int, vector<int> > patch_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      //int patch_index = patch_index_mask[pixel] * max_index + line_segment_left_fold_lines[line_segment_indices[pixel]];
+      int patch_index = patch_index_mask[pixel];
+      if (patch_index == -1) {
+	//fold_line_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(255, 0, 0);
+	continue;
+      }
+      if (patch_color_table.count(patch_index) == 0) {
+            //color_table[patch_index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+	int gray_value = rand() % 256;
+	patch_color_table[patch_index] = Vec3b(gray_value, gray_value, gray_value);
+	//color_table[patch_index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+      }
+      original_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = patch_color_table[patch_index];
+      patch_pixels[patch_index].push_back(pixel);
+    }
+    for (map<int, vector<int> >::const_iterator patch_it = patch_pixels.begin(); patch_it != patch_pixels.end(); patch_it++) {
+      int pixel = patch_it->second[rand() % patch_it->second.size()];
+      putText(original_graph_image, to_string(patch_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(0, 0, 255));
+    }
+
+    map<int, vector<int> > fold_line_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (line_segment_original_fold_lines[line_segment_indices[pixel]] == -1) {
+        continue;
+      }
+      int fold_line_index = line_segment_original_fold_lines[line_segment_indices[pixel]];
+      if (fold_line_index < num_original_fold_lines) {
+        original_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 0, 255);
+	fold_line_pixels[fold_line_index].push_back(pixel);
+      }
+    }
+    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
+      int pixel = fold_line_it->second[rand() % fold_line_it->second.size()];
+      putText(original_graph_image, to_string(fold_line_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
+    }
+
+    // for (int patch_index_1 = 0; patch_index_1 < num_original_patches; patch_index_1++) {
+    //   for (int patch_index_2 = 0; patch_index_2 < num_original_patches; patch_index_2++) {
+    // 	int patch_pair_index = patch_index_1 * num_original_patches + patch_index_2;
+    // 	for (vector<int>::const_iterator position_it = patch_pair_fold_line_positions[patch_pair_index].begin(); position_it != patch_pair_fold_line_positions[patch_pair_index].end(); position_it++) {
+    // 	  int x = *position_it % IMAGE_WIDTH;
+    // 	  int y = *position_it / IMAGE_WIDTH;
+    // 	  line(original_graph_image, Point(x, y - FOLD_LINE_WINDOW_HEIGHT / 2), Point(x, y + FOLD_LINE_WINDOW_HEIGHT / 2), Scalar(0, 0, 255));
+    // 	  putText(original_graph_image, to_string(patch_index_1) + " " + to_string(patch_index_2), Point(x, y), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(0, 0, 255));
+    // 	}
+    //   }
+    // }
+    imwrite("Test/original_graph_image.bmp", original_graph_image);
+  }
+
+  if (true) {
+    Mat new_graph_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    //Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    map<int, Vec3b> patch_color_table;
+    map<int, vector<int> > patch_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      int patch_index = new_patch_index_mask[pixel];
+      if (patch_index == -1) {
+        continue;
+      }
+      if (patch_color_table.count(patch_index) == 0) {
+        //color_table[patch_index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+        int gray_value = rand() % 256;
+        patch_color_table[patch_index] = Vec3b(gray_value, gray_value, gray_value);
+      }
+      new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = patch_color_table[patch_index];
+      patch_pixels[patch_index].push_back(pixel);
+    }
+    for (map<int, vector<int> >::const_iterator patch_it = patch_pixels.begin(); patch_it != patch_pixels.end(); patch_it++) {
+      int pixel = patch_it->second[rand() % patch_it->second.size()];
+      putText(new_graph_image, to_string(patch_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(0, 0, 255));
+    }
+
+    map<int, vector<int> > fold_line_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (line_segment_new_fold_lines[line_segment_indices[pixel]] == -1) {
+	continue;
+      }
+      int fold_line_index = line_segment_new_fold_lines[line_segment_indices[pixel]];
+      if (fold_line_index < num_original_fold_lines)
+	new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 0, 255);
+      else if (fold_line_index < num_original_fold_lines + num_attendant_fold_lines)
+	new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 255, 0);
+      else
+        new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(255, 0, 0);
+      fold_line_pixels[fold_line_index].push_back(pixel);
+    }
+    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
+      int pixel = fold_line_it->second[rand() % fold_line_it->second.size()];
+      putText(new_graph_image, to_string(fold_line_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
+    }
+
+    imwrite("Test/new_graph_image.bmp", new_graph_image);
+  }
+
+  if (true) {
+    for (map<int, set<int> >::const_iterator patch_it = patch_left_fold_lines.begin(); patch_it != patch_left_fold_lines.end(); patch_it++)
+      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
+	cout << "patch left fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
+    for (map<int, set<int> >::const_iterator patch_it = patch_right_fold_lines.begin(); patch_it != patch_right_fold_lines.end(); patch_it++)
+      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
+        cout << "patch right fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
+    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_left_patches.begin(); fold_line_it != fold_line_left_patches.end(); fold_line_it++)
+          for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
+            cout << "fold line left patch: " << fold_line_it->first << '\t' << *patch_it << endl;
+    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_right_patches.begin(); fold_line_it != fold_line_right_patches.end(); fold_line_it++)
+      for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
+        cout << "fold line right patch: " << fold_line_it->first << '\t' << *patch_it << endl;
+    
+    for (map<int, int>::const_iterator attendant_fold_line_it = attendant_fold_line_index_map.begin(); attendant_fold_line_it != attendant_fold_line_index_map.end(); attendant_fold_line_it++)
+      cout << "attendant: " << attendant_fold_line_it->first << '\t' << attendant_fold_line_it->second << endl;
+
+    for (set<int>::const_iterator patch_it = invalid_patches.begin(); patch_it != invalid_patches.end(); patch_it++)
+      cout << "invalid patch: " << *patch_it << endl;
+    
+    for (set<int>::const_iterator fold_line_it = invalid_fold_lines.begin(); fold_line_it != invalid_fold_lines.end(); fold_line_it++)
+      cout << "invalid fold line: " << *fold_line_it << endl;
+    cout << num_original_patches << '\t' << num_original_fold_lines << '\t' << num_original_patches << '\t' << num_attendant_fold_lines << '\t' << new_fold_line_index - num_original_fold_lines - num_attendant_fold_lines << endl;
+  }
+}
+
 bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_index, const int right_patch_index, const int fold_line_x, const int intersection_y, Mat &deformed_patch_image, double &deformation_cost, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MINIMUM_FOLD_LINE_WINDOW_WIDTH, const int MINIMUM_FOLD_LINE_WINDOW_HEIGHT)
 {
   const int WINDOW_WIDTH = FOLD_LINE_WINDOW_WIDTH + 2;
@@ -246,18 +759,18 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
 
   bool left_patch_exists = false;
   bool right_patch_exists = false;
-  vector<vector<int> > window_patch_indices(WINDOW_WIDTH, vector<int>(WINDOW_HEIGHT, 2));
+  vector<vector<int> > window_patch_index_mask(WINDOW_WIDTH, vector<int>(WINDOW_HEIGHT, 2));
   for (int delta_y = -WINDOW_HEIGHT / 2; delta_y < WINDOW_HEIGHT / 2; delta_y++) {
     for (int delta_x = -WINDOW_WIDTH / 2; delta_x < WINDOW_WIDTH / 2; delta_x++) {
       if (fold_line_x + delta_x < 0 || fold_line_x + delta_x >= patch_image.cols || intersection_y + delta_y < 0 || intersection_y + delta_y >= patch_image.rows)
         continue;
       int patch_index = patch_image.at<uchar>(intersection_y + delta_y, fold_line_x + delta_x);
       if (patch_index == left_patch_index) {
-	window_patch_indices[delta_x + WINDOW_WIDTH / 2][delta_y + WINDOW_HEIGHT / 2] = 0;
+	window_patch_index_mask[delta_x + WINDOW_WIDTH / 2][delta_y + WINDOW_HEIGHT / 2] = 0;
 	if (delta_x < 0)
 	  left_patch_exists = true;
       } else if (patch_index == right_patch_index) {
-        window_patch_indices[delta_x + WINDOW_WIDTH / 2][delta_y + WINDOW_HEIGHT / 2] = 1;
+        window_patch_index_mask[delta_x + WINDOW_WIDTH / 2][delta_y + WINDOW_HEIGHT / 2] = 1;
 	if (delta_x >= 0)
 	  right_patch_exists = true;
       }
@@ -280,24 +793,24 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
     for (int x = 0; x < WINDOW_WIDTH; x++) {
       if (x == 0 || x == WINDOW_WIDTH - 1 || y == 0 || y == WINDOW_HEIGHT - 1) {
 	vector<int> cost(3, FIXED_PIXEL_INCONSISTENCY_COST);
-	cost[window_patch_indices[x][y]] = 0;
+	cost[window_patch_index_mask[x][y]] = 0;
 	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
 	continue;
       }
       vector<int> cost(3, 0);
-      if (window_patch_indices[x][y] == 2) {
-	//           || (window_patch_indices[x][y] == 0 && x < FOLD_LINE_REGION_WIDTH_THRESHOLD)
-	//	  || (window_patch_indices[x][y] == 1 && x > FOLD_LINE_REGION_WIDTH_THRESHOLD + 1)) {
+      if (window_patch_index_mask[x][y] == 2) {
+	//           || (window_patch_index_mask[x][y] == 0 && x < FOLD_LINE_REGION_WIDTH_THRESHOLD)
+	//	  || (window_patch_index_mask[x][y] == 1 && x > FOLD_LINE_REGION_WIDTH_THRESHOLD + 1)) {
 	for (int label = 0; label < 3; label++)
-	  if (label != window_patch_indices[x][y])
+	  if (label != window_patch_index_mask[x][y])
 	    cost[label] = FIXED_PIXEL_INCONSISTENCY_COST;
       } else {
 	for (int label = 0; label < 3; label++)
-          if (label != window_patch_indices[x][y])
+          if (label != window_patch_index_mask[x][y])
             cost[label] = REGION_INCONSISTENCY_COST;
       }
       if (x == FOLD_LINE_WINDOW_WIDTH / 2) {
-	if (window_patch_indices[x][y] == 2) {
+	if (window_patch_index_mask[x][y] == 2) {
 	  cost[1] += FOLD_LINE_INCONSISTENCY_COST;
 	  cost[2] += FOLD_LINE_INCONSISTENCY_COST;
 	} else {
@@ -305,7 +818,7 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
           cost[2] += FIXED_PIXEL_INCONSISTENCY_COST;
 	}
       } else if (x == FOLD_LINE_WINDOW_WIDTH / 2 + 1) {
-	if (window_patch_indices[x][y] == 2) {
+	if (window_patch_index_mask[x][y] == 2) {
 	  cost[0] += FOLD_LINE_INCONSISTENCY_COST;
 	  cost[2] += FOLD_LINE_INCONSISTENCY_COST;
 	} else {
@@ -404,14 +917,14 @@ bool deformPatchesAtIntersection(const Mat &patch_image, const int left_patch_in
   // for (int y = 1; y < WINDOW_HEIGHT - 1; delta_y++) {
   //   for (int x = 1; x < WINDOW_WIDTH - 1; delta_x++) {
   //     int label = solution_labels[y * WINDOW_WIDTH + x];
-  //     if (label != window_patch_indices[y][x])
+  //     if (label != window_patch_index_mask[y][x])
   // 	num_changed_pixels++;
   //     if (label == 0 && x <= FOLD_LINE_REGION_WIDTH_THRESHOLD)
   // 	num_left_patch_pixels++;
   //     if (label == 1 && x > FOLD_LINE_REGION_WIDTH_THRESHOLD)
   //       num_right_patch_pixels++;
   //   }
-  //   if (window_patch_indices[y * WINDOW_WIDTH + FOLD_LINE_REGION_WIDTH_THRESHOLD] == left_patch_index && window_patch_indices[y * WINDOW_WIDTH + FOLD_LINE_REGION_WIDTH_THRESHOLD + 1] == right_patch_index)
+  //   if (window_patch_index_mask[y * WINDOW_WIDTH + FOLD_LINE_REGION_WIDTH_THRESHOLD] == left_patch_index && window_patch_index_mask[y * WINDOW_WIDTH + FOLD_LINE_REGION_WIDTH_THRESHOLD + 1] == right_patch_index)
   //     fold_line_length++;
   // }
 
@@ -456,23 +969,7 @@ vector<int> findFoldLineWindowSize(const Mat &patch_image, const int left_patch_
       int pixel = *border_pixel_it;
       int x = pixel % IMAGE_WIDTH;
       int y = pixel / IMAGE_WIDTH;
-      vector<int> neighbor_pixels;
-      if (x > 0)
-        neighbor_pixels.push_back(pixel - 1);
-      if (x < IMAGE_WIDTH - 1)
-        neighbor_pixels.push_back(pixel + 1);
-      if (y > 0)
-        neighbor_pixels.push_back(pixel - IMAGE_WIDTH);
-      if (y < IMAGE_HEIGHT - 1)
-        neighbor_pixels.push_back(pixel + IMAGE_WIDTH);
-      if (x > 0 && y > 0)
-        neighbor_pixels.push_back(pixel - IMAGE_WIDTH - 1);
-      if (x < IMAGE_WIDTH - 1 && y > 0)
-        neighbor_pixels.push_back(pixel - IMAGE_WIDTH + 1);
-      if (x > 0 && y < IMAGE_HEIGHT - 1)
-        neighbor_pixels.push_back(pixel + IMAGE_WIDTH - 1);
-      if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
-        neighbor_pixels.push_back(pixel + IMAGE_WIDTH + 1);
+      vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
       for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
 	if (visited_pixel_mask[*neighbor_pixel_it] || patch_image.at<uchar>(*neighbor_pixel_it / IMAGE_WIDTH, *neighbor_pixel_it % IMAGE_WIDTH) != patch_index)
 	  continue;
@@ -707,24 +1204,8 @@ int main(int argc, char *argv[])
         int pixel = *border_pixel_it;
         int x = pixel % IMAGE_WIDTH;
         int y = pixel / IMAGE_WIDTH;
-        vector<int> neighbor_pixels;
-        if (x > 0)
-          neighbor_pixels.push_back(pixel - 1);
-        if (x < IMAGE_WIDTH - 1)
-          neighbor_pixels.push_back(pixel + 1);
-        if (y > 0)
-          neighbor_pixels.push_back(pixel - IMAGE_WIDTH);
-        if (y < IMAGE_HEIGHT - 1)
-          neighbor_pixels.push_back(pixel + IMAGE_WIDTH);
-        if (x > 0 && y > 0)
-          neighbor_pixels.push_back(pixel - IMAGE_WIDTH - 1);
-        if (x < IMAGE_WIDTH - 1 && y > 0)
-          neighbor_pixels.push_back(pixel - IMAGE_WIDTH + 1);
-        if (x > 0 && y < IMAGE_HEIGHT - 1)
-          neighbor_pixels.push_back(pixel + IMAGE_WIDTH - 1);
-        if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
-          neighbor_pixels.push_back(pixel + IMAGE_WIDTH + 1);
-
+        vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
+	
 	Vec3b color = image.at<Vec3b>(*border_pixel_it / IMAGE_WIDTH, *border_pixel_it % IMAGE_WIDTH);
 	for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
           if (patch_index_mask[*neighbor_pixel_it] != -1)
@@ -761,23 +1242,7 @@ int main(int argc, char *argv[])
     
     int x = pixel % IMAGE_WIDTH;
     int y = pixel / IMAGE_WIDTH;
-    vector<int> neighbor_pixels;
-    if (x > 0)
-      neighbor_pixels.push_back(pixel - 1);
-    if (x < IMAGE_WIDTH - 1)
-      neighbor_pixels.push_back(pixel + 1);
-    if (y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH);
-    if (y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH);
-    if (x > 0 && y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH - 1);
-    if (x < IMAGE_WIDTH - 1 && y > 0)
-      neighbor_pixels.push_back(pixel - IMAGE_WIDTH + 1);
-    if (x > 0 && y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH - 1);
-    if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
-      neighbor_pixels.push_back(pixel + IMAGE_WIDTH + 1);
+    vector<int> neighbor_pixels = findNeighbors(pixel, IMAGE_WIDTH, IMAGE_HEIGHT);
     random_shuffle(neighbor_pixels.begin(), neighbor_pixels.end());
     for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
       if (patch_pixel_counter[patch_index_mask[*neighbor_pixel_it]] >= PATCH_NUM_PIXELS_THRESHOLD) {
@@ -839,13 +1304,23 @@ int main(int argc, char *argv[])
   for (int pixel = 0; pixel < width * height; pixel++)
     patch_index_mask_in_str >> patch_index_mask[pixel];
   patch_index_mask_in_str.close();
+
+  int background_patch = patch_index_mask[width + 1];
+  for (int pixel = 0; pixel < width * height; pixel++)
+    if (patch_index_mask[pixel] == -1)
+      patch_index_mask[pixel] = background_patch;
+  
   
   vector<vector<int> > patch_pair_fold_line_positions;
   vector<map<int, double> > fold_line_x_score_map;
   const int FOLD_LINE_WINDOW_WIDTH = 10;
   const int FOLD_LINE_WINDOW_HEIGHT = 10;
-  computeDeformationCostsApproximately(patch_index_mask, image.cols, image.rows, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, patch_pair_fold_line_positions, fold_line_x_score_map);
 
+  const int NEW_IMAGE_WIDTH = image.cols * 3;
+  const int NEW_IMAGE_HEIGHT = image.rows * 3;
+  patch_index_mask = zoomMask(patch_index_mask, image.cols, image.rows, NEW_IMAGE_WIDTH, NEW_IMAGE_HEIGHT);
+  computeDeformationCostsApproximately(patch_index_mask, NEW_IMAGE_WIDTH, NEW_IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, patch_pair_fold_line_positions, fold_line_x_score_map);
+  findAllFoldLines(patch_index_mask, NEW_IMAGE_WIDTH, NEW_IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, patch_pair_fold_line_positions, fold_line_x_score_map);
   Mat fold_line_image = segmented_patch_image.clone();
   // map<int, Vec3b> color_table;
   // for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
