@@ -8,20 +8,6 @@
 
 #include "popupObjFindPossiblePatchConnection.hpp"
 
-
-static void convertInsertedLine(popupObject *obj){
-    //push inserted line
-    for(size_t i=0; i< obj->insertedLineOfPatch.size(); i++){
-        for(size_t j=0; j<obj->insertedLineOfPatch[i].size(); j++){
-            foldLineType *line = obj->insertedLineOfPatch[i][j];
-            line->isOriginalFoldLine = false;
-            line->originalConnPatch.push_back((int)i);
-            obj->foldLine.push_back(line);
-            obj->foldLine.back()->foldLineIdx = obj->foldLine.size()-1;
-        }
-    }
-}
-
 static void findConnFoldLine(size_t patchIdx, popupObject *obj){
     
     
@@ -30,7 +16,7 @@ static void findConnFoldLine(size_t patchIdx, popupObject *obj){
     //find inner fold line conn of patchIdx
     for(size_t lineIdx=0; lineIdx< obj->foldLine.size(); lineIdx++){
         
-        if(obj->foldLine[lineIdx]->isOriginalFoldLine==false && obj->foldLine[lineIdx]->originalConnPatch[0]== (int)patchIdx){
+        if(obj->foldLine[lineIdx]->isOriginalType==false && obj->foldLine[lineIdx]->originalConnPatch[0]== (int)patchIdx){
 
            
             for(size_t pPchIdx=0; pPchIdx< obj->possiblePatchesOfPatch[patchIdx].size(); pPchIdx++){
@@ -61,7 +47,7 @@ static void findConnFoldLine(size_t patchIdx, popupObject *obj){
             }
 
             for(size_t lineIdx=0; lineIdx< obj->foldLine.size(); lineIdx++){
-                if(obj->foldLine[lineIdx]->isOriginalFoldLine==true &&
+                if(obj->foldLine[lineIdx]->isOriginalType==true &&
                    (obj->foldLine[lineIdx]->originalConnPatch[0]==(int)patchIdx || obj->foldLine[lineIdx]->originalConnPatch[1]==(int)patchIdx)){
                     
                     if(isLineAndPatchConn(*obj->possiblePatchesOfPatch[patchIdx][pPchIdx],
@@ -79,7 +65,6 @@ static void findConnFoldLine(size_t patchIdx, popupObject *obj){
 
 bool popupObjFindPossiblePatchConnection::execute(popupObject *obj)
 {
-    convertInsertedLine(obj);
     
     obj->originalBackPatch = obj->backPatch;
     obj->originalFloorPatch = obj->floorPatch;
@@ -102,29 +87,9 @@ bool popupObjFindPossiblePatchConnection::execute(popupObject *obj)
             cout << endl;
         }
         
-        
         obj->possibleFoldLineConnMap[obj->foldLine[i]->connPatch[0]][obj->foldLine[i]->connPatch[1]] = obj->foldLine[i];
         obj->possibleFoldLineConnMap[obj->foldLine[i]->connPatch[1]][obj->foldLine[i]->connPatch[0]] = obj->foldLine[i];
-       // cout <<"ppf " <<obj->foldLine[i]->connPatch[0] << " : " << obj->foldLine[i]->connPatch[1] << " " << obj->foldLine[i]->foldLineIdx << endl;;
     }
 
-
-   /* for(int patchIdx=0; patchIdx< obj->originalFoldLineOfPatch.size(); patchIdx++){
-        
-        cout << "idx: "<<patchIdx << " : ";
-        for(size_t i=0; i< obj->originalFoldLineOfPatch[patchIdx].size(); i++){
-            
-            int idx = obj->originalFoldLineOfPatch[patchIdx][i]->foldLineIdx;
-            // if(!obj->originalFoldLineOfPatch[patchIdx][i]->isConnLine){
-            
-            cout << idx << " ";
-            //}
-        }
-        cout << endl;
-    }*/
-    
-
-    
-    
     return true;
 }

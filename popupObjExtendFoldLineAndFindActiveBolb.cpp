@@ -92,7 +92,8 @@ static bool  extendFoldline(popupObject *obj ,int pIdx1, int pIdx2,int lineIdx, 
     return true;
 }
 
-bool isActiveBlob( cv::Mat greyMat, vector< pair<cv::Point, cv::Point> > &patchExtendedLine, int patchIdx, int blobIdx, pair<int, int> &maxIdxs){
+bool isActiveBlob( cv::Mat greyMat, vector< pair<cv::Point, cv::Point> > &patchExtendedLine, int patchIdx, int blobIdx,
+                  vector<int> &leftIdx, vector<int> &rightIdx){
     
     int connectLeftSize = 0;
     int connectRightSize = 0;
@@ -129,9 +130,11 @@ bool isActiveBlob( cv::Mat greyMat, vector< pair<cv::Point, cv::Point> > &patchE
             
             if(patchExtendedLine[j].first.x > midTop.x){
                 connectLeftSize++;
+                leftIdx.push_back(j);
                 if(count > maxLeftArea) maxLeftIdx = j;
             }else{
                 connectRightSize++;
+                rightIdx.push_back(j);
                 if(count > maxRightArea) maxRightIdx = j;
 
             }
@@ -147,10 +150,7 @@ bool isActiveBlob( cv::Mat greyMat, vector< pair<cv::Point, cv::Point> > &patchE
     }
     
     if(connectLeftSize>0 && connectRightSize>0){
-        //cout << "conn " << connectLeftSize <<" " << connectRightSize << endl;
-        maxIdxs.first = maxLeftIdx;
-        maxIdxs.second = maxRightIdx;
-
+        cout << "conn " << connectLeftSize <<" " << connectRightSize << endl;
         return true;
     }
     
@@ -164,7 +164,6 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
 {
     for(size_t i=0; i< obj->boundaryFoldLineConnGroupMap.size(); i++){
         
-        
         //extended line
         cv::Mat canvas(obj->initMatSize, CV_8UC3);
         canvas.setTo(black);
@@ -173,12 +172,10 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         vector< pair<cv::Point, cv::Point> > patchExtendedLine;
         vector< int > patchExtendedLineToFoldLine;
 
-        
         for(size_t j=0; j<obj->originalFoldLineConnMap[i].size(); j++){
             for(size_t k=0; k<obj->originalFoldLineConnMap[i][j].size(); k++){
                // cout << i <<" " <<j << " extend " << obj->originalFoldLineConnMap[i][j][k]->foldLineIdx<<endl;;
                 patchExtendedLineToFoldLine.push_back(obj->originalFoldLineConnMap[i][j][k]->foldLineIdx);
-                
                 
                 bool isAddFoldLine = extendFoldline(obj , (int)i, (int)j, (int)k, canvas, patchExtendedLine);
                 
@@ -208,12 +205,8 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         vector<cv::Mat> blobMat;
         ConnectedBlobs(greyMat, blobMat);
         
-        vector<cv::Mat> activePatchBlobMat;
-        activePatchBlobMat.clear();
-        vector<pair<int,int> > activePatchFoldLine;
-        activePatchFoldLine.clear();
-        vector< pair<lineType, lineType> > activeExtentedLine;
-
+        vector<activeBlob> activePatchBlob;
+        activePatchBlob.clear();
 
         for(size_t j=0; j< blobMat.size(); j++){
         
@@ -223,23 +216,30 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
             oss.str("");
             oss << i << " " <<j;
             if(count > 0){
-                pair<int, int> maxIdx;
-                bool isActive = isActiveBlob( greyMat, patchExtendedLine, (int)i, (int)j, maxIdx);
+                vector<int> leftIdx;
+                vector<int> rightIdx;
+                bool isActive = isActiveBlob( greyMat, patchExtendedLine, (int)i, (int)j, leftIdx, rightIdx);
                 if(isActive){
                     
                     std::string str = "../ExtendFoldLineAndFindActiveBolb/blobMat"+oss.str()+".png";
                     imwrite(str, blobMat[j]);
-                    int fidx1 = patchExtendedLineToFoldLine[maxIdx.first];
-                    int fidx2 = patchExtendedLineToFoldLine[maxIdx.second];
-
-                    activePatchBlobMat.push_back(blobMat[j]);
-                    activePatchFoldLine.push_back(make_pair(fidx1, fidx2));
-                    lineType line1, line2;
-                    line1.line = patchExtendedLine[maxIdx.first];
-                    line2.line = patchExtendedLine[maxIdx.second];
                     
-                    activeExtentedLine.push_back(make_pair(line1, line2));
+                    activeBlob blob (blobMat[j]);
+                    activePatchBlob.push_back(blob);
                     
+                    for(int idx=0; idx<leftIdx.size(); idx++){
+                        int fidx = patchExtendedLineToFoldLine[leftIdx[idx]];
+                        blob.leftLineIdx.push_back(fidx);
+                    }
+                    for(int idx=0; idx<rightIdx.size(); idx++){
+                        int fidx = patchExtendedLineToFoldLine[rightIdx[idx]];
+                        blob.leftLineIdx.push_back(fidx);
+                    }
+                    
+                }
+                else{
+                    std::string str = "../ExtendFoldLineAndFindActiveBolb/inactiveBlob"+oss.str()+".png";
+                    imwrite(str, blobMat[j]);
                 }
             }
             std::string str = "../ExtendFoldLineAndFindActiveBolb/allblobMat"+oss.str()+".png";
@@ -247,9 +247,7 @@ bool popupObjExtendFoldLineAndFindActiveBolb::execute(popupObject *obj)
         
         }
         
-        obj->activeBlobMatOfPatch.push_back(activePatchBlobMat);
-        obj->activeBlobFoldLineOfPatch.push_back(activePatchFoldLine);
-        //obj->activeExtendedLineOfPatch.push_back(activeExtentedLine);
+        obj->activeBlobOfPatch.push_back(activePatchBlob);
 
     }
     return true;

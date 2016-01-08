@@ -16,7 +16,7 @@ bool popupObjFindFinalPath::execute(popupObject *obj)
     
     //putEdges
     for(int i=0; i< obj->foldLine.size(); i++){
-        if(obj->foldLine[i]->isOriginalFoldLine && obj->activeFoldLine[i]==0.0) continue;
+        if(obj->foldLine[i]->isOriginalType && obj->activeFoldLine[i]==0.0) continue;
         originalSize ++ ;
         createEdgeM(obj->foldLine[i]->connPatch[0], obj->foldLine[i]->connPatch[1]);
     }

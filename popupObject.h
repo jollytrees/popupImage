@@ -27,31 +27,87 @@ public:
     int patchIdx;
 };
 
+static class activeBlob{
+public:
+    activeBlob();
+    activeBlob(cv::Mat &m){
+        blobMat = m.clone();
+    }
+    cv::Mat blobMat;
+    vector<int> leftLineIdx;
+    vector<int> rightLineIdx;
+};
 
-//pch
+//fold line
 class foldLineType{
 public:
     foldLineType(){
-        leftIdx = -1;
-        rightIdx = -1;
+        leftIdx = rightIdx = -1;
         isCuttedLine = false;
+        isInsertedType = isInactiveType = isOriginalType = false;
+
     }
     std::pair<cv::Point, cv::Point> line;
-    bool isCentralLine;
-    bool isEmpty;
-    bool isConnLine;
-    bool isOriginalFoldLine;
-    bool isCuttedLine;
-    vector<int> originalConnPatch;
-    vector<int> finalConnPatch;
-    vector<int> connPatch;
-    vector<int> connOriFoldLine;
+    
+    bool isOriginalType;
+    bool isInsertedType;
+    bool isInactiveType;
+    
+    bool isConnLine; //if is OriginalType
+    bool isExtentedLine; //if is InactiveType
+    
     int foldLineIdx;
-    int xPosition;
+    
+    // findInsertedLine
+    vector<int> originalConnPatch; //if is inserted line
+    vector<int> leftOriginalLine; //if is original line
+    vector<int> rightOriginalLine; //if is original line
+
+    // findPossiblePatch
+    vector<pair<int, int> > possiblePatchIdx; //if is original line : idx, oriIdx
+    vector<int> connOriLeftFoldLine; //if is inserted line
+    vector<int> connOriRightFoldLine; //if is inserted line
+    int oriPatchIdx;
     int leftIdx;
     int rightIdx;
+    vector<int> connPatch;
+    int findOriToPatchIdx(int oriPchIdx){
+        for(int i=0; i< possiblePatchIdx.size(); i++){
+            if(possiblePatchIdx[i].second == oriPchIdx){
+                cout << "find "<<possiblePatchIdx[i].second << " out: " << possiblePatchIdx[i].first << endl;
+                return possiblePatchIdx[i].first;
+            }
+        }
+    }
+
+    
+    bool isCuttedLine;
+    bool isCloneLine;
+
+    
+    vector<int> finalConnPatch;
+    int xPosition;
+
+    
+    bool isCentralLine;
+    bool isEmpty;
+    
+    
     
     vector<extendLine> extendLines;
+    
+    void setOriginalType(){
+        isOriginalType = true;
+        isInsertedType = isInactiveType = false;
+    }
+    void setInsertedType(){
+        isInsertedType = true;
+        isOriginalType = isInactiveType = false;
+    }
+    void setInactiveType(){
+        isInactiveType = true;
+        isOriginalType = isInsertedType = false;
+    }
     
     void removeConnPatch(int pIdx){
         for(int i=0; i<connPatch.size(); i++){
@@ -86,13 +142,13 @@ static bool compareIncrement( foldLineType* x, foldLineType* y ) {return x->xPos
 
 static cv::Scalar green = cv::Scalar(0, 255 , 0);
 static cv::Scalar red = cv::Scalar(0, 0 , 255);
-static cv::Scalar blue = cv::Scalar(255, 0 , 0);
+static cv::Scalar blue = cv::Scalar(170, 0 , 0);
 static cv::Scalar purple = cv::Scalar(255, 0 , 255);
 static cv::Scalar yellow = cv::Scalar(0, 255 , 255);
 static cv::Scalar blueGreen = cv::Scalar(255, 255 , 0);
 static cv::Scalar white = cv::Scalar(255, 255, 255);
 static cv::Scalar black = cv::Scalar(0, 0, 0);
-static cv::Scalar orange = cv::Scalar(0, 128, 255);
+static cv::Scalar orange = cv::Scalar(0, 117, 235);
 static cv::Scalar lemonYellow= cv::Scalar(173, 240, 255);
 
 
@@ -102,6 +158,7 @@ public:
     std::vector<std::vector<cv::Point> > paths;
     cv::Mat pchMat;
     int patchIdx;
+    int oriPatchIdx;
     
     vector<foldLineType*> foldLine;
 
@@ -119,7 +176,6 @@ public:
                 foldLine.erase(foldLine.begin()+i);
             }
         }
-        
     }
     
     bool isBoundaryLine(int idx){
@@ -238,7 +294,7 @@ public:
     std::vector<std::vector<foldLineType*>  > boundaryFoldLineConnMap;
     
     //active blob
-    vector<vector<cv::Mat> >activeBlobMatOfPatch;
+    vector<vector<activeBlob> >activeBlobOfPatch;
     vector<vector<pair<int,int> > > activeBlobFoldLineOfPatch;
     
     //inserted line
@@ -292,7 +348,6 @@ public:
     vector<vector<int> > finalPaths;
     
     int isLeftOrRightNeighbor(int p1, int p2);
-    
     
 };
 

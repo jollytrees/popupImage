@@ -15,7 +15,7 @@ bool popupObjGraphFindAllPath::execute(popupObject *obj)
     int originalSize = 0;
     //putEdges
     for(int i=0; i< obj->foldLine.size(); i++){
-        if(!obj->foldLine[i]->isOriginalFoldLine) continue;
+        if(!obj->foldLine[i]->isOriginalType) continue;
         originalSize ++ ;
         createEdgeM(obj->foldLine[i]->originalConnPatch[0], obj->foldLine[i]->originalConnPatch[1]);
     }
