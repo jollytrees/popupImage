@@ -490,6 +490,8 @@ void findAllFoldLines(const vector<int> &patch_index_mask, const int IMAGE_WIDTH
     int right_new_fold_line_index = line_segment_new_fold_lines[line_segment_indices[neighbor_pixel]];
     int left_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[pixel]];
     int right_original_fold_line_index = line_segment_original_fold_lines[line_segment_indices[neighbor_pixel]];
+    if (right_new_fold_line_index == 72)
+      cout << pixel % IMAGE_WIDTH << '\t' << left_new_patch_index << endl;
 
     if (left_new_patch_index != -1 && right_new_fold_line_index != -1) {
       patch_right_fold_lines[left_new_patch_index].insert(right_new_fold_line_index);
@@ -508,7 +510,76 @@ void findAllFoldLines(const vector<int> &patch_index_mask, const int IMAGE_WIDTH
       }
     }
   }
+  //  cout << fold_line_left_patches[72].size() << endl;
+  //exit(1);
+  
+  if (true) {
+    Mat new_graph_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    //Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+    map<int, Vec3b> patch_color_table;
+    map<int, vector<int> > patch_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      int patch_index = new_patch_index_mask[pixel];
+      if (patch_index == -1) {
+	if (line_segment_new_fold_lines[line_segment_indices[pixel]] == -1) {
+	  cout << "invalid patch mask" << endl;
+	  exit(1);
+	}
+        continue;
+      }
+      if (patch_color_table.count(patch_index) == 0) {
+        //color_table[patch_index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+        int gray_value = rand() % 256;
+        patch_color_table[patch_index] = Vec3b(gray_value, gray_value, gray_value);
+      }
+      new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = patch_color_table[patch_index];
+      patch_pixels[patch_index].push_back(pixel);
+    }
+    for (map<int, vector<int> >::const_iterator patch_it = patch_pixels.begin(); patch_it != patch_pixels.end(); patch_it++) {
+      int pixel = patch_it->second[rand() % patch_it->second.size()];
+      putText(new_graph_image, to_string(patch_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(0, 0, 255));
+    }
 
+    map<int, vector<int> > fold_line_pixels;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      if (line_segment_new_fold_lines[line_segment_indices[pixel]] == -1) {
+        continue;
+      }
+      int fold_line_index = line_segment_new_fold_lines[line_segment_indices[pixel]];
+      if (fold_line_index < num_original_fold_lines)
+        new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 0, 255);
+      else if (fold_line_index < num_original_fold_lines + num_attendant_fold_lines)
+        new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 255, 0);
+      else
+        new_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(255, 0, 0);
+      fold_line_pixels[fold_line_index].push_back(pixel);
+    }
+    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
+      int pixel = fold_line_it->second[rand() % fold_line_it->second.size()];
+      putText(new_graph_image, to_string(fold_line_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
+    }
+
+    imwrite("Test/new_graph_image_redundant.bmp", new_graph_image);
+  }
+
+  if (true) {
+    for (map<int, set<int> >::const_iterator patch_it = patch_left_fold_lines.begin(); patch_it != patch_left_fold_lines.end(); patch_it++)
+      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
+        cout << "patch left fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
+    for (map<int, set<int> >::const_iterator patch_it = patch_right_fold_lines.begin(); patch_it != patch_right_fold_lines.end(); patch_it++)
+      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
+        cout << "patch right fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
+    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_left_patches.begin(); fold_line_it != fold_line_left_patches.end(); fold_line_it++)
+      for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
+        cout << "fold line left patch: " << fold_line_it->first << '\t' << *patch_it << endl;
+    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_right_patches.begin(); fold_line_it != fold_line_right_patches.end(); fold_line_it++)
+      for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
+        cout << "fold line right patch: " << fold_line_it->first << '\t' << *patch_it << endl;
+    
+    for (map<int, int>::const_iterator attendant_fold_line_it = attendant_fold_line_index_map.begin(); attendant_fold_line_it != attendant_fold_line_index_map.end(); attendant_fold_line_it++)
+      cout << "attendant: " << attendant_fold_line_it->first << '\t' << attendant_fold_line_it->second << endl;
+  }
+  
   set<int> invalid_patches;
   set<int> invalid_fold_lines;
   if (true) {
@@ -529,6 +600,8 @@ void findAllFoldLines(const vector<int> &patch_index_mask, const int IMAGE_WIDTH
 	  if (another_attendant_fold_line_it->first == *attendant_fold_line_it || another_attendant_fold_line_it->second != original_fold_line)
 	    continue;
 	  invalid_fold_lines.insert(another_attendant_fold_line_it->first);
+	  if (another_attendant_fold_line_it->first == 72)
+	    exit(1);
 	  if (left_or_right_patch == "left")
 	    for (set<int>::const_iterator patch_it = fold_line_right_patches[another_attendant_fold_line_it->first].begin(); patch_it != fold_line_right_patches[another_attendant_fold_line_it->first].end(); patch_it++)
 	      invalid_patches.insert(*patch_it);
@@ -727,22 +800,6 @@ void findAllFoldLines(const vector<int> &patch_index_mask, const int IMAGE_WIDTH
   }
 
   if (true) {
-    for (map<int, set<int> >::const_iterator patch_it = patch_left_fold_lines.begin(); patch_it != patch_left_fold_lines.end(); patch_it++)
-      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
-	cout << "patch left fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
-    for (map<int, set<int> >::const_iterator patch_it = patch_right_fold_lines.begin(); patch_it != patch_right_fold_lines.end(); patch_it++)
-      for (set<int>::const_iterator fold_line_it = patch_it->second.begin(); fold_line_it != patch_it->second.end(); fold_line_it++)
-        cout << "patch right fold line: " << patch_it->first << '\t' << *fold_line_it << endl;
-    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_left_patches.begin(); fold_line_it != fold_line_left_patches.end(); fold_line_it++)
-          for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
-            cout << "fold line left patch: " << fold_line_it->first << '\t' << *patch_it << endl;
-    for (map<int, set<int> >::const_iterator fold_line_it = fold_line_right_patches.begin(); fold_line_it != fold_line_right_patches.end(); fold_line_it++)
-      for (set<int>::const_iterator patch_it = fold_line_it->second.begin(); patch_it != fold_line_it->second.end(); patch_it++)
-        cout << "fold line right patch: " << fold_line_it->first << '\t' << *patch_it << endl;
-    
-    for (map<int, int>::const_iterator attendant_fold_line_it = attendant_fold_line_index_map.begin(); attendant_fold_line_it != attendant_fold_line_index_map.end(); attendant_fold_line_it++)
-      cout << "attendant: " << attendant_fold_line_it->first << '\t' << attendant_fold_line_it->second << endl;
-
     for (set<int>::const_iterator patch_it = invalid_patches.begin(); patch_it != invalid_patches.end(); patch_it++)
       cout << "invalid patch: " << *patch_it << endl;
     
@@ -1182,6 +1239,7 @@ void grabCut(const Mat &image)
 
 int main(int argc, char *argv[])
 {
+  //srand(time(0));
   string image_name = "bear_ill";
   Mat image = imread("Test/" + image_name + ".png");
   //  grabCut(image);
