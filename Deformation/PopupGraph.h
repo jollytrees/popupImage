@@ -77,7 +77,8 @@ namespace Popup
     
     void checkFoldLinePairs();
     void checkFoldLinePaths();
-
+    void checkFoldLineInfo();
+    
       //std::map<int, std::map<int, std::set<int> > > original_patch_fold_lines;
     //std::set<int> background_patches;
     //std::map<int, std::map<int, double> > fold_line_x_score_map;

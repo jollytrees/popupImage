@@ -29,7 +29,7 @@ public:
     size_t distSize;
     size_t positionLineSize;
 
-    vector<GRBVar> f,o,X,Y,Z,s,c,k;
+  vector<GRBVar> f,o,X,Y,Z,s,c,k;
     
     GRBVar** b = 0;
     GRBVar** a = 0;
