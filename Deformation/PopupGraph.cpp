@@ -39,6 +39,24 @@ namespace Popup
     }
     return patch_neighbor_fold_lines;
   }
+
+  std::vector<int> PopupGraph::getBackgroundLeftFoldLines() const
+  {
+    vector<int> background_left_fold_lines;
+    for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
+      if (fold_line_it->original_patch_pair.first == ORIGINAL_BACKGROUND_PATCH_INDEX_)
+	background_left_fold_lines.push_back(fold_line_it - fold_lines_.begin());
+    return background_left_fold_lines;
+  }
+
+  std::vector<int> PopupGraph::getBackgroundRightFoldLines() const
+  {
+    vector<int> background_right_fold_lines;
+    for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
+      if (fold_line_it->original_patch_pair.second == ORIGINAL_BACKGROUND_PATCH_INDEX_)
+        background_right_fold_lines.push_back(fold_line_it - fold_lines_.begin());
+    return background_right_fold_lines;
+  }
   
   void PopupGraph::findOriginalFoldLines()
   {
@@ -288,38 +306,42 @@ namespace Popup
     }
 
     //keep only one fold line if two fold lines between same pair of patches are too close (touching each other)
-    {
-      vector<bool> fold_line_validity_mask(fold_lines_.size(), true);
-      vector<int> pixel_fold_line_indices(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
-      vector<pair<int, int> > conflicted_fold_line_pairs;
-      //find fold line pairs with overlap
-      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
-        for (vector<int>::const_iterator position_it = fold_line_it->positions.begin(); position_it != fold_line_it->positions.end(); position_it++) {
-	  int fold_line_index = fold_line_it - fold_lines_.begin();
-	  if (pixel_fold_line_indices[*position_it] != -1 && pixel_fold_line_indices[*position_it] != fold_line_index)
-	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[*position_it], fold_line_index));
-          pixel_fold_line_indices[*position_it] = fold_line_index;
-	}
-      }
-      //find adjacent fold line pairs
-      for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++)
-	if (pixel % IMAGE_WIDTH_ < IMAGE_WIDTH_ - 1)
-	  if (pixel_fold_line_indices[pixel] != -1 && pixel_fold_line_indices[pixel + 1] != -1 && pixel_fold_line_indices[pixel] != pixel_fold_line_indices[pixel + 1])
-	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[pixel], pixel_fold_line_indices[pixel + 1]));
+    // if (false)
+    // {
+    //   vector<bool> fold_line_validity_mask(fold_lines_.size(), true);
+    //   vector<int> pixel_fold_line_indices(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
+    //   vector<pair<int, int> > conflicted_fold_line_pairs;
+    //   //find fold line pairs with overlap
+    //   for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+    //     for (vector<int>::const_iterator position_it = fold_line_it->positions.begin(); position_it != fold_line_it->positions.end(); position_it++) {
+    // 	  int fold_line_index = fold_line_it - fold_lines_.begin();
+    // 	  if (pixel_fold_line_indices[*position_it] != -1 && pixel_fold_line_indices[*position_it] != fold_line_index)
+    // 	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[*position_it], fold_line_index));
+    //       pixel_fold_line_indices[*position_it] = fold_line_index;
+    // 	}
+    //   }
+    //   //find adjacent fold line pairs
+    //   for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++)
+    // 	if (pixel % IMAGE_WIDTH_ < IMAGE_WIDTH_ - 1)
+    // 	  if (pixel_fold_line_indices[pixel] != -1 && pixel_fold_line_indices[pixel + 1] != -1 && pixel_fold_line_indices[pixel] != pixel_fold_line_indices[pixel + 1])
+    // 	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[pixel], pixel_fold_line_indices[pixel + 1]));
       
-      for (vector<pair<int, int> >::const_iterator fold_line_pair_it = conflicted_fold_line_pairs.begin(); fold_line_pair_it != conflicted_fold_line_pairs.end(); fold_line_pair_it++)
-	if (fold_lines_[fold_line_pair_it->first].original_patch_pair.first == fold_lines_[fold_line_pair_it->second].original_patch_pair.first && fold_lines_[fold_line_pair_it->first].original_patch_pair.second == fold_lines_[fold_line_pair_it->second].original_patch_pair.second)
-	  if (fold_lines_[fold_line_pair_it->first].score < fold_lines_[fold_line_pair_it->second].score)
-	    fold_line_validity_mask[fold_line_pair_it->first] = false;
-          else
-	    fold_line_validity_mask[fold_line_pair_it->second] = false;
+    //   for (vector<pair<int, int> >::const_iterator fold_line_pair_it = conflicted_fold_line_pairs.begin(); fold_line_pair_it != conflicted_fold_line_pairs.end(); fold_line_pair_it++) {
+    // 	cout << fold_line_pair_it->first << '\t' << fold_line_pair_it->second << endl;
+    // 	if (fold_lines_[fold_line_pair_it->first].original_patch_pair.first == fold_lines_[fold_line_pair_it->second].original_patch_pair.first && fold_lines_[fold_line_pair_it->first].original_patch_pair.second == fold_lines_[fold_line_pair_it->second].original_patch_pair.second)
+    // 	  if (fold_lines_[fold_line_pair_it->first].score < fold_lines_[fold_line_pair_it->second].score)
+    // 	    fold_line_validity_mask[fold_line_pair_it->first] = false;
+    //       else
+    // 	    fold_line_validity_mask[fold_line_pair_it->second] = false;
+    //   }
 	
-      vector<FoldLine> new_fold_lines;
-      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
-        if (fold_line_validity_mask[fold_line_it - fold_lines_.begin()])
-          new_fold_lines.push_back(*fold_line_it);
-      fold_lines_ = new_fold_lines;
-    }
+    //   vector<FoldLine> new_fold_lines;
+    //   for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
+    //     if (fold_line_validity_mask[fold_line_it - fold_lines_.begin()])
+    //       new_fold_lines.push_back(*fold_line_it);
+    //   fold_lines_ = new_fold_lines;
+    //   exit(1);
+    // }
     
     
     NUM_ORIGINAL_FOLD_LINES_ = fold_lines_.size();
@@ -709,6 +731,66 @@ namespace Popup
       }
     }
 
+    //pass neighbor relation accross original fold lines
+    {
+      set<pair<int, int> > invalid_fold_line_pairs;
+      vector<pair<int, int> > new_fold_line_pairs;
+      map<int, set<int> > fold_line_left_neighbors;
+      map<int, set<int> > fold_line_right_neighbors;
+      for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs_.begin(); fold_line_pair_it != fold_line_pairs_.end(); fold_line_pair_it++) {
+        int left_fold_line_index = fold_line_pair_it->first;
+        int right_fold_line_index = fold_line_pair_it->second;
+	fold_line_right_neighbors[left_fold_line_index].insert(right_fold_line_index);
+	fold_line_left_neighbors[right_fold_line_index].insert(left_fold_line_index);
+      }
+
+      for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++) {
+	{
+	  int left_original_patch_index = fold_lines_[fold_line_index].original_patch_pair.first;
+	  
+	  set<int> same_patch_left_neighbors;
+	  for (set<int>::const_iterator neighbor_it = fold_line_left_neighbors[fold_line_index].begin(); neighbor_it != fold_line_left_neighbors[fold_line_index].end(); neighbor_it++)
+	    if (*neighbor_it >= getNumOriginalFoldLines() && fold_lines_[*neighbor_it].original_patch_pair.first == left_original_patch_index)
+	      same_patch_left_neighbors.insert(*neighbor_it);
+	  
+	  set<int> same_patch_right_neighbors;
+	  for (set<int>::const_iterator neighbor_it = fold_line_right_neighbors[fold_line_index].begin(); neighbor_it != fold_line_right_neighbors[fold_line_index].end(); neighbor_it++)
+	    if (*neighbor_it >= getNumOriginalFoldLines() && fold_lines_[*neighbor_it].original_patch_pair.first == left_original_patch_index)
+	      same_patch_right_neighbors.insert(*neighbor_it);
+	  
+	  for (set<int>::const_iterator right_neighbor_it = same_patch_right_neighbors.begin(); right_neighbor_it != same_patch_right_neighbors.end(); right_neighbor_it++) {
+            invalid_fold_line_pairs.insert(make_pair(fold_line_index, *right_neighbor_it));
+	    for (set<int>::const_iterator left_neighbor_it = same_patch_left_neighbors.begin(); left_neighbor_it != same_patch_left_neighbors.end(); left_neighbor_it++)
+	      new_fold_line_pairs.push_back(make_pair(*left_neighbor_it, *right_neighbor_it));
+	  }
+        }
+        {
+	  int right_original_patch_index = fold_lines_[fold_line_index].original_patch_pair.second;
+	  
+	  set<int> same_patch_left_neighbors;
+	  for (set<int>::const_iterator neighbor_it = fold_line_left_neighbors[fold_line_index].begin(); neighbor_it != fold_line_left_neighbors[fold_line_index].end(); neighbor_it++)
+	    if (*neighbor_it >= getNumOriginalFoldLines() && fold_lines_[*neighbor_it].original_patch_pair.first == right_original_patch_index)
+	      same_patch_left_neighbors.insert(*neighbor_it);
+	    
+	  set<int> same_patch_right_neighbors;
+	  for (set<int>::const_iterator neighbor_it = fold_line_right_neighbors[fold_line_index].begin(); neighbor_it != fold_line_right_neighbors[fold_line_index].end(); neighbor_it++)
+	    if (*neighbor_it >= getNumOriginalFoldLines() && fold_lines_[*neighbor_it].original_patch_pair.first == right_original_patch_index)
+	      same_patch_right_neighbors.insert(*neighbor_it);
+	  
+	  for (set<int>::const_iterator left_neighbor_it = same_patch_left_neighbors.begin(); left_neighbor_it != same_patch_left_neighbors.end(); left_neighbor_it++) {
+	    invalid_fold_line_pairs.insert(make_pair(*left_neighbor_it, fold_line_index));
+	    for (set<int>::const_iterator right_neighbor_it = same_patch_right_neighbors.begin(); right_neighbor_it != same_patch_right_neighbors.end(); right_neighbor_it++)
+              new_fold_line_pairs.push_back(make_pair(*left_neighbor_it, *right_neighbor_it));
+          }
+	}
+      }
+
+      for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs_.begin(); fold_line_pair_it != fold_line_pairs_.end(); fold_line_pair_it++)
+	if (invalid_fold_line_pairs.count(*fold_line_pair_it) == 0)
+	  new_fold_line_pairs.push_back(*fold_line_pair_it);
+      fold_line_pairs_ = new_fold_line_pairs;
+    }
+    
     sort(fold_line_pairs_.begin(), fold_line_pairs_.end());
     fold_line_pairs_.erase(unique(fold_line_pairs_.begin(), fold_line_pairs_.end()), fold_line_pairs_.end());
   }
@@ -816,7 +898,7 @@ namespace Popup
     {
       map<int, set<int> > invalid_fold_line_pairs;
       for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++)
-	for (int other_fold_line_index = 0; other_fold_line_index < getNumFoldLines(); other_fold_line_index++)
+        for (int other_fold_line_index = 0; other_fold_line_index < getNumFoldLines(); other_fold_line_index++)
 	  if ((fold_line_left_paths_.count(fold_line_index) > 0 && fold_line_left_paths_.at(fold_line_index).count(other_fold_line_index) > 0) && (fold_line_right_paths_.count(fold_line_index) > 0 && fold_line_right_paths_.at(fold_line_index).count(other_fold_line_index) > 0))
 	    invalid_fold_line_pairs[fold_line_index].insert(other_fold_line_index);
 
@@ -910,12 +992,12 @@ namespace Popup
     findOriginalFoldLines();
     imwrite("Test/original_popup_graph.png", drawOriginalPopupGraph());
     findAllFoldLines();
-    checkFoldLineInfo();
+    //checkFoldLineInfo();
     imwrite("Test/popup_graph.png", drawPopupGraph());
     findFoldLinePairs();
     //checkFoldLinePairs();
     findFoldLinePaths();
-    checkFoldLinePaths();
-    exit(1);
+    //checkFoldLinePaths();
+    //exit(1);
   }
 }

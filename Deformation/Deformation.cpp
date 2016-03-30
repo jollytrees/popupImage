@@ -71,12 +71,30 @@ int main(int argc, char *argv[])
   const int FOLD_LINE_WINDOW_WIDTH = 10;
   const int FOLD_LINE_WINDOW_HEIGHT = 10;
 
-  const int NEW_IMAGE_WIDTH = IMAGE_WIDTH * 3;
-  const int NEW_IMAGE_HEIGHT = IMAGE_HEIGHT * 3;
   //make patch index mask larger
-  patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, NEW_IMAGE_WIDTH, NEW_IMAGE_HEIGHT);
+  const int SCALE = 3;
+  patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH * SCALE, IMAGE_HEIGHT * SCALE);
+  IMAGE_WIDTH *= SCALE;
+  IMAGE_HEIGHT *= SCALE;
   
-  Popup::PopupGraph popup_graph(patch_index_mask, NEW_IMAGE_WIDTH, NEW_IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, NEW_IMAGE_WIDTH / 2);
+  
+  if (false) {
+    Mat toy_example_image = imread("Test/toy_example_1.png");
+    IMAGE_WIDTH = toy_example_image.cols;
+    IMAGE_HEIGHT = toy_example_image.rows;
+    patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
+    map<int, int> color_index_map;
+    int index = 0;
+    for (int pixel = 0; pixel < toy_example_image.cols * toy_example_image.rows; pixel++) {
+      Vec3b color = toy_example_image.at<Vec3b>(pixel / toy_example_image.cols, pixel % toy_example_image.cols);
+      int intensity = (color[0] + color[1] + color[2]) / 3;
+      if (color_index_map.count(intensity) == 0)
+        color_index_map[intensity] = index++;
+      patch_index_mask[pixel] = color_index_map[intensity];
+    }
+  }
+  
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2);
   optimizeFoldLines(popup_graph);
   
   //cout << *popup_graph.background_patches.begin() << endl;

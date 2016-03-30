@@ -41,6 +41,12 @@ namespace Popup
     
     cv::Mat drawOriginalPopupGraph();
     cv::Mat drawPopupGraph();
+
+    std::vector<int> getBackgroundLeftFoldLines() const;
+    std::vector<int> getBackgroundRightFoldLines() const;
+
+    int getMinFoldLineGap() const { return FOLD_LINE_WINDOW_WIDTH_ / 2; };
+    
     
   private:
     const int IMAGE_WIDTH_;
