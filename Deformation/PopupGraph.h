@@ -15,6 +15,7 @@ namespace Popup
     int desirable_position; //the most desirable position for this fold line
     double score; //the score of the fold line at the most desirable position
     std::vector<int> positions; //the x range of this fold line
+    std::set<int> line_segment_indices; //line segments for this fold line (used only for original fold lines in case two original fold lines have overlap)
     //std::map<int, double> x_score_map; //scores for different x positions
     int optimized_position;
   };
@@ -46,7 +47,11 @@ namespace Popup
     std::vector<int> getBackgroundRightFoldLines() const;
 
     int getMinFoldLineGap() const { return FOLD_LINE_WINDOW_WIDTH_ / 2; };
-    
+
+    void checkFoldLinePairs() const;
+    void checkFoldLinePaths() const;
+    void checkFoldLineInfo() const;
+
     
   private:
     const int IMAGE_WIDTH_;
@@ -80,10 +85,6 @@ namespace Popup
     void findAllFoldLines();
     void findFoldLinePairs();
     void findFoldLinePaths();
-    
-    void checkFoldLinePairs();
-    void checkFoldLinePaths();
-    void checkFoldLineInfo();
     
       //std::map<int, std::map<int, std::set<int> > > original_patch_fold_lines;
     //std::set<int> background_patches;

@@ -24,6 +24,8 @@ namespace Popup
       if (x > max_x)
         max_x = x;
     }
+    min_x -= FOLD_LINE_WINDOW_WIDTH_ / 2;
+    max_x += FOLD_LINE_WINDOW_WIDTH_ / 2;
     return make_pair(min_x, max_x);
   }
 
@@ -306,42 +308,48 @@ namespace Popup
     }
 
     //keep only one fold line if two fold lines between same pair of patches are too close (touching each other)
-    // if (false)
-    // {
-    //   vector<bool> fold_line_validity_mask(fold_lines_.size(), true);
-    //   vector<int> pixel_fold_line_indices(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
-    //   vector<pair<int, int> > conflicted_fold_line_pairs;
-    //   //find fold line pairs with overlap
-    //   for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
-    //     for (vector<int>::const_iterator position_it = fold_line_it->positions.begin(); position_it != fold_line_it->positions.end(); position_it++) {
-    // 	  int fold_line_index = fold_line_it - fold_lines_.begin();
-    // 	  if (pixel_fold_line_indices[*position_it] != -1 && pixel_fold_line_indices[*position_it] != fold_line_index)
-    // 	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[*position_it], fold_line_index));
-    //       pixel_fold_line_indices[*position_it] = fold_line_index;
-    // 	}
-    //   }
-    //   //find adjacent fold line pairs
-    //   for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++)
-    // 	if (pixel % IMAGE_WIDTH_ < IMAGE_WIDTH_ - 1)
-    // 	  if (pixel_fold_line_indices[pixel] != -1 && pixel_fold_line_indices[pixel + 1] != -1 && pixel_fold_line_indices[pixel] != pixel_fold_line_indices[pixel + 1])
-    // 	    conflicted_fold_line_pairs.push_back(make_pair(pixel_fold_line_indices[pixel], pixel_fold_line_indices[pixel + 1]));
-      
-    //   for (vector<pair<int, int> >::const_iterator fold_line_pair_it = conflicted_fold_line_pairs.begin(); fold_line_pair_it != conflicted_fold_line_pairs.end(); fold_line_pair_it++) {
-    // 	cout << fold_line_pair_it->first << '\t' << fold_line_pair_it->second << endl;
-    // 	if (fold_lines_[fold_line_pair_it->first].original_patch_pair.first == fold_lines_[fold_line_pair_it->second].original_patch_pair.first && fold_lines_[fold_line_pair_it->first].original_patch_pair.second == fold_lines_[fold_line_pair_it->second].original_patch_pair.second)
-    // 	  if (fold_lines_[fold_line_pair_it->first].score < fold_lines_[fold_line_pair_it->second].score)
-    // 	    fold_line_validity_mask[fold_line_pair_it->first] = false;
-    //       else
-    // 	    fold_line_validity_mask[fold_line_pair_it->second] = false;
-    //   }
+    {
+      vector<bool> fold_line_validity_mask(fold_lines_.size(), true);
+      vector<int> line_segment_fold_line_indices(NUM_LINE_SEGMENTS_, -1);
+      vector<pair<int, int> > conflicted_fold_line_pairs;
+      //find fold line pairs with overlap
+      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+	int fold_line_index = fold_line_it - fold_lines_.begin();
 	
-    //   vector<FoldLine> new_fold_lines;
-    //   for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
-    //     if (fold_line_validity_mask[fold_line_it - fold_lines_.begin()])
-    //       new_fold_lines.push_back(*fold_line_it);
-    //   fold_lines_ = new_fold_lines;
-    //   exit(1);
-    // }
+        int fold_line_x = fold_line_it->desirable_position % IMAGE_WIDTH_;
+        int intersection_y = fold_line_it->desirable_position / IMAGE_WIDTH_;
+        set<int> line_segments;
+        {
+          for (int delta_x = -FOLD_LINE_WINDOW_WIDTH_ / 2 - 1; delta_x <= FOLD_LINE_WINDOW_WIDTH_ / 2 + 1; delta_x++)
+            for (int delta_y = -FOLD_LINE_WINDOW_HEIGHT_ / 2; delta_y <= FOLD_LINE_WINDOW_HEIGHT_ / 2; delta_y++)
+              if (fold_line_x + delta_x >= 0 && fold_line_x + delta_x < IMAGE_WIDTH_ && intersection_y + delta_y >= 0 && intersection_y + delta_y < IMAGE_HEIGHT_)
+		line_segments.insert(pixel_line_segment_indices_[(intersection_y + delta_y) * IMAGE_WIDTH_ + (fold_line_x + delta_x)]);
+	}
+	
+        for (set<int>::const_iterator line_segment_index_it = line_segments.begin(); line_segment_index_it != line_segments.end(); line_segment_index_it++) {
+    	  if (line_segment_fold_line_indices[*line_segment_index_it] != -1 && line_segment_fold_line_indices[*line_segment_index_it] != fold_line_index)
+    	    conflicted_fold_line_pairs.push_back(make_pair(line_segment_fold_line_indices[*line_segment_index_it], fold_line_index));
+          line_segment_fold_line_indices[*line_segment_index_it] = fold_line_index;
+    	}
+      }
+      
+      for (vector<pair<int, int> >::const_iterator fold_line_pair_it = conflicted_fold_line_pairs.begin(); fold_line_pair_it != conflicted_fold_line_pairs.end(); fold_line_pair_it++) {
+    	if (fold_lines_[fold_line_pair_it->first].original_patch_pair.first == fold_lines_[fold_line_pair_it->second].original_patch_pair.first && fold_lines_[fold_line_pair_it->first].original_patch_pair.second == fold_lines_[fold_line_pair_it->second].original_patch_pair.second) {
+	  //cout << fold_line_pair_it->first << '\t' << fold_line_pair_it->second << endl;
+    	  if (fold_lines_[fold_line_pair_it->first].score < fold_lines_[fold_line_pair_it->second].score)
+    	    fold_line_validity_mask[fold_line_pair_it->first] = false;
+          else
+    	    fold_line_validity_mask[fold_line_pair_it->second] = false;
+	}
+      }
+	
+      vector<FoldLine> new_fold_lines;
+      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
+        if (fold_line_validity_mask[fold_line_it - fold_lines_.begin()])
+          new_fold_lines.push_back(*fold_line_it);
+      fold_lines_ = new_fold_lines;
+      //exit(1);
+    }
     
     
     NUM_ORIGINAL_FOLD_LINES_ = fold_lines_.size();
@@ -350,7 +358,7 @@ namespace Popup
     line_segment_fold_line_indices_.assign(NUM_LINE_SEGMENTS_, -1);
     //mark line segment using corresponding original fold line indices
     {
-      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+      for (vector<FoldLine>::iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
         int left_original_patch_index = fold_line_it->original_patch_pair.first; 
         int right_original_patch_index = fold_line_it->original_patch_pair.second;
 
@@ -390,16 +398,30 @@ namespace Popup
             }
           }
         }
-        if (left_line_segment_indices.size() == 0 || right_line_segment_indices.size() == 0)
-          continue;
+	
+	if (left_line_segment_indices.size() == 0 || right_line_segment_indices.size() == 0) {
+	  cout << "no line segments found beside fold line" << endl;
+	  exit(1);
+	}
 
-        if (left_original_patch_index != ORIGINAL_BACKGROUND_PATCH_INDEX_)
-          for (set<int>::const_iterator line_segment_it = left_line_segment_indices.begin(); line_segment_it != left_line_segment_indices.end(); line_segment_it++)
-            line_segment_fold_line_indices_[*line_segment_it] = fold_line_it - fold_lines_.begin();
+	// if (fold_line_it - fold_lines_.begin() == 0) {
+	//   for (set<int>::const_iterator line_segment_index_it = left_line_segment_indices.begin(); line_segment_index_it != left_line_segment_indices.end(); line_segment_index_it++) {
+	//     cout << *line_segment_index_it << endl;
+	//   }
+	// }
+	// exit(1);
+	
+        if (left_original_patch_index != ORIGINAL_BACKGROUND_PATCH_INDEX_) {
+	  for (set<int>::const_iterator line_segment_index_it = left_line_segment_indices.begin(); line_segment_index_it != left_line_segment_indices.end(); line_segment_index_it++)
+            line_segment_fold_line_indices_[*line_segment_index_it] = fold_line_it - fold_lines_.begin();
+	  fold_line_it->line_segment_indices.insert(left_line_segment_indices.begin(), left_line_segment_indices.end());
+        }
         
-        if (right_original_patch_index != ORIGINAL_BACKGROUND_PATCH_INDEX_)
-          for (set<int>::const_iterator line_segment_it = right_line_segment_indices.begin(); line_segment_it != right_line_segment_indices.end(); line_segment_it++)
-            line_segment_fold_line_indices_[*line_segment_it] = fold_line_it - fold_lines_.begin();
+        if (right_original_patch_index != ORIGINAL_BACKGROUND_PATCH_INDEX_) {
+          for (set<int>::const_iterator line_segment_index_it = right_line_segment_indices.begin(); line_segment_index_it != right_line_segment_indices.end(); line_segment_index_it++)
+            line_segment_fold_line_indices_[*line_segment_index_it] = fold_line_it - fold_lines_.begin();
+	  fold_line_it->line_segment_indices.insert(right_line_segment_indices.begin(), right_line_segment_indices.end());
+	}
       }
     }
   }
@@ -428,14 +450,23 @@ namespace Popup
       //encode original fold lines as explained above
       map<int, set<int> > original_patch_fold_line_indices;
       for (int line_segment_index = 0; line_segment_index < NUM_LINE_SEGMENTS_; line_segment_index++) {
+        int original_patch_index = line_segment_original_patch_indices[line_segment_index];
+        int fold_line_index = line_segment_fold_line_indices_[line_segment_index];
+	if (fold_line_index != -1)
+          original_patch_fold_line_indices[original_patch_index].insert(fold_line_index);
+      }
+
+      // for (set<int>::const_iterator fold_line_it = original_patch_fold_line_indices[0].begin(); fold_line_it != original_patch_fold_line_indices[0].end(); fold_line_it++)
+      // 	cout << *fold_line_it << endl;	
+      // exit(1);
+      
+      for (int line_segment_index = 0; line_segment_index < NUM_LINE_SEGMENTS_; line_segment_index++) {
 	int original_patch_index = line_segment_original_patch_indices[line_segment_index];
 	int fold_line_index = line_segment_fold_line_indices_[line_segment_index];
-	if (fold_line_index != -1) {
-	  original_patch_fold_line_indices[original_patch_index].insert(fold_line_index);
-          line_segment_left_fold_lines[line_segment_index] = line_segment_right_fold_lines[line_segment_index] = pow(2, original_patch_fold_line_indices[original_patch_index].size());
-	}
+	if (fold_line_index != -1)
+	  line_segment_left_fold_lines[line_segment_index] = line_segment_right_fold_lines[line_segment_index] = pow(2, distance(original_patch_fold_line_indices[original_patch_index].begin(), original_patch_fold_line_indices[original_patch_index].find(fold_line_index)) + 1);
       }
-      
+
       while (true) {
         bool has_change = false;
 	for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
@@ -449,6 +480,8 @@ namespace Popup
           int left_fold_lines = (line_segment_left_fold_lines[line_segment_index] & (~line_segment_right_fold_lines[neighbor_line_segment_index])) | line_segment_left_fold_lines[neighbor_line_segment_index];      
       
           if (line_segment_left_fold_lines[neighbor_line_segment_index] != left_fold_lines) {
+	    // if (neighbor_line_segment_index == pixel_line_segment_indices_[354 * IMAGE_WIDTH_ + 119])
+	    //   cout << left_fold_lines << '\t' << line_segment_index << endl;
             line_segment_left_fold_lines[neighbor_line_segment_index] = left_fold_lines;
             has_change = true;
           }
@@ -473,45 +506,48 @@ namespace Popup
       }
 
       if (false) {
-          int pixel_1 = 580 * IMAGE_WIDTH_ + 116;
-          int pixel_2 = 580 * IMAGE_WIDTH_ + 115;
-          //imwrite("Test/patch_index_mask_image.png", drawIndexMaskImage(patch_index_mask_, IMAGE_WIDTH_, IMAGE_HEIGHT_));
-          Mat test_image = Mat::zeros(IMAGE_HEIGHT_, IMAGE_WIDTH_, CV_8UC3);
-          //Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
-          map<int, Vec3b> color_table;
-          map<pair<int, int>, vector<int> > index_pixels;
-          for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
-            int index = line_segment_left_fold_lines[pixel_line_segment_indices_[pixel]];
-            if (color_table.count(index) == 0) {
-              if (index < 0) {
-                int gray_value = rand() % 256;
-                color_table[index] = Vec3b(gray_value, gray_value, gray_value);
-              } else
-                color_table[index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
-            }
-            test_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color_table[index];
-            int path_index = line_segment_left_fold_lines[pixel_line_segment_indices_[pixel]];
-            // if (path_index > 0) {
-            //   //if (pixel == 65 * IMAGE_WIDTH_ + 107)
-            //   //cout << pixel_line_segment_indices_[pixel] << '\t' << path_index << endl;     
-            //   test_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = Vec3b(0, 0, 255);
-            //   index_pixels[make_pair(index, path_index)].push_back(pixel);
-            // }
-          }
-          for (map<pair<int, int>, vector<int> >::const_iterator index_it = index_pixels.begin(); index_it != index_pixels.end(); index_it++) {
-            int pixel = index_it->second[rand() % index_it->second.size()];
-            putText(test_image, to_string(index_it->first.second), Point(pixel % IMAGE_WIDTH_, pixel /IMAGE_WIDTH_), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
-          }
+	int pixel_1 = 650 * IMAGE_WIDTH_ + 142;
+	int pixel_2 = 650 * IMAGE_WIDTH_ + 280;
+	//int pixel_2 = 450 * IMAGE_WIDTH_ + 80;
+	cout << line_segment_original_patch_indices[pixel_line_segment_indices_[pixel_1]] << '\t' << line_segment_original_patch_indices[pixel_line_segment_indices_[pixel_2]] << '\t' << line_segment_left_fold_lines[pixel_line_segment_indices_[pixel_1]] << '\t' << line_segment_left_fold_lines[pixel_line_segment_indices_[pixel_2]] << '\t' << line_segment_right_fold_lines[pixel_line_segment_indices_[pixel_1]] << '\t' << line_segment_right_fold_lines[pixel_line_segment_indices_[pixel_2]] << endl;
+	//exit(1);
+	//imwrite("Test/patch_index_mask_image.png", drawIndexMaskImage(patch_index_mask_, IMAGE_WIDTH_, IMAGE_HEIGHT_));
+	Mat test_image = Mat::zeros(IMAGE_HEIGHT_, IMAGE_WIDTH_, CV_8UC3);
+	//Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
+	map<int, Vec3b> color_table;
+	map<pair<int, int>, vector<int> > index_pixels;
+	for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
+	  int index = line_segment_right_fold_lines[pixel_line_segment_indices_[pixel]];
+	  if (color_table.count(index) == 0) {
+	    if (index < 0) {
+	      int gray_value = rand() % 256;
+	      color_table[index] = Vec3b(gray_value, gray_value, gray_value);
+	    } else
+	      color_table[index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+	  }
+	  test_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color_table[index];
+	  int path_index = line_segment_left_fold_lines[pixel_line_segment_indices_[pixel]];
+	  // if (path_index > 0) {
+	  //   //if (pixel == 65 * IMAGE_WIDTH_ + 107)
+	  //   //cout << pixel_line_segment_indices_[pixel] << '\t' << path_index << endl;     
+	  //   test_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = Vec3b(0, 0, 255);
+	  //   index_pixels[make_pair(index, path_index)].push_back(pixel);
+	  // }
+	}
+	for (map<pair<int, int>, vector<int> >::const_iterator index_it = index_pixels.begin(); index_it != index_pixels.end(); index_it++) {
+	  int pixel = index_it->second[rand() % index_it->second.size()];
+	  putText(test_image, to_string(index_it->first.second), Point(pixel % IMAGE_WIDTH_, pixel /IMAGE_WIDTH_), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
+	}
 
-          imwrite("Test/test_image.png", test_image);
-          exit(1);
-        }
+	imwrite("Test/test_image.png", test_image);
+	exit(1);
+      }
       
       int max_index = 0;
       for (int line_segment_index = 0; line_segment_index < NUM_LINE_SEGMENTS_; line_segment_index++)
         max_index = max(max_index, max(line_segment_left_fold_lines[line_segment_index], line_segment_right_fold_lines[line_segment_index]));
 
-      map<long, int> new_patch_index_map;
+      map<tuple<int, int, int>, int> new_patch_index_map;
       int valid_patch_index = NUM_ORIGINAL_FOLD_LINES_ + 1;
       int invalid_patch_index = -1;
       MIDDLE_FOLD_LINE_INDEX_ = NUM_ORIGINAL_FOLD_LINES_;
@@ -521,15 +557,20 @@ namespace Popup
         //if (line_segment_left_fold_lines[line_segment_index] != 0 || line_segment_right_fold_lines[line_segment_index] != 0)
         //cout << line_segment_original_patch_indices[line_segment_index] << '\t' << line_segment_left_fold_lines[line_segment_index] << '\t' << line_segment_right_fold_lines[line_segment_index] << endl;
     
-        long index = static_cast<long>(line_segment_original_patch_indices[line_segment_index]) * pow(max_index, 2) + line_segment_left_fold_lines[line_segment_index] * max_index + line_segment_right_fold_lines[line_segment_index];
+        //long index = static_cast<long>(line_segment_original_patch_indices[line_segment_index]) * pow(max_index, 2) + line_segment_left_fold_lines[line_segment_index] * static_cast<long>(max_index) + line_segment_right_fold_lines[line_segment_index];
+	tuple<int, int, int> index(line_segment_original_patch_indices[line_segment_index], line_segment_left_fold_lines[line_segment_index], line_segment_right_fold_lines[line_segment_index]);
 
+	// if (line_segment_index == pixel_line_segment_indices_[650 * IMAGE_WIDTH_ + 280]) {
+	//   cout << line_segment_index << '\t' << index << endl;
+	//   cout << line_segment_original_patch_indices[line_segment_index] << '\t' << max_index << '\t' << line_segment_left_fold_lines[line_segment_index] << '\t' << line_segment_right_fold_lines[line_segment_index] << endl;
+	//   cout << pow(max_index, 2) << '\t' << line_segment_left_fold_lines[line_segment_index] * max_index + line_segment_right_fold_lines[line_segment_index] << endl;
+	//   exit(1);
+	// }
         if (line_segment_original_patch_indices[line_segment_index] == ORIGINAL_BACKGROUND_PATCH_INDEX_)
           continue;
 	
-        if (line_segment_left_fold_lines[line_segment_index] == 0 || line_segment_right_fold_lines[line_segment_index] == 0)
-          index = -index - 1;
-        if (new_patch_index_map.count(index) == 0) {
-          if (index >= 0)
+	if (new_patch_index_map.count(index) == 0) {
+	  if (line_segment_left_fold_lines[line_segment_index] > 0 && line_segment_right_fold_lines[line_segment_index] > 0)
             new_patch_index_map[index] = valid_patch_index++;
           else
             new_patch_index_map[index] = invalid_patch_index--;
@@ -540,15 +581,16 @@ namespace Popup
         if (line_segment_fold_line_indices_[line_segment_index] != -1)
           continue;
     
-        long index = static_cast<long>(line_segment_original_patch_indices[line_segment_index]) * pow(max_index, 2) + line_segment_left_fold_lines[line_segment_index] * max_index + line_segment_right_fold_lines[line_segment_index];
+        //long index = static_cast<long>(line_segment_original_patch_indices[line_segment_index]) * pow(max_index, 2) + line_segment_left_fold_lines[line_segment_index] * max_index + line_segment_right_fold_lines[line_segment_index];
+	tuple<int, int, int> index(line_segment_original_patch_indices[line_segment_index], line_segment_left_fold_lines[line_segment_index], line_segment_right_fold_lines[line_segment_index]);
     
         if (line_segment_original_patch_indices[line_segment_index] == ORIGINAL_BACKGROUND_PATCH_INDEX_) {
           line_segment_fold_line_indices_[line_segment_index] = MIDDLE_FOLD_LINE_INDEX_;
           continue;
         }
     
-        if (line_segment_left_fold_lines[line_segment_index] == 0 || line_segment_right_fold_lines[line_segment_index] == 0)
-          index = -index - 1;
+        // if (line_segment_left_fold_lines[line_segment_index] == 0 || line_segment_right_fold_lines[line_segment_index] == 0)
+        //   index = -index - 1;
 	
 	line_segment_fold_line_indices_[line_segment_index] = new_patch_index_map[index];
       }
@@ -663,6 +705,7 @@ namespace Popup
       }
       fold_line_pixels[fold_line_index].push_back(pixel);
     }
+
     for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
       int pixel = fold_line_it->second[rand() % fold_line_it->second.size()];
       if (fold_line_it->first < 0)
@@ -682,28 +725,41 @@ namespace Popup
   {
     map<int, set<int> > fold_line_left_neighbors;
     map<int, set<int> > fold_line_right_neighbors;
-    for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
-      if (pixel % IMAGE_WIDTH_ == IMAGE_WIDTH_ - 1)
-        continue;
-      int neighbor_pixel = pixel + 1;
-      if (patch_index_mask_[pixel] != patch_index_mask_[neighbor_pixel])
-        continue;
-      int left_line_segment_index = pixel_line_segment_indices_[pixel];
-      int right_line_segment_index = pixel_line_segment_indices_[neighbor_pixel];
-      int left_fold_line_index = line_segment_fold_line_indices_[left_line_segment_index];
-      int right_fold_line_index = line_segment_fold_line_indices_[right_line_segment_index];
+    {
+      vector<set<int> > line_segment_fold_line_indices(IMAGE_WIDTH_ * IMAGE_HEIGHT_);
+      for (int line_segment_index = 0; line_segment_index < NUM_LINE_SEGMENTS_; line_segment_index++)
+	if (line_segment_fold_line_indices_[line_segment_index] != -1)
+	  line_segment_fold_line_indices[line_segment_index].insert(line_segment_fold_line_indices_[line_segment_index]);
+      for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++)
+        for (set<int>::const_iterator line_segment_index_it = fold_lines_[fold_line_index].line_segment_indices.begin(); line_segment_index_it != fold_lines_[fold_line_index].line_segment_indices.end(); line_segment_index_it++)
+	  line_segment_fold_line_indices[*line_segment_index_it].insert(fold_line_index);
+      
+      for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
+	if (pixel % IMAGE_WIDTH_ == IMAGE_WIDTH_ - 1)
+	  continue;
+	int neighbor_pixel = pixel + 1;
+	if (patch_index_mask_[pixel] != patch_index_mask_[neighbor_pixel])
+	  continue;
+	int left_line_segment_index = pixel_line_segment_indices_[pixel];
+	int right_line_segment_index = pixel_line_segment_indices_[neighbor_pixel];
+	set<int> left_fold_line_indices = line_segment_fold_line_indices[left_line_segment_index];
+	set<int> right_fold_line_indices = line_segment_fold_line_indices[right_line_segment_index];
 
-      // if (pixel == 338 * IMAGE_WIDTH + 382) {
-      //   cout << left_new_patch_index << '\t' << right_fold_line_index << endl;
-      //   exit(1);
-      // }
+	  // if (pixel == 338 * IMAGE_WIDTH + 382) {
+	  //   cout << left_new_patch_index << '\t' << right_fold_line_index << endl;
+	  //   exit(1);
+	  // }
 
-      if (left_fold_line_index >= 0 && right_fold_line_index >= 0 && left_fold_line_index != right_fold_line_index) {
-        fold_line_right_neighbors[left_fold_line_index].insert(right_fold_line_index);
-        fold_line_left_neighbors[right_fold_line_index].insert(left_fold_line_index);
+	for (set<int>::const_iterator left_fold_line_index_it = left_fold_line_indices.begin(); left_fold_line_index_it != left_fold_line_indices.end(); left_fold_line_index_it++) {
+	  for (set<int>::const_iterator right_fold_line_index_it = right_fold_line_indices.begin(); right_fold_line_index_it != right_fold_line_indices.end(); right_fold_line_index_it++) {
+	    if (*left_fold_line_index_it != *right_fold_line_index_it && (*left_fold_line_index_it >= NUM_ORIGINAL_FOLD_LINES_ || *right_fold_line_index_it >= NUM_ORIGINAL_FOLD_LINES_)) {
+	      fold_line_right_neighbors[*left_fold_line_index_it].insert(*right_fold_line_index_it);
+	      fold_line_left_neighbors[*right_fold_line_index_it].insert(*left_fold_line_index_it);
+	    }
+	  }
+	}
       }
     }
-
     
     fold_line_pairs_.clear();
     {
@@ -731,7 +787,7 @@ namespace Popup
       }
     }
 
-    //pass neighbor relation accross original fold lines
+    //pass neighbor relation across original fold lines
     {
       set<pair<int, int> > invalid_fold_line_pairs;
       vector<pair<int, int> > new_fold_line_pairs;
@@ -745,8 +801,8 @@ namespace Popup
       }
 
       for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++) {
-	{
-	  int left_original_patch_index = fold_lines_[fold_line_index].original_patch_pair.first;
+        {
+          int left_original_patch_index = fold_lines_[fold_line_index].original_patch_pair.first;
 	  
 	  set<int> same_patch_left_neighbors;
 	  for (set<int>::const_iterator neighbor_it = fold_line_left_neighbors[fold_line_index].begin(); neighbor_it != fold_line_left_neighbors[fold_line_index].end(); neighbor_it++)
@@ -829,11 +885,10 @@ namespace Popup
       for (vector<pair<int, int> >::const_iterator fold_line_pair_it = same_patch_fold_line_pairs.begin(); fold_line_pair_it != same_patch_fold_line_pairs.end(); fold_line_pair_it++) {
 	int left_fold_line_index = fold_line_pair_it->first;
 	int right_fold_line_index = fold_line_pair_it->second;
-	//cout << left_fold_line_index << '\t' << right_fold_line_index << endl;
 	patch_fold_line_left_paths[right_fold_line_index][left_fold_line_index] = vector<int>();
 	patch_fold_line_right_paths[left_fold_line_index][right_fold_line_index] = vector<int>();
       }
-
+      
       if (patch_it - original_patch_fold_line_pairs.begin() != ORIGINAL_BACKGROUND_PATCH_INDEX_) {
 	while (true) {
 	  bool has_change = false;
@@ -901,7 +956,7 @@ namespace Popup
         for (int other_fold_line_index = 0; other_fold_line_index < getNumFoldLines(); other_fold_line_index++)
 	  if ((fold_line_left_paths_.count(fold_line_index) > 0 && fold_line_left_paths_.at(fold_line_index).count(other_fold_line_index) > 0) && (fold_line_right_paths_.count(fold_line_index) > 0 && fold_line_right_paths_.at(fold_line_index).count(other_fold_line_index) > 0))
 	    invalid_fold_line_pairs[fold_line_index].insert(other_fold_line_index);
-
+	    
       map<int, map<int, vector<int> > > new_fold_line_left_paths;
       for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++)
 	for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths_[fold_line_index].begin(); fold_line_it != fold_line_left_paths_[fold_line_index].end(); fold_line_it++)
@@ -938,7 +993,7 @@ namespace Popup
     NUM_LINE_SEGMENTS_ = line_segment_index + 1;
   }
 
-  void PopupGraph::checkFoldLinePairs()
+  void PopupGraph::checkFoldLinePairs() const
   {
     for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs_.begin(); fold_line_pair_it != fold_line_pairs_.end(); fold_line_pair_it++) {
       int left_fold_line_index = fold_line_pair_it->first;
@@ -947,27 +1002,31 @@ namespace Popup
     }
   }
 
-  void PopupGraph::checkFoldLinePaths()
+  void PopupGraph::checkFoldLinePaths() const
   {
     for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++) {
       cout << "fold line index: " << fold_line_index << endl;
       //cout << fold_line_left_paths_.count(fold_line_index) << '\t' << fold_line_right_paths_.count(fold_line_index) << endl;
-      for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths_[fold_line_index].begin(); fold_line_it != fold_line_left_paths_[fold_line_index].end(); fold_line_it++) {
-	cout << "left: " << fold_line_it->first << endl;
-	for (vector<int>::const_iterator path_it = fold_line_it->second.begin(); path_it != fold_line_it->second.end(); path_it++)
-	  cout << *path_it << '\t';
-	cout << endl;
+      if (fold_line_left_paths_.count(fold_line_index) > 0) {
+	for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths_.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths_.at(fold_line_index).end(); fold_line_it++) {
+	  cout << "left: " << fold_line_it->first << endl;
+	  for (vector<int>::const_iterator path_it = fold_line_it->second.begin(); path_it != fold_line_it->second.end(); path_it++)
+	    cout << *path_it << '\t';
+	  cout << endl;
+	}
       }
-      for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths_[fold_line_index].begin(); fold_line_it != fold_line_right_paths_[fold_line_index].end(); fold_line_it++) {
-	cout << "right: " << fold_line_it->first << endl;
-	for (vector<int>::const_iterator path_it = fold_line_it->second.begin(); path_it != fold_line_it->second.end(); path_it++)
-	  cout << *path_it << '\t';
-	cout << endl;
+      if (fold_line_right_paths_.count(fold_line_index) > 0) {
+	for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths_.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths_.at(fold_line_index).end(); fold_line_it++) {
+	  cout << "right: " << fold_line_it->first << endl;
+	  for (vector<int>::const_iterator path_it = fold_line_it->second.begin(); path_it != fold_line_it->second.end(); path_it++)
+	    cout << *path_it << '\t';
+	  cout << endl;
+	}
       }
     } 
   }
 
-  void PopupGraph::checkFoldLineInfo()
+  void PopupGraph::checkFoldLineInfo() const
   {
     for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
       cout << "index: " << fold_line_it - fold_lines_.begin() << "\tleft: " << fold_line_it->original_patch_pair.first << "\tright: " << fold_line_it->original_patch_pair.second << "\tscore: " << fold_line_it->score << "\tx: " << fold_line_it->desirable_position % IMAGE_WIDTH_ << endl;
@@ -997,7 +1056,7 @@ namespace Popup
     findFoldLinePairs();
     //checkFoldLinePairs();
     findFoldLinePaths();
-    //checkFoldLinePaths();
+    //    checkFoldLinePaths();
     //exit(1);
   }
 }

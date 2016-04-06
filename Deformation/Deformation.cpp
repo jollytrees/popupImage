@@ -76,10 +76,11 @@ int main(int argc, char *argv[])
   patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH * SCALE, IMAGE_HEIGHT * SCALE);
   IMAGE_WIDTH *= SCALE;
   IMAGE_HEIGHT *= SCALE;
-  
+  //cout << IMAGE_WIDTH << '\t' << IMAGE_HEIGHT << '\t' << patch_index_mask.size() << endl;
+  //exit(1);
   
   if (false) {
-    Mat toy_example_image = imread("Test/toy_example_1.png");
+    Mat toy_example_image = imread("Test/toy_example_2.png");
     IMAGE_WIDTH = toy_example_image.cols;
     IMAGE_HEIGHT = toy_example_image.rows;
     patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
