@@ -17,31 +17,36 @@ namespace Popup
     std::vector<int> positions; //the x range of this fold line
     std::set<int> line_segment_indices; //line segments for this fold line (used only for original fold lines in case two original fold lines have overlap)
     //std::map<int, double> x_score_map; //scores for different x positions
-    int optimized_position;
+    int optimized_position; //optimized position for the fold line (-1 for inactive fold lines)
+    bool optimized_convexity; //optimized convexity for the fold line
   };
 
   class PopupGraph
   {
   public:
     
-    PopupGraph(const std::vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X = -1);
+    PopupGraph(const std::vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X, const bool ENFORCE_SYMMETRY);
 
     int getImageWidth() const { return IMAGE_WIDTH_; };
     int getImageHeight() const { return IMAGE_HEIGHT_; };
     int getNumFoldLines() const { return fold_lines_.size(); };
     int getNumOriginalFoldLines() const { return NUM_ORIGINAL_FOLD_LINES_; };
     int getMiddleFoldLineIndex() const { return MIDDLE_FOLD_LINE_INDEX_; };
+    int getMiddleFoldLineX() const { return MIDDLE_FOLD_LINE_X_; };
     int getNumOriginalPatches() const { return NUM_ORIGINAL_PATCHES_; };
     int getOriginalBackgroundPatchIndex() const { return ORIGINAL_BACKGROUND_PATCH_INDEX_; };
     std::pair<int, int> getBorderFoldLineIndices() const { return std::make_pair(LEFT_BORDER_FOLD_LINE_INDEX_, RIGHT_BORDER_FOLD_LINE_INDEX_); };
     std::vector<std::pair<int, int> > getFoldLinePairs() const { return fold_line_pairs_; };
+    std::vector<std::pair<int, int> > getFoldLinePairsWithoutPassing() const { return fold_line_pairs_without_passing_; };
+    std::vector<std::pair<int, int> > getFoldLinePairsPassed() const;
     std::map<int, std::map<int, std::vector<int> > > getFoldLineLeftPaths() const { return fold_line_left_paths_; };
     std::map<int, std::map<int, std::vector<int> > > getFoldLineRightPaths() const { return fold_line_right_paths_; };
     std::pair<int, int> getFoldLineXRange(const int fold_line_index) const;
-    std::map<int, std::map<int, std::set<int> > > getPatchNeighborFoldLines() const;
+    std::map<int, std::map<int, std::set<int> > > getPatchNeighborFoldLines(const char direction, const std::map<int, std::set<int> > &patch_child_patches = std::map<int, std::set<int> >()) const;
     
     cv::Mat drawOriginalPopupGraph();
     cv::Mat drawPopupGraph();
+    cv::Mat drawOptimizedPopupGraph();
 
     std::vector<int> getBackgroundLeftFoldLines() const;
     std::vector<int> getBackgroundRightFoldLines() const;
@@ -52,6 +57,15 @@ namespace Popup
     void checkFoldLinePaths() const;
     void checkFoldLineInfo() const;
 
+    void setOptimizedFoldLineInfo(const std::vector<int> &optimized_fold_line_xs, const std::vector<bool> &optimized_fold_line_convexities = std::vector<bool>());
+    void getOptimizedFoldLineInfo(std::vector<int> &optimized_fold_line_positions, std::vector<bool> &optimized_fold_line_convexities);
+    void getDesirableFoldLinePositions(std::vector<int> &desirable_fold_line_positions);
+    
+    std::map<int, std::set<int> >  getIslandPatchInfo() const;
+    std::map<int, std::set<int> > getPatchChildPatches() const { return patch_child_patches_; };
+    
+    std::vector<int> getSymmetryFoldLines();
+    
     
   private:
     const int IMAGE_WIDTH_;
@@ -59,6 +73,7 @@ namespace Popup
     const int FOLD_LINE_WINDOW_WIDTH_;
     const int FOLD_LINE_WINDOW_HEIGHT_;
     const int MIDDLE_FOLD_LINE_X_;
+    const bool ENFORCE_SYMMETRY_;
     
     int NUM_ORIGINAL_FOLD_LINES_;
     int NUM_ORIGINAL_PATCHES_;
@@ -71,6 +86,7 @@ namespace Popup
     
 
     std::vector<std::pair<int, int> > fold_line_pairs_;
+    std::vector<std::pair<int, int> > fold_line_pairs_without_passing_;
     std::map<int, std::map<int, std::vector<int> > > fold_line_left_paths_;
     std::map<int, std::map<int, std::vector<int> > > fold_line_right_paths_;
 
@@ -78,13 +94,20 @@ namespace Popup
     std::vector<int> line_segment_fold_line_indices_;
     std::vector<int> pixel_line_segment_indices_;
     std::vector<int> patch_index_mask_;
-    
-    
+    std::set<std::pair<int, int> > symmetric_original_patch_pairs_;
+    std::map<int, std::set<int> > patch_child_patches_;
+
+
+    void countNumOriginalPatches();
+    void findOriginalBackgroundPatchIndex();
+    void enforceSymmetry();
     void calcLineSegmentInfo();
     void findOriginalFoldLines();
     void findAllFoldLines();
     void findFoldLinePairs();
     void findFoldLinePaths();
+    void findPatchChildPatches();
+    void buildSubGraphes();
     
       //std::map<int, std::map<int, std::set<int> > > original_patch_fold_lines;
     //std::set<int> background_patches;

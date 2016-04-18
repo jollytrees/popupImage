@@ -19,8 +19,6 @@ using namespace std;
 using namespace cv;
 
 
-
-
 int main(int argc, char *argv[])
 {
   //read patch index mask
@@ -79,8 +77,9 @@ int main(int argc, char *argv[])
   //cout << IMAGE_WIDTH << '\t' << IMAGE_HEIGHT << '\t' << patch_index_mask.size() << endl;
   //exit(1);
   
-  if (false) {
-    Mat toy_example_image = imread("Test/toy_example_2.png");
+  if (true) {
+    //Mat toy_example_image = imread("Test/toy_example_3.png");
+    Mat toy_example_image = imread("Test/bear_toy_example_5.png");
     IMAGE_WIDTH = toy_example_image.cols;
     IMAGE_HEIGHT = toy_example_image.rows;
     patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
@@ -88,15 +87,18 @@ int main(int argc, char *argv[])
     int index = 0;
     for (int pixel = 0; pixel < toy_example_image.cols * toy_example_image.rows; pixel++) {
       Vec3b color = toy_example_image.at<Vec3b>(pixel / toy_example_image.cols, pixel % toy_example_image.cols);
-      int intensity = (color[0] + color[1] + color[2]) / 3;
-      if (color_index_map.count(intensity) == 0)
-        color_index_map[intensity] = index++;
-      patch_index_mask[pixel] = color_index_map[intensity];
+      int color_index = color[0] * 256 * 256 + color[1] * 256 + color[2];
+      if (color_index_map.count(color_index) == 0)
+        color_index_map[color_index] = index++;
+      patch_index_mask[pixel] = color_index_map[color_index];
     }
   }
   
-  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2);
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, false);
   optimizeFoldLines(popup_graph);
+  optimizeFoldLinePositions(popup_graph);
+  Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
+  imwrite("Test/optimized_popup_graph.png", optimized_popup_graph);
   
   //cout << *popup_graph.background_patches.begin() << endl;
   //exit(1);
