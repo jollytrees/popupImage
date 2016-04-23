@@ -94,9 +94,9 @@ int main(int argc, char *argv[])
     }
   }
   
-  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, false);
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2 - 5, true);
   optimizeFoldLines(popup_graph);
-  optimizeFoldLinePositions(popup_graph);
+  //optimizeFoldLinePositions(popup_graph);
   Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
   imwrite("Test/optimized_popup_graph.png", optimized_popup_graph);
   

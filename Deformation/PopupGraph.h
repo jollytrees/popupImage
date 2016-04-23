@@ -7,12 +7,12 @@ namespace Popup
 {
   struct FoldLine //fold line structure
   {
-  FoldLine(const std::pair<int, int> _original_patch_pair, const int _desirable_position, const double _score) : is_original_fold_line(true), original_patch_pair(_original_patch_pair), desirable_position(_desirable_position), score(_score) {};
-  FoldLine(const std::pair<int, int> _original_patch_pair, const std::vector<int> &_positions) : is_original_fold_line(false), original_patch_pair(_original_patch_pair), positions(_positions) {};
+  FoldLine(const std::pair<int, int> _original_patch_pair, const int _desirable_center, const double _score) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), desirable_center(_desirable_center), score(_score) {};
+  FoldLine(const std::pair<int, int> _original_patch_pair, const std::vector<int> &_positions) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), positions(_positions) {};
     bool is_original_fold_line; //whether this fold line is between two original patches or not
     //int original_patch_index; //the index of the fold line's original patch
     std::pair<int, int> original_patch_pair; //(left_original_patch, right_original_patch) pair. For new fold lines, left_original_patch == right_original_patch.
-    int desirable_position; //the most desirable position for this fold line
+    int desirable_center; //the most desirable position for this fold line
     double score; //the score of the fold line at the most desirable position
     std::vector<int> positions; //the x range of this fold line
     std::set<int> line_segment_indices; //line segments for this fold line (used only for original fold lines in case two original fold lines have overlap)
@@ -64,7 +64,7 @@ namespace Popup
     std::map<int, std::set<int> >  getIslandPatchInfo() const;
     std::map<int, std::set<int> > getPatchChildPatches() const { return patch_child_patches_; };
     
-    std::vector<int> getSymmetryFoldLines();
+    std::set<int> getSymmetryFoldLines();
     
     
   private:
@@ -94,9 +94,10 @@ namespace Popup
     std::vector<int> line_segment_fold_line_indices_;
     std::vector<int> pixel_line_segment_indices_;
     std::vector<int> patch_index_mask_;
-    std::set<std::pair<int, int> > symmetric_original_patch_pairs_;
     std::map<int, std::set<int> > patch_child_patches_;
-
+    std::map<int, int> symmetric_patch_map_;
+    std::set<int> symmetry_fold_lines_;
+    
 
     void countNumOriginalPatches();
     void findOriginalBackgroundPatchIndex();

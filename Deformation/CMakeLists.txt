@@ -9,6 +9,6 @@ set ( CMAKE_CXX_FLAGS "-std=c++0x" )
 link_directories( MRF2.2 )
  
 find_package( OpenCV REQUIRED )
+#find_package( gflags REQUIRED )
 add_executable( PatchDeformation Deformation.cpp FoldLineOptimization.cpp FoldLinePositionOptimization.cpp PopupGraph.cpp PopupUtils.cpp )
-target_link_libraries( PatchDeformation ${OpenCV_LIBS} )
-target_link_libraries( PatchDeformation ${PROJECT_LINK_LIBS} )
+target_link_libraries( PatchDeformation ${OpenCV_LIBS} ${PROJECT_LINK_LIBS})

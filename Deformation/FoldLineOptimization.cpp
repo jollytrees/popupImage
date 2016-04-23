@@ -11,6 +11,28 @@
 using namespace std;
 using namespace cv;
 
+void checkAndSet(vector<vector<vector<bool> > > &mask, const int index_1, const int index_2, const int index_3, const string &message)
+{
+  if (mask[index_1][index_2][index_3] == true) {
+    cout << "duplicate: " << message << '\t' << index_1 << '\t' << index_2 << '\t' << index_3 << endl;
+    exit(1);
+  }
+  //else
+  if (index_1 == 32 && index_2 == 0 && index_3 == 3 && false) {
+    cout << message << '\t' << index_1 << '\t' << index_2 << '\t' << index_3 << endl;
+    exit(1);
+  }
+  mask[index_1][index_2][index_3] = true;
+}
+
+void checkAndReset(vector<vector<vector<bool> > > &mask, const int index_1, const int index_2, const int index_3, const string &message)
+{
+  if (mask[index_1][index_2][index_3] == false) {
+    cout << message << '\t' << index_1 << '\t' << index_2 << '\t' << index_3 << endl;
+    exit(1);
+  }
+  mask[index_1][index_2][index_3] = false;
+}
 
 bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
 {
@@ -41,33 +63,66 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
   }
   model.update();
 
-  GRBLinExpr obj(0);
+  GRBQuadExpr obj(0);
 
   //enforce symmetry
   if (true) {
-    vector<int> symmetry_fold_lines = popup_graph.getSymmetryFoldLines();
-    for (vector<int>::const_iterator fold_line_it = symmetry_fold_lines.begin(); fold_line_it != symmetry_fold_lines.end(); fold_line_it++)
-      model.addConstr(fold_line_activity_indicators[*fold_line_it] == 1);
+    set<int> symmetry_fold_lines = popup_graph.getSymmetryFoldLines();
+    for (set<int>::const_iterator fold_line_it = symmetry_fold_lines.begin(); fold_line_it != symmetry_fold_lines.end(); fold_line_it++)
+    model.addConstr(fold_line_activity_indicators[*fold_line_it] == 1);
+    model.addConstr(fold_line_activity_indicators[31] == 1);
+    
     if (symmetry_fold_lines.size() > 0)
       model.addConstr(fold_line_Xs[popup_graph.getMiddleFoldLineIndex()] == popup_graph.getMiddleFoldLineX());
   }
-   
+
+  vector<GRBVar> right_copy_convexity_indicators(popup_graph.getNumFoldLines());
   if (false) {
     set<int> active_fold_lines;
 
     active_fold_lines.insert(popup_graph.getBorderFoldLineIndices().first);
     active_fold_lines.insert(popup_graph.getBorderFoldLineIndices().second);
     active_fold_lines.insert(popup_graph.getMiddleFoldLineIndex());
-    active_fold_lines.insert(0);
+    active_fold_lines.insert(24);
+    active_fold_lines.insert(14);
+    active_fold_lines.insert(4);
+    active_fold_lines.insert(27);
     active_fold_lines.insert(1);
     active_fold_lines.insert(8);
-    active_fold_lines.insert(10);
-    active_fold_lines.insert(2);
-    active_fold_lines.insert(9);
-    active_fold_lines.insert(10);
-    active_fold_lines.insert(6);
-    active_fold_lines.insert(7);
+    active_fold_lines.insert(13);
+    active_fold_lines.insert(18);
     active_fold_lines.insert(17);
+    active_fold_lines.insert(19);
+    active_fold_lines.insert(11);
+    active_fold_lines.insert(16);
+
+    set<int> inactive_fold_lines;
+    inactive_fold_lines.insert(31);
+    inactive_fold_lines.insert(66);
+    inactive_fold_lines.insert(34);
+    inactive_fold_lines.insert(42);
+    inactive_fold_lines.insert(20);
+    inactive_fold_lines.insert(51);
+    inactive_fold_lines.insert(61);
+    inactive_fold_lines.insert(63);
+    inactive_fold_lines.insert(36);
+    inactive_fold_lines.insert(50);
+    inactive_fold_lines.insert(30);
+    inactive_fold_lines.insert(53);
+    inactive_fold_lines.insert(35);
+    inactive_fold_lines.insert(29);
+    inactive_fold_lines.insert(33);
+    inactive_fold_lines.insert(62);
+    //inactive_fold_lines.insert(48);
+    //inactive_fold_lines.insert(46);
+    // active_fold_lines.insert(8);
+    // active_fold_lines.insert(10);
+    // active_fold_lines.insert(2);
+    // active_fold_lines.insert(9);
+    // active_fold_lines.insert(10);
+    // active_fold_lines.insert(6);
+    // active_fold_lines.insert(7);
+    // active_fold_lines.insert(17);
     
     //active_fold_lines.insert(10);
     //active_fold_lines.insert(11);
@@ -91,77 +146,48 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     // active_fold_lines.insert(8);
     
     
-    // active_fold_lines.insert(37);
-    // active_fold_lines.insert(30);
-    // active_fold_lines.insert(31);
-    // active_fold_lines.insert(26);
-    // active_fold_lines.insert(23);
-    // active_fold_lines.insert(16);
-    // active_fold_lines.insert(14);
-    // active_fold_lines.insert(13);
-    // active_fold_lines.insert(66);
-    // active_fold_lines.insert(61);
-    // active_fold_lines.insert(65);
-    // active_fold_lines.insert(55);
-    // active_fold_lines.insert(42);
-    // active_fold_lines.insert(85);
-    // active_fold_lines.insert(34);
-    // active_fold_lines.insert(28);
-    // active_fold_lines.insert(21);
-    // active_fold_lines.insert(12);
-    // active_fold_lines.insert(11);
-    // active_fold_lines.insert(8);
-    // active_fold_lines.insert(68);
-    // active_fold_lines.insert(67);
-    // active_fold_lines.insert(63);
-    // active_fold_lines.insert(20);
-    // active_fold_lines.insert(10);
-    // active_fold_lines.insert(48);
-    // active_fold_lines.insert(77);
-    // active_fold_lines.insert(3);
-    // active_fold_lines.insert(18);
-    // active_fold_lines.insert(33);
-    // active_fold_lines.insert(6);
-    // active_fold_lines.insert(5);
-    // active_fold_lines.insert(0);
-    // active_fold_lines.insert(63);
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       if (active_fold_lines.count(fold_line_index) > 0) {
-	cout << fold_line_index << endl;
+	cout << "active: " << fold_line_index << endl;
 	model.addConstr(fold_line_activity_indicators[fold_line_index] == 1);
       }
-    else
-      model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
+    // else
+    //   model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
+
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
+      if (inactive_fold_lines.count(fold_line_index) > 0) {
+        cout << "inactive: " << fold_line_index << endl;
+        model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
+      }
   }   
   
   //model.addConstr(fold_line_activity_indicators[1] == fold_line_activity_indicators[1]);
   // model.addConstr(fold_line_activity_indicators[1] <= 1);
   //model.update();
+
+  vector<pair<int, int> > fold_line_pairs = popup_graph.getFoldLinePairs();
   
   //foldability
   if (true) {
-    vector<pair<int, int> > fold_line_pairs = popup_graph.getFoldLinePairs();
     
     model.addConstr(fold_line_activity_indicators[popup_graph.getMiddleFoldLineIndex()] == 1, "middle fold line activity");
-    model.addConstr(fold_line_convexity_indicators[popup_graph.getMiddleFoldLineIndex()] == 0, "middle fold line convexity");
+    model.addConstr(fold_line_convexity_indicators[popup_graph.getMiddleFoldLineIndex()] == 1, "middle fold line convexity");
     // model.addConstr(fold_line_Xs[popup_graph.num_original_fold_lines] >= IMAGE_WIDTH / 2 - 100);
     // model.addConstr(fold_line_Xs[popup_graph.num_original_fold_lines] <= IMAGE_WIDTH / 2 + 100);
 
     const pair<int, int> BORDER_FOLD_LINE_INDICES = popup_graph.getBorderFoldLineIndices();
     model.addConstr(fold_line_activity_indicators[BORDER_FOLD_LINE_INDICES.first] == 1, "left border fold line activity");
-    model.addConstr(fold_line_convexity_indicators[BORDER_FOLD_LINE_INDICES.first] == 1, "left border fold line convexity");
+    model.addConstr(fold_line_convexity_indicators[BORDER_FOLD_LINE_INDICES.first] == 0, "left border fold line convexity");
     model.addConstr(fold_line_Xs[BORDER_FOLD_LINE_INDICES.first] == 0, "left border fold line X");
     model.addConstr(fold_line_Ys[BORDER_FOLD_LINE_INDICES.first] == 0, "left border fold line Y");
     model.addConstr(fold_line_activity_indicators[BORDER_FOLD_LINE_INDICES.second] == 1, "right border fold line activity");
-    model.addConstr(fold_line_convexity_indicators[BORDER_FOLD_LINE_INDICES.second] == 1, "right border fold line convexity");
+    model.addConstr(fold_line_convexity_indicators[BORDER_FOLD_LINE_INDICES.second] == 0, "right border fold line convexity");
     model.addConstr(fold_line_Xs[BORDER_FOLD_LINE_INDICES.second] + fold_line_Ys[BORDER_FOLD_LINE_INDICES.second] == IMAGE_WIDTH - 1, "right border fold line X");
     
     
     //for (int fold_line_index = 0; fold_line_index < popup_graph.num_fold_lines - 2; fold_line_index++)
     //model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] <= fold_line_Xs[popup_graph.num_fold_lines - 1] * fold_line_activity_indicators[popup_graph.num_fold_lines - 1]);
-
-
-    vector<GRBVar> right_copy_convexity_indicators(popup_graph.getNumFoldLines());
+    
     vector<GRBVar> right_copy_Xs(popup_graph.getNumFoldLines());
     vector<GRBVar> right_copy_Ys(popup_graph.getNumFoldLines());
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
@@ -172,18 +198,20 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     model.update();
 
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");
+      model.addQConstr(fold_line_Xs[fold_line_index] + fold_line_Ys[fold_line_index] == right_copy_Xs[fold_line_index] + right_copy_Ys[fold_line_index], "right copy");
+      
       if (fold_line_index < popup_graph.getNumOriginalFoldLines()) {
-	model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");
-        model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
-	model.addQConstr(fold_line_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
+	model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
+        model.addQConstr(fold_line_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
       } else {
-	model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");
 	model.addQConstr(fold_line_convexity_indicators[fold_line_index] * (1 - fold_line_activity_indicators[fold_line_index]) == right_copy_convexity_indicators[fold_line_index] * (1 - fold_line_activity_indicators[fold_line_index]), "right copy");
+	
         model.addQConstr(fold_line_Xs[fold_line_index] == right_copy_Xs[fold_line_index], "right copy");
         model.addQConstr(fold_line_Ys[fold_line_index] == right_copy_Ys[fold_line_index], "right copy");
       }
     }
-
+    
     for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
       int left_fold_line_index = fold_line_pair_it->first;
       int right_fold_line_index = fold_line_pair_it->second;
@@ -207,13 +235,20 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
       // 	model.addQConstr((fold_line_Ys[left_fold_line_index] + 1) * (1 - fold_line_convexity_indicators[left_fold_line_index]) <= (fold_line_Ys[right_fold_line_index] - MIN_FOLD_LINE_GAP) * (1 - fold_line_convexity_indicators[left_fold_line_index]), "Y <= Y");
       // 	model.addQConstr(fold_line_Ys[left_fold_line_index] * fold_line_convexity_indicators[left_fold_line_index] == fold_line_Ys[right_fold_line_index] * fold_line_convexity_indicators[left_fold_line_index], "Y == Y");
       // 	model.addQConstr((fold_line_Xs[left_fold_line_index] + 1) * fold_line_convexity_indicators[left_fold_line_index] <= (fold_line_Xs[right_fold_line_index] - MIN_FOLD_LINE_GAP) * fold_line_convexity_indicators[left_fold_line_index], "X <= X");
-      // } else {
+      //}
+      
+      // if (left_fold_line_index == popup_graph.getMiddleFoldLineIndex()) {
+      // 	cout << right_fold_line_index << endl;
+      // 	pair<int, int> x_range = popup_graph.getFoldLineXRange(right_fold_line_index);
+      //   cout << x_range.first << '\t' << x_range.second << endl;
+      // }
+      //break;
       model.addQConstr(right_copy_Xs[left_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]) == fold_line_Xs[right_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]), "X == X");
       model.addQConstr(right_copy_Ys[left_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]) <= (fold_line_Ys[right_fold_line_index] - MIN_FOLD_LINE_GAP) * (1 - right_copy_convexity_indicators[left_fold_line_index]), "Y <= Y");
       model.addQConstr(right_copy_Ys[left_fold_line_index] * right_copy_convexity_indicators[left_fold_line_index] == fold_line_Ys[right_fold_line_index] * right_copy_convexity_indicators[left_fold_line_index], "Y == Y");
       model.addQConstr(right_copy_Xs[left_fold_line_index] * right_copy_convexity_indicators[left_fold_line_index] <= (fold_line_Xs[right_fold_line_index] - MIN_FOLD_LINE_GAP) * right_copy_convexity_indicators[left_fold_line_index], "X <= X");
     }
-    
+    //exit(1);
     if (true)
     {
       vector<pair<int, int> > fold_line_pairs_passed = popup_graph.getFoldLinePairsPassed();
@@ -244,7 +279,7 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
       }
       pair<int, int> x_range = popup_graph.getFoldLineXRange(fold_line_index);
       //cout << x_range.first << '\t' << x_range.second << endl;
-      fold_line_positions[fold_line_index] = model.addVar(x_range.first, x_range.second, 0, GRB_INTEGER);
+      fold_line_positions[fold_line_index] = model.addVar(x_range.first, x_range.second, 0, GRB_CONTINUOUS);
     }
     //    exit(1);
     model.update();
@@ -263,17 +298,29 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     //add middle fold line position constraints
     {
       vector<int> background_left_fold_lines = popup_graph.getBackgroundLeftFoldLines();
-      for (vector<int>::const_iterator fold_line_it = background_left_fold_lines.begin(); fold_line_it != background_left_fold_lines.end(); fold_line_it++)    
-	model.addQConstr(fold_line_positions[*fold_line_it] * (1 - fold_line_activity_indicators[*fold_line_it]) <= (fold_line_positions[popup_graph.getMiddleFoldLineIndex()] - 1) * (1 - fold_line_activity_indicators[*fold_line_it]), "x < middle x");
+      for (vector<int>::const_iterator fold_line_it = background_left_fold_lines.begin(); fold_line_it != background_left_fold_lines.end(); fold_line_it++) {
+	cout << "left background fold line: " << *fold_line_it << endl;
+	model.addQConstr(fold_line_positions[*fold_line_it] <= fold_line_positions[popup_graph.getMiddleFoldLineIndex()] - MIN_FOLD_LINE_GAP, "x < middle x");
+      }
       vector<int> background_right_fold_lines = popup_graph.getBackgroundRightFoldLines();
-      for (vector<int>::const_iterator fold_line_it = background_right_fold_lines.begin(); fold_line_it != background_right_fold_lines.end(); fold_line_it++)    
-	model.addQConstr(fold_line_positions[*fold_line_it] * (1 - fold_line_activity_indicators[*fold_line_it]) >= (fold_line_positions[popup_graph.getMiddleFoldLineIndex()] + 1) * (1 - fold_line_activity_indicators[*fold_line_it]), "x > middle x");
+      for (vector<int>::const_iterator fold_line_it = background_right_fold_lines.begin(); fold_line_it != background_right_fold_lines.end(); fold_line_it++) {
+	cout << "right background fold line: " << *fold_line_it << endl;
+	model.addQConstr(fold_line_positions[*fold_line_it] >= fold_line_positions[popup_graph.getMiddleFoldLineIndex()] + MIN_FOLD_LINE_GAP, "x > middle x");
+      }
     }
-    
+
+    GRBQuadExpr position_obj(0);
+    vector<int> desirable_fold_line_positions;
+    popup_graph.getDesirableFoldLinePositions(desirable_fold_line_positions);
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumOriginalFoldLines(); fold_line_index++)
+      position_obj += (fold_line_positions[fold_line_index] - desirable_fold_line_positions[fold_line_index]) * (fold_line_positions[fold_line_index] - desirable_fold_line_positions[fold_line_index]);
+    //obj += position_obj;
+    //model.setObjective(position_obj, 1);
+
     // GRBQuadExpr position_obj(0);
     // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines() - 2; fold_line_index++)
     //   position_obj += (fold_line_positions[fold_line_index] - fold_line_min_cost_positions[fold_line_index]) * (fold_line_positions[fold_line_index] - fold_line_min_cost_positions[fold_line_index]);
-    //    model.setObjective(position_obj, 1);
+    // model.setObjective(position_obj, 1);
     //for (int fold_line_index = 0; fold_line_index < popup_graph.num_fold_lines - 2; fold_line_index++)
     //model.setPWLObj(fold_line_positions[fold_line_index], fold_line_positions_costs_pair[fold_line_index].first.size(), &fold_line_positions_costs_pair[fold_line_index].first[0], &fold_line_positions_costs_pair[fold_line_index].second[0]);
   }
@@ -319,7 +366,6 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
 
     if (true)
       {
-	
         map<int, set<int> > patch_child_patches = popup_graph.getPatchChildPatches();
 
 	std::map<int, std::map<int, std::set<int> > > patch_neighbor_left_fold_lines = popup_graph.getPatchNeighborFoldLines('L', patch_child_patches);
@@ -443,8 +489,6 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
   }
 
   
-  const int MAX_STABILITY_DEPTH = 4;
-  
   vector<vector<GRBVar> > same_patch_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(popup_graph.getNumFoldLines()));
   for(int fold_line_index_1 = 0; fold_line_index_1 < popup_graph.getNumFoldLines(); fold_line_index_1++) {
     GRBVar *vars_temp = model.addVars(popup_graph.getNumFoldLines());
@@ -455,400 +499,368 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
   }
   model.update();
 
-  vector<vector<GRBVar> > s_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > left_c_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > right_c_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > left_cc_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > right_cc_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > left_d_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > right_d_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > left_e_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-  vector<vector<GRBVar> > right_e_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
+  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
+    model.addConstr(same_patch_indicators[fold_line_index][fold_line_index] == 1, "same patch");
+    
+  std::map<int, std::map<int, std::vector<int> > > fold_line_left_paths = popup_graph.getFoldLineLeftPaths();
+  std::map<int, std::map<int, std::vector<int> > > fold_line_right_paths = popup_graph.getFoldLineRightPaths();
 
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    s_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      s_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++) {
+      if (other_fold_line_index == fold_line_index)
+        continue;
+      model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= fold_line_activity_indicators[fold_line_index], "same patch");
+      model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= fold_line_activity_indicators[other_fold_line_index], "same patch");
+      if ((fold_line_left_paths.count(fold_line_index) == 0 || fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) == 0) && (fold_line_right_paths.count(fold_line_index) == 0 || fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) == 0)) {
+        model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] == 0, "same patch");
+        continue;
+      }
+      if ((fold_line_left_paths.count(fold_line_index) > 0 && fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) > 0) && (fold_line_right_paths.count(fold_line_index) > 0 && fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) > 0)) {
+        cout << "both path from left and right exist between: " << fold_line_index << '\t' << other_fold_line_index << endl;
+        exit(1);
+      }
+      //cout << fold_line_index << '\t' << other_fold_line_index << endl;
+      if (fold_line_left_paths.count(fold_line_index) > 0 && fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) > 0) {
+        vector<int> path = fold_line_left_paths.at(fold_line_index).at(other_fold_line_index);
+        //cout << "left: " << fold_line_index << '\t' << other_fold_line_index << '\t' << path.size() << endl;
+        for (vector<int>::const_iterator path_it = path.begin(); path_it != path.end(); path_it++)
+          model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= 1 - fold_line_activity_indicators[*path_it], "same patch");
+      }
+      if (fold_line_right_paths.count(fold_line_index) > 0 && fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) > 0) {
+        vector<int> path = fold_line_right_paths.at(fold_line_index).at(other_fold_line_index);
+        //cout << "right: " << fold_line_index << '\t' << other_fold_line_index << '\t' << path.size() << endl;
+        for (vector<int>::const_iterator path_it = path.begin(); path_it != path.end(); path_it++)
+          model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= 1 - fold_line_activity_indicators[*path_it], "same patch");
+      }
+    }
   }
+
+  const int MAX_STABILITY_DEPTH = 5;
+  const int MAX_CONNECTION_DEPTH = 4;
+  vector<vector<vector<GRBVar> > > left_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<bool> > > left_left_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    left_c_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      left_c_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      left_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+	left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
   }
+  vector<vector<vector<GRBVar> > > left_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<bool> > > left_right_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    right_c_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      right_c_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      left_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+        left_right_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
   }
+  vector<vector<vector<GRBVar> > > right_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<bool> > > right_left_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    left_cc_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      left_cc_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      right_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+        right_left_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
   }
+  vector<vector<vector<GRBVar> > > right_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<bool> > > right_right_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    right_cc_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      right_cc_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-  }
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    left_d_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      left_d_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-  }
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    right_d_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      right_d_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-  }
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    left_e_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      left_e_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-  }
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-    right_e_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-      right_e_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      right_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+        right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
   }
   model.update();
-  
+
   //stability
-  if (false) {
-    // GRBLinExpr same_patch_obj(0);
-    // for (int fold_line_index = 0; fold_line_index < popup_graph.num_fold_lines; fold_line_index++)
-    //   for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.num_fold_lines; other_fold_line_index++)
-    // 	if (other_fold_line_index != fold_line_index)
-    // 	  same_patch_obj += 1 - same_patch_indicators[fold_line_index][other_fold_line_index];
-    // model.setObjective(same_patch_obj, 1);
-
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
-      model.addConstr(same_patch_indicators[fold_line_index][fold_line_index] == 1, "same patch");
-    
-    std::map<int, std::map<int, std::vector<int> > > fold_line_left_paths = popup_graph.getFoldLineLeftPaths();
-    std::map<int, std::map<int, std::vector<int> > > fold_line_right_paths = popup_graph.getFoldLineRightPaths();
-
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++) {
-	if (other_fold_line_index == fold_line_index)
-	  continue;
-	model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= fold_line_activity_indicators[fold_line_index], "same patch");
-	model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= fold_line_activity_indicators[other_fold_line_index], "same patch");
-	if ((fold_line_left_paths.count(fold_line_index) == 0 || fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) == 0) && (fold_line_right_paths.count(fold_line_index) == 0 || fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) == 0)) {
-	  model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] == 0, "same patch");
-	  continue;
-	}
-	if ((fold_line_left_paths.count(fold_line_index) > 0 && fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) > 0) && (fold_line_right_paths.count(fold_line_index) > 0 && fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) > 0)) {
-	  cout << "both path from left and right exist between: " << fold_line_index << '\t' << other_fold_line_index << endl;
-	  exit(1);
-	}
-	//break;
-	//int connected_fold_line_index = fold_line_index < popup_graph.num_original_fold_lines ? (fold_line_index % 2 == 0 ? fold_lindex_index + 1 : fold_line_index - 1) : -1;
-	//cout << fold_line_index << '\t' << other_fold_line_index << endl;
-	if (fold_line_left_paths.count(fold_line_index) > 0 && fold_line_left_paths.at(fold_line_index).count(other_fold_line_index) > 0) {
-	  vector<int> path = fold_line_left_paths.at(fold_line_index).at(other_fold_line_index);
-	  //cout << "left: " << fold_line_index << '\t' << other_fold_line_index << '\t' << path.size() << endl;
-	  // if (path.size() == 0)
-	  //   model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] == 1);
-	  // else
-	  for (vector<int>::const_iterator path_it = path.begin(); path_it != path.end(); path_it++)
-	    model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= 1 - fold_line_activity_indicators[*path_it], "same patch");
-	}
-	if (fold_line_right_paths.count(fold_line_index) > 0 && fold_line_right_paths.at(fold_line_index).count(other_fold_line_index) > 0) {
-	  vector<int> path = fold_line_right_paths.at(fold_line_index).at(other_fold_line_index);
-	  //cout << "right: " << fold_line_index << '\t' << other_fold_line_index << '\t' << path.size() << endl;
-	  // if (path.size() == 0)
-	  //   model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] == 1);
-	  // else
-	  for (vector<int>::const_iterator path_it = path.begin(); path_it != path.end(); path_it++)
-	    model.addConstr(same_patch_indicators[fold_line_index][other_fold_line_index] <= 1 - fold_line_activity_indicators[*path_it], "same patch");
-	}
-      }
-    }
-    
-    //model.addConstr(same_patch_indicators[50][85] == 1);
-    //model.addConstr(same_patch_indicators[85][10] == 1);
-    
-    //if (true) {    
-
-    set<int> background_fold_lines;
-    background_fold_lines.insert(popup_graph.getBorderFoldLineIndices().first);
-    background_fold_lines.insert(popup_graph.getBorderFoldLineIndices().second);
-    background_fold_lines.insert(popup_graph.getMiddleFoldLineIndex());
+  if (true) {
+    set<int> left_background_fold_lines;
+    set<int> right_background_fold_lines;
+    left_background_fold_lines.insert(popup_graph.getBorderFoldLineIndices().first);
+    right_background_fold_lines.insert(popup_graph.getBorderFoldLineIndices().second);
+    left_background_fold_lines.insert(popup_graph.getMiddleFoldLineIndex());
+    right_background_fold_lines.insert(popup_graph.getMiddleFoldLineIndex());
     for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(popup_graph.getBorderFoldLineIndices().first).begin(); fold_line_it != fold_line_right_paths.at(popup_graph.getBorderFoldLineIndices().first).end(); fold_line_it++)
-      background_fold_lines.insert(fold_line_it->first);
+      left_background_fold_lines.insert(fold_line_it->first);
     for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(popup_graph.getBorderFoldLineIndices().second).begin(); fold_line_it != fold_line_left_paths.at(popup_graph.getBorderFoldLineIndices().second).end(); fold_line_it++)
-      background_fold_lines.insert(fold_line_it->first);
+      right_background_fold_lines.insert(fold_line_it->first);
 
     //add constraints for background fold lines
-    for (set<int>::const_iterator fold_line_it = background_fold_lines.begin(); fold_line_it != background_fold_lines.end(); fold_line_it++) {
-      cout << "background fold line: " << *fold_line_it << endl;
-      model.addConstr(s_indicators[*fold_line_it][0] <= fold_line_activity_indicators[*fold_line_it], "background fold line s0 <= activity");
-      for (int stability_depth = 1; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-	model.addConstr(s_indicators[*fold_line_it][stability_depth] == 0, "background fold line sk == 0 (k > 0)");
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-	model.addConstr(left_c_indicators[*fold_line_it][stability_depth] == 0, "background fold line c == 0");
-	model.addConstr(right_c_indicators[*fold_line_it][stability_depth] == 0, "background fold line c == 0");
-	model.addConstr(left_cc_indicators[*fold_line_it][stability_depth] == 0, "background fold line cc == 0");
-	model.addConstr(right_cc_indicators[*fold_line_it][stability_depth] == 0, "background fold line cc == 0");
-	model.addConstr(left_d_indicators[*fold_line_it][stability_depth] == 0, "background fold line d == 0");
-	model.addConstr(right_d_indicators[*fold_line_it][stability_depth] == 0, "background fold line d == 0");
-	model.addConstr(left_e_indicators[*fold_line_it][stability_depth] == 0, "background fold line e == 0");
-	model.addConstr(right_e_indicators[*fold_line_it][stability_depth] == 0, "background fold line e == 0");
-      }
+    for (set<int>::const_iterator fold_line_it = left_background_fold_lines.begin(); fold_line_it != left_background_fold_lines.end(); fold_line_it++) {
+      checkAndSet(left_left_stability_mask, *fold_line_it, 0, 0, "background stable");
+      model.addConstr(left_left_stability_indicators[*fold_line_it][0][0] == 1, "background fold line is stable");
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++)
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+	  if (stability_depth > 0 || connection_depth > 0) {
+	    checkAndSet(left_left_stability_mask, *fold_line_it, stability_depth, connection_depth, "background fold line is stable");
+	    model.addConstr(left_left_stability_indicators[*fold_line_it][stability_depth][connection_depth] == 0, "background fold line is stable");
+	  }
     }
-    
-    //add constraints for s0 and inactive fold lines
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      if (background_fold_lines.count(fold_line_index) == 0) {
-	model.addConstr(s_indicators[fold_line_index][0] == 0, "s0 == 0");
-	for (int stability_depth = 1; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-	  model.addConstr(s_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "s <= activity");
-      }
+    for (set<int>::const_iterator fold_line_it = right_background_fold_lines.begin(); fold_line_it != right_background_fold_lines.end(); fold_line_it++) {
+      checkAndSet(right_right_stability_mask, *fold_line_it, 0, 0, "background stable");
+      model.addConstr(right_right_stability_indicators[*fold_line_it][0][0] == 1, "background fold line is stable");
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++)
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
+	  if (stability_depth > 0 || connection_depth > 0) {
+	    checkAndSet(right_right_stability_mask, *fold_line_it, stability_depth, connection_depth, "background fold line is stable");
+	    model.addConstr(right_right_stability_indicators[*fold_line_it][stability_depth][connection_depth] == 0, "background fold line is stable");
+	  }
     }
-    
-    // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines() - 2; fold_line_index++)
-    //   if (background_fold_lines.count(fold_line_index) == 0)
-    //     model.addConstr(s_indicators[fold_line_index][0] == 1 - fold_line_activity_indicators[fold_line_index], "s <= 1 - activity");
-    
 
+    //add constraints for non-background fold lines
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      if (background_fold_lines.count(fold_line_index) > 0)
+      if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
 	continue;
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-	GRBQuadExpr left_s_sum = GRBQuadExpr(0);
-	GRBQuadExpr right_s_sum = GRBQuadExpr(0);
-	GRBQuadExpr left_c_sum = GRBQuadExpr(0);
-	GRBQuadExpr right_c_sum = GRBQuadExpr(0);
-	GRBQuadExpr left_d_sum = GRBQuadExpr(0);
-	GRBQuadExpr right_d_sum = GRBQuadExpr(0);
-	// left_s_sum += s_indicators[fold_line_index][stability_depth];
-	// right_s_sum += s_indicators[fold_line_index][stability_depth];
-	// left_c_sum += left_c_indicators[fold_line_index][stability_depth];
-	// right_c_sum += right_c_indicators[fold_line_index][stability_depth];
-	// left_d_sum += left_d_indicators[fold_line_index][stability_depth];
-	// right_d_sum += right_d_indicators[fold_line_index][stability_depth];
+      //checkAndSet(left_left_stability_mask, fold_line_index, 0, 0, "non-background fold line is unstable");
+      model.addConstr(left_left_stability_indicators[fold_line_index][0][0] == 0, "non-background fold line is unstable");
+    
+      //checkAndSet(right_right_stability_mask, fold_line_index, 0, 0, "non-background fold line is unstable");
+      model.addConstr(right_right_stability_indicators[fold_line_index][0][0] == 0, "non-background fold line is unstable");
+    }
 
-	if (fold_line_left_paths.count(fold_line_index) > 0) {
-	  for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths.at(fold_line_index).end(); fold_line_it++) {
-	    // if (fold_line_index == 10 && fold_line_it->first == 85) {
-	    //   cout << stability_depth << endl;;
-	    //   exit(1);
-	    // }
-	    left_s_sum += s_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
-	    left_c_sum += left_c_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
-	    left_d_sum += left_d_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	  if (fold_line_index < popup_graph.getNumOriginalFoldLines()) {
+	    model.addQConstr(left_right_stability_indicators[fold_line_index][stability_depth][connection_depth] <= fold_line_activity_indicators[fold_line_index], "stability stops at inactive original fold lines");
+	    model.addQConstr(right_left_stability_indicators[fold_line_index][stability_depth][connection_depth] <= fold_line_activity_indicators[fold_line_index], "stability stops at inactive original fold lines");
+	  } else {
+	    //checkAndSet(left_right_stability_mask, fold_line_index, stability_depth, connection_depth, "stability passes through inactive fold lines");     
+	    model.addQConstr(left_right_stability_indicators[fold_line_index][stability_depth][connection_depth] * (1 - fold_line_activity_indicators[fold_line_index]) == left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] * (1 - fold_line_activity_indicators[fold_line_index]), "stability passes through inactive fold lines");
+
+	    //checkAndSet(right_left_stability_mask, fold_line_index, stability_depth, connection_depth, "stability passes through inactive fold lines");
+	    model.addQConstr(right_left_stability_indicators[fold_line_index][stability_depth][connection_depth] * (1 - fold_line_activity_indicators[fold_line_index]) == right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] * (1 - fold_line_activity_indicators[fold_line_index]), "stability passes through inactive fold lines");
 	  }
 	}
-	if (fold_line_right_paths.count(fold_line_index) > 0) {
-	  for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths.at(fold_line_index).end(); fold_line_it++) {
-	    right_s_sum += s_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
-	    right_c_sum += right_c_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
-	    right_d_sum += right_d_indicators[fold_line_it->first][stability_depth] * same_patch_indicators[fold_line_index][fold_line_it->first];
-	  }
-	}
-
-
-	model.addQConstr(left_c_indicators[fold_line_index][stability_depth] <= left_s_sum, "c <= s sum");
-	model.addQConstr(left_cc_indicators[fold_line_index][stability_depth] <= left_c_sum, "cc <= c sum");
-	model.addQConstr(2 * left_d_indicators[fold_line_index][stability_depth] <= left_c_sum, "2d <= c sum");
-	model.addQConstr(left_e_indicators[fold_line_index][stability_depth] <= left_d_sum, "e <= d sum");
-	model.addQConstr(right_c_indicators[fold_line_index][stability_depth] <= right_s_sum, "c <= s sum");
-	model.addQConstr(right_cc_indicators[fold_line_index][stability_depth] <= right_c_sum, "cc <= c sum");
-	model.addQConstr(2 * right_d_indicators[fold_line_index][stability_depth] <= right_c_sum, "2d <= c sum");
-	model.addQConstr(right_e_indicators[fold_line_index][stability_depth] <= right_d_sum, "e <= d sum");	  
       }
     }
-      
-    //model.addConstr(same_patch_indicators[3][0] == 1);
-    //model.addConstr(left_c_indicators[3][0] == 1);
-    // model.addConstr(s_indicators[3][2] == 1);
-    // model.addConstr(s_indicators[11][2] == 1);
-    // model.addConstr(s_indicators[7][2] == 1);
-    // model.addConstr(s_indicators[8][2] == 1);
-    // model.addConstr(s_indicators[17][1] == 1);
-    // model.addConstr(left_c_indicators[6][0] == 1);
-    // model.addConstr(right_c_indicators[6][0] == 1);
-    // model.addConstr(s_indicators[6][1] == 1);
-    // model.addConstr(s_indicators[2][2] == 1);
-    // model.addConstr(s_indicators[3][2] == 1);
-    // model.addConstr(s_indicators[7][3] == 1);
-
-    //model.addConstr(left_s_sum_indicators[10][0] == 1);
-    
-    //for (vector<pair<int, int> >::const_iterator fold_line_pair_it = popup_graph.fold_line_pairs.begin(); fold_line_pair_it != popup_graph.fold_line_pairs.end(); fold_line_pair_it++) {
-    //int left_fold_line_index = fold_line_pair_it->first;
-    //int right_fold_line_index = fold_line_pair_it->second;
-    // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    //   for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-    // 	model.addQConstr(left_c_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * left_s_sum_indicators[fold_line_index][stability_depth]);
-    //     model.addQConstr(right_c_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * right_s_sum_indicators[fold_line_index][stability_depth]);
-    // 	model.addQConstr(left_cc_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * left_c_sum_indicators[fold_line_index][stability_depth]);
-    //     model.addQConstr(right_cc_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * right_c_sum_indicators[fold_line_index][stability_depth]);
-    //     model.addQConstr(left_d_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * left_dcc_sum_indicators[fold_line_index][stability_depth]);
-    //     model.addQConstr(right_d_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index] * right_dcc_sum_indicators[fold_line_index][stability_depth]);
-    //   }
-    // }
-
-
-    vector<vector<GRBVar> > left_s_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-    vector<vector<GRBVar> > right_s_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(MAX_STABILITY_DEPTH));
-    
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-      left_s_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-        left_s_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-    }
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      GRBVar *vars_temp = model.addVars(MAX_STABILITY_DEPTH);
-      right_s_indicators[fold_line_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_STABILITY_DEPTH);
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++)
-        right_s_indicators[fold_line_index][stability_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-    }
-    model.update();
-
-    
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines() - 2; fold_line_index++) {
-      if (background_fold_lines.count(fold_line_index) > 0)
+      if (fold_line_index == popup_graph.getMiddleFoldLineIndex() || fold_line_index == popup_graph.getBorderFoldLineIndices().first || fold_line_index == popup_graph.getBorderFoldLineIndices().second)
 	continue;
-      for (int stability_depth = 1; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	for (int connection_depth = 0; connection_depth < MAX_CONNECTION_DEPTH; connection_depth++) {
+	  if (connection_depth == 2)
+	    continue;
+
+	  checkAndSet(left_right_stability_mask, fold_line_index, stability_depth, connection_depth + 1, "connection depth increases through active fold lines");     
+	  model.addQConstr(left_right_stability_indicators[fold_line_index][stability_depth][connection_depth + 1] * fold_line_activity_indicators[fold_line_index] == left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] * fold_line_activity_indicators[fold_line_index], "connection depth increases through active fold lines");
+        
+	  checkAndSet(right_left_stability_mask, fold_line_index, stability_depth, connection_depth + 1, "connection depth increases through active fold lines");     
+	  model.addQConstr(right_left_stability_indicators[fold_line_index][stability_depth][connection_depth + 1] * fold_line_activity_indicators[fold_line_index] == right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] * fold_line_activity_indicators[fold_line_index], "stability passes through active fold lines");
+	}
+      }
+    }
+
+    map<int, set<int> > fold_line_left_neighbors;
+    map<int, set<int> > fold_line_right_neighbors;
+    for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
+      int left_fold_line_index = fold_line_pair_it->first;
+      int right_fold_line_index = fold_line_pair_it->second;
+      fold_line_right_neighbors[left_fold_line_index].insert(right_fold_line_index);
+      fold_line_left_neighbors[right_fold_line_index].insert(left_fold_line_index);
+    }
+  
+    //    for (set<int>::const_iterator neighbor_it = fold_line_left_neighbors[48].begin(); neighbor_it != fold_line_left_neighbors[48].end(); neighbor_it++)
+    //cout << *neighbor_it << endl;
+    //exit(1);
+    //fold line neighbor constraints
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
+	continue;
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	  if (connection_depth == 0 || connection_depth == 3)
+	    continue;
+	  if (fold_line_left_neighbors.count(fold_line_index) > 0) {
+	    GRBLinExpr left_neighbor_sum(0);
+	    for (set<int>::const_iterator neighbor_it = fold_line_left_neighbors[fold_line_index].begin(); neighbor_it != fold_line_left_neighbors[fold_line_index].end(); neighbor_it++)
+	      left_neighbor_sum += left_right_stability_indicators[*neighbor_it][stability_depth][connection_depth];
+	  
+	    checkAndSet(left_left_stability_mask, fold_line_index, stability_depth, connection_depth, "stability properties are the same for fold line pairs");
+	    model.addQConstr(left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] <= left_neighbor_sum, "stability properties are the same for fold line pairs");
+	  }
+	
+	  if (fold_line_right_neighbors.count(fold_line_index) > 0) {
+	    GRBLinExpr right_neighbor_sum(0);
+	    for (set<int>::const_iterator neighbor_it = fold_line_right_neighbors[fold_line_index].begin(); neighbor_it != fold_line_right_neighbors[fold_line_index].end(); neighbor_it++)
+	      right_neighbor_sum += right_left_stability_indicators[*neighbor_it][stability_depth][connection_depth];
+
+	    checkAndSet(right_right_stability_mask, fold_line_index, stability_depth, connection_depth, "stability properties are the same for fold line pairs");
+	    model.addQConstr(right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] <= right_neighbor_sum, "stability properties are the same for fold line pairs");
+	  }
+	}
+      }
+    }
+
+    //double-connected fold line constraints
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
+	continue;
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	GRBQuadExpr left_c_sum(0);
+	GRBQuadExpr right_c_sum(0);
+	for (int previous_stability_depth = 0; previous_stability_depth <= stability_depth; previous_stability_depth++) {
+	  if (fold_line_left_paths.count(fold_line_index) > 0) {
+	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths.at(fold_line_index).end(); fold_line_it++) {
+	      left_c_sum += left_right_stability_indicators[fold_line_it->first][previous_stability_depth][2] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	      right_c_sum += right_left_stability_indicators[fold_line_it->first][previous_stability_depth][2] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	    }
+	  }
+	  if (fold_line_right_paths.count(fold_line_index) > 0) {
+	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths.at(fold_line_index).end(); fold_line_it++) {
+	      left_c_sum += left_right_stability_indicators[fold_line_it->first][previous_stability_depth][2] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	      right_c_sum += right_left_stability_indicators[fold_line_it->first][previous_stability_depth][2] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	    }
+	  }
+	}
+	checkAndSet(left_left_stability_mask, fold_line_index, stability_depth, 3, "double-connected");
+	model.addQConstr(2 * left_left_stability_indicators[fold_line_index][stability_depth][3] <= left_c_sum, "double-connected");
+
+	checkAndSet(right_right_stability_mask, fold_line_index, stability_depth, 3, "double-connected");
+	model.addQConstr(2 * right_right_stability_indicators[fold_line_index][stability_depth][3] <= right_c_sum, "double-connected");
+      }
+    }
+
+    //stable fold line constraints
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
+	continue;
+      for (int stability_depth = 1; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
 	GRBQuadExpr left_s_sum(0);
 	GRBQuadExpr right_s_sum(0);
-	GRBLinExpr left_c(0);
-	GRBLinExpr right_c(0);
-	GRBLinExpr left_cc(0);
-	GRBLinExpr right_cc(0);
-	GRBLinExpr left_d(0);
-	GRBLinExpr right_d(0);
-	GRBLinExpr left_e(0);
-	GRBLinExpr right_e(0);
-	for (int previous_stability_depth = 0; previous_stability_depth < stability_depth; previous_stability_depth++) {
-	  if (fold_line_left_paths.count(fold_line_index) > 0)
-	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths.at(fold_line_index).end(); fold_line_it++)
-	      left_s_sum += s_indicators[fold_line_it->first][previous_stability_depth] * same_patch_indicators[fold_line_it->first][fold_line_index];
-	  if (fold_line_right_paths.count(fold_line_index) > 0)
-	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths.at(fold_line_index).end(); fold_line_it++)
-	      right_s_sum += s_indicators[fold_line_it->first][previous_stability_depth] * same_patch_indicators[fold_line_it->first][fold_line_index];
-
-	  left_c += left_c_indicators[fold_line_index][previous_stability_depth];
-	  right_c += right_c_indicators[fold_line_index][previous_stability_depth];
-	  left_d += left_d_indicators[fold_line_index][previous_stability_depth];
-	  right_d += right_d_indicators[fold_line_index][previous_stability_depth];
-	  left_e += left_e_indicators[fold_line_index][previous_stability_depth];
-	  right_e += right_e_indicators[fold_line_index][previous_stability_depth];
+	vector<GRBLinExpr> left_stability_sum(MAX_CONNECTION_DEPTH + 1);
+	vector<GRBLinExpr> right_stability_sum(MAX_CONNECTION_DEPTH + 1);
+	for (int previous_stability_depth = 0; previous_stability_depth <= stability_depth; previous_stability_depth++) {
+	  if (fold_line_left_paths.count(fold_line_index) > 0) {
+	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths.at(fold_line_index).end(); fold_line_it++) {
+	      left_s_sum += left_right_stability_indicators[fold_line_it->first][previous_stability_depth][0] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	      left_s_sum += right_left_stability_indicators[fold_line_it->first][previous_stability_depth][0] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	    }
+	  }
+	  if (fold_line_right_paths.count(fold_line_index) > 0) {
+	    for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths.at(fold_line_index).end(); fold_line_it++) {
+	      right_s_sum += left_right_stability_indicators[fold_line_it->first][previous_stability_depth][0] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	      right_s_sum += right_left_stability_indicators[fold_line_it->first][previous_stability_depth][0] * same_patch_indicators[fold_line_it->first][fold_line_index];
+	    }
+	  }
 	}
-
+	for (int previous_stability_depth = 0; previous_stability_depth < stability_depth; previous_stability_depth++) {
+	  for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	    left_stability_sum[connection_depth] += left_left_stability_indicators[fold_line_index][previous_stability_depth][connection_depth];
+	    right_stability_sum[connection_depth] += right_right_stability_indicators[fold_line_index][previous_stability_depth][connection_depth];
+	  }
+	}
 	
-	//model.addQConstr(2 * left_s_indicators[fold_line_index][stability_depth] <= left_s_sum);      
-        //model.addQConstr(2 * right_s_indicators[fold_line_index][stability_depth] <= right_s_sum);
-	//      stability_sum += left_s_indicators[fold_line_index][stability_depth];   
-        //stability_sum += right_s_indicators[fold_line_index][stability_depth];        
+	// GRBVar left_s = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+	// GRBVar right_s = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+	// model.update();
+	// model.addQConstr(2 * left_s <= left_s_sum);      
+	// model.addQConstr(2 * right_s <= right_s_sum);
+	
+        checkAndSet(left_left_stability_mask, fold_line_index, stability_depth, 0, "stable");
+        model.addQConstr(2 * left_left_stability_indicators[fold_line_index][stability_depth][0] <= left_s_sum, "stable");
+      
+        checkAndSet(right_right_stability_mask, fold_line_index, stability_depth, 0, "stable");
+        model.addQConstr(2 * right_right_stability_indicators[fold_line_index][stability_depth][0] <= right_s_sum, "stable");
 
 	GRBQuadExpr stability_sum(0);
-	GRBVar left_s = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-	GRBVar right_s = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
-	model.update();
-	model.addQConstr(2 * left_s <= left_s_sum);      
-        model.addQConstr(2 * right_s <= right_s_sum);
-	
-	stability_sum += left_s;
-        stability_sum += right_s;
-	stability_sum += left_c * right_c;
-	stability_sum += left_d * right_d;
-	stability_sum += left_c * right_d;
-	stability_sum += left_d * right_c;
-	stability_sum += left_d * right_e;
-	stability_sum += left_e * right_d;
-	model.addQConstr(s_indicators[fold_line_index][stability_depth] <= stability_sum, "s");
-      }
-    }
-
-    // for (int fold_line_index = 0; fold_line_index < popup_graph.num_original_fold_lines / 2; fold_line_index++) {
-    //   for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-    // 	//    	model.addQConstr(s_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == s_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(left_c_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == left_c_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(right_c_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == right_c_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(left_cc_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == left_cc_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(right_cc_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == right_cc_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(left_d_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == left_d_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(right_d_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == right_d_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    // 	model.addQConstr(left_e_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == left_e_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    //     model.addQConstr(right_e_indicators[fold_line_index * 2][stability_depth] * fold_line_activity_indicators[fold_line_index * 2] == right_e_indicators[fold_line_index * 2 + 1][stability_depth] * fold_line_activity_indicators[fold_line_index * 2 + 1]);
-    //   }
-    // }
-
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      if (background_fold_lines.count(fold_line_index) > 0)
-	continue;
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-	model.addConstr(left_c_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "c <= activity");
-	model.addConstr(right_c_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "c <= activity");
-	model.addConstr(left_d_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "d <= activity");
-	model.addConstr(right_d_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "d <= activity");
-	model.addConstr(left_e_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "e <= activity");
-	model.addConstr(right_e_indicators[fold_line_index][stability_depth] <= fold_line_activity_indicators[fold_line_index], "e <= activity");
-	
-
-	model.addConstr(left_c_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "c <= 1 - s");
-	model.addConstr(right_c_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "c <= 1 - s");
-	model.addConstr(left_d_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "d <= 1 - s");
-	model.addConstr(right_d_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "d <= 1 - s");
-	model.addConstr(left_e_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "e <= 1 - s");
-	model.addConstr(right_e_indicators[fold_line_index][stability_depth] <= 1 - s_indicators[fold_line_index][stability_depth], "e <= 1 - s");
-
-	model.addConstr(left_d_indicators[fold_line_index][stability_depth] <= 1 - left_c_indicators[fold_line_index][stability_depth], "d <= 1 - c");
-	model.addConstr(right_d_indicators[fold_line_index][stability_depth] <= 1 - right_c_indicators[fold_line_index][stability_depth], "d <= 1 - c");
-	model.addConstr(left_e_indicators[fold_line_index][stability_depth] <= 1 - left_c_indicators[fold_line_index][stability_depth], "e <= 1 - c");
-	model.addConstr(right_e_indicators[fold_line_index][stability_depth] <= 1 - right_c_indicators[fold_line_index][stability_depth], "e <= 1 - c");
-
-	model.addConstr(left_e_indicators[fold_line_index][stability_depth] <= 1 - left_d_indicators[fold_line_index][stability_depth], "e <= 1 - d");
-	model.addConstr(right_e_indicators[fold_line_index][stability_depth] <= 1 - right_d_indicators[fold_line_index][stability_depth], "e <= 1 - d");
-      }
-    }
-
-    GRBLinExpr stability_obj(0);
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-	stability_obj += 1 - s_indicators[fold_line_index][stability_depth];
-	break;
-	stability_obj += 1 - left_c_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - right_c_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - left_cc_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - right_cc_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - left_d_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - right_d_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - left_e_indicators[fold_line_index][stability_depth];
-	stability_obj += 1 - right_e_indicators[fold_line_index][stability_depth];	
-      }
-    }
-    //model.setObjective(stability_obj, 1);
-    
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      if (background_fold_lines.count(fold_line_index) > 0)
-	continue;
-      GRBLinExpr lhs(0);
-      for (int stability_depth = 1; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-	lhs += s_indicators[fold_line_index][stability_depth];
-      }
-      //lhs += 1 - fold_line_activity_indicators[fold_line_index];
-      model.addConstr(lhs == fold_line_activity_indicators[fold_line_index], "s == 1");
+	//stability_sum += left_s;
+	//stability_sum += right_s;
+	stability_sum += left_stability_sum[0] * right_stability_sum[0];
+	stability_sum += left_stability_sum[0] * right_stability_sum[1];
+	stability_sum += left_stability_sum[1] * right_stability_sum[0];
+	stability_sum += left_stability_sum[0] * right_stability_sum[2];
+	stability_sum += left_stability_sum[2] * right_stability_sum[0];
+	stability_sum += left_stability_sum[0] * right_stability_sum[3];
+	stability_sum += left_stability_sum[3] * right_stability_sum[0];
+	stability_sum += left_stability_sum[0] * right_stability_sum[4];
+	stability_sum += left_stability_sum[4] * right_stability_sum[0];
+	stability_sum += left_stability_sum[1] * right_stability_sum[1];
+	stability_sum += left_stability_sum[3] * right_stability_sum[3];
+	stability_sum += left_stability_sum[1] * right_stability_sum[3];
+	stability_sum += left_stability_sum[3] * right_stability_sum[1];
+	stability_sum += left_stability_sum[3] * right_stability_sum[4];
+	stability_sum += left_stability_sum[4] * right_stability_sum[3];
+	checkAndSet(left_right_stability_mask, fold_line_index, stability_depth, 0, "stable");
+	model.addQConstr(left_right_stability_indicators[fold_line_index][stability_depth][0] <= stability_sum, "stable");
       
-      // if (fold_line_index == 50 && false)
-      // 	model.addConstr(lhs == 1);
-      // else
-      // 	model.addConstr(lhs <= 1);
+	checkAndSet(right_left_stability_mask, fold_line_index, stability_depth, 0, "stable");
+	model.addQConstr(right_left_stability_indicators[fold_line_index][stability_depth][0] <= stability_sum, "stable");
+      }
     }
-  }
-  
+
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
+	continue;
+      vector<GRBLinExpr> left_stability_sum(MAX_CONNECTION_DEPTH + 1);
+      vector<GRBLinExpr> right_stability_sum(MAX_CONNECTION_DEPTH + 1);
+
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	  left_stability_sum[connection_depth] += left_left_stability_indicators[fold_line_index][stability_depth][connection_depth];
+	  right_stability_sum[connection_depth] += right_right_stability_indicators[fold_line_index][stability_depth][connection_depth];
+	}
+      }
+
+      model.addConstr(left_stability_sum[0] + right_stability_sum[0] >= fold_line_activity_indicators[fold_line_index], "stable sum >= 1");
+      for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	model.addConstr(left_stability_sum[connection_depth] <= 1, "property sum <= 1");
+	model.addConstr(right_stability_sum[connection_depth] <= 1, "property sum <= 1");
+      }
+    }
+
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      //    if (left_background_fold_lines.count(fold_line_index) > 0 || right_background_fold_lines.count(fold_line_index) > 0)
+      //      continue;
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	  if (left_left_stability_mask[fold_line_index][stability_depth][connection_depth] == false)
+	    model.addConstr(left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] == 0);
+	  if (left_right_stability_mask[fold_line_index][stability_depth][connection_depth] == false)
+	    model.addConstr(left_right_stability_indicators[fold_line_index][stability_depth][connection_depth] == 0);
+	  if (right_left_stability_mask[fold_line_index][stability_depth][connection_depth] == false)
+	    model.addConstr(right_left_stability_indicators[fold_line_index][stability_depth][connection_depth] == 0);
+	  if (right_right_stability_mask[fold_line_index][stability_depth][connection_depth] == false)
+	    model.addConstr(right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] == 0);
+
+	  // checkAndReset(left_left_stability_mask, fold_line_index, stability_depth, connection_depth, "missing constraint");
+	  // checkAndReset(left_right_stability_mask, fold_line_index, stability_depth, connection_depth, "missing constraint");
+	  // checkAndReset(right_left_stability_mask, fold_line_index, stability_depth, connection_depth, "missing constraint");
+	  // checkAndReset(right_right_stability_mask, fold_line_index, stability_depth, connection_depth, "missing constraint");
+	}
+      }
+    }
+
+    if (false) {
+      model.addConstr(left_right_stability_indicators[6][0][2] == 1);
+      model.addConstr(left_right_stability_indicators[32][0][2] == 1);
+      model.addConstr(left_left_stability_indicators[45][0][3] == 1);
+      model.addConstr(right_right_stability_indicators[45][0][3] == 1);
+      model.addConstr(right_right_stability_indicators[45][1][0] == 1);
+      model.addConstr(left_left_stability_indicators[32][2][0] == 1);
+      model.addConstr(right_right_stability_indicators[60][2][0] == 1);
+      model.addConstr(left_left_stability_indicators[6][2][0] == 1);
+      model.addConstr(right_right_stability_indicators[10][2][0] == 1);
+      model.addConstr(left_left_stability_indicators[16][3][0] == 1);
+      model.addConstr(right_right_stability_indicators[11][3][0] == 1);
+      model.addConstr(right_right_stability_indicators[41][4][0] == 1);
+      model.addConstr(right_right_stability_indicators[17][5][0] == 1);
+      model.addConstr(right_right_stability_indicators[19][5][0] == 1);
+      model.addConstr(right_right_stability_indicators[49][6][0] == 1);
+      model.addConstr(right_right_stability_indicators[13][6][0] == 1);
+      model.addConstr(right_right_stability_indicators[18][6][0] == 1);
+      model.addConstr(left_left_stability_indicators[39][6][0] == 1);
+      model.addConstr(right_right_stability_indicators[55][6][0] == 1);
+      //model.addConstr(right_right_stability_indicators[47][5][0] == 1);
+    }
+  }  
   //model.setObjective(obj, 1);
   
   model.update();
@@ -858,61 +870,12 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     model.getEnv().set(GRB_DoubleParam_NodeLimit, 1000)*/;
   model.getEnv().set(GRB_DoubleParam_TimeLimit, 300);
 
-  // //set objective function
-  // GRBQuadExpr GRBobj = 0;
-  // for (size_t j = 0; j < foldLineSize; j++){
-  //   //length cost
-  //   if(!obj->foldLine[j]->isOriginalType){
-  //     double dist = sqrt(pow((double)obj->foldLine[j]->line.first.y-obj->foldLine[j]->line.second.y,2.0));
-  //     GRBobj += (obj->initMatSize.height - dist)/(obj->initMatSize.height)*f[j];
-  //   }
-  // }
-
-  // //position cost
-  // for(size_t i=0; i< obj->positionLineIdxOfPatch.size(); i++){
-  //   for(size_t j=0; j< obj->positionLineIdxOfPatch[i].size(); j++){
-  //     int fIdx = obj->positionLineToFoldLine[obj->positionLineIdxOfPatch[i][j].first];
-  //     int oriX = obj->foldLine[fIdx]->line.first.x;
-  //     int pIdx = obj->positionLineIdxOfPatch[i][j].first;
-  //     GRBobj += (X[pIdx]+Y[pIdx]-oriX)*(X[pIdx]+Y[pIdx]-oriX);
-  //   }
-  // }
-  // model.setObjective(GRBobj);
-
   
   try {
     //model.set("OutputFlag", false);
     model.update();
     model.optimize();
-
-    // //print & set result
-    // for (size_t i=0;i<foldLineSize;i++) {
-    //   cout << " f[" << i << "] = " << (double)f[i].get(GRB_DoubleAttr_X) <<endl;
-    //   obj->activeFoldLine.push_back((double)f[i].get(GRB_DoubleAttr_X));
-    // }
-    // for (size_t i=0;i<patchSize;i++) {
-    //   cout << " o[" << i << "] = " << (double) o[i].get(GRB_DoubleAttr_X) <<endl;
-    //   obj->orientation.push_back((double)o[i].get(GRB_DoubleAttr_X));
-    // }
-    // /*for (size_t i=0;i<foldLineSize;i++)
-    //   cout << " c[" << i << "] = " << c[i].get(GRB_DoubleAttr_X) <<endl;*/
-        
-    // obj->X.resize(positionLineSize);
-    // obj->Y.resize(positionLineSize);
-    // for(size_t i=0; i< obj->positionLineIdxOfPatch.size(); i++){
-    //   for(size_t j=0; j< obj->positionLineIdxOfPatch[i].size(); j++){
-    // 	int fIdx = obj->positionLineToFoldLine[obj->positionLineIdxOfPatch[i][j].first];
-    // 	int oriX = obj->foldLine[fIdx]->line.first.x;
-    // 	int pIdx = obj->positionLineIdxOfPatch[i][j].first;
-    // 	cout << " X[" << pIdx << "] = " << (double)X[pIdx].get(GRB_DoubleAttr_X)<<",";
-    // 	cout << " Y[" << pIdx << "] = " << (double)Y[pIdx].get(GRB_DoubleAttr_X)<<", ";
-    // 	cout << "X+Y = "<<(double)X[pIdx].get(GRB_DoubleAttr_X)+ (double)Y[pIdx].get(GRB_DoubleAttr_X)<<", Original X = "<<oriX << endl;
-    // 	obj->X[pIdx] = (double)X[pIdx].get(GRB_DoubleAttr_X);
-    // 	obj->Y[pIdx] = (double)Y[pIdx].get(GRB_DoubleAttr_X);
-    // 	obj->oriX.push_back((double)obj->foldLine[fIdx]->line.first.x);
-    //   }
-    // }
- 
+    
     if (model.get(GRB_IntAttr_IsMIP) == 0)
       throw GRBException("Model is not a MIP");
     
@@ -921,100 +884,35 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     cout << e.getMessage() << endl;
   }catch (...) {printf("Exception...\n");exit(1);}
 
-  // for(int patch_index = 0; patch_index < NUM_ORIGINAL_PATCHES; patch_index++) {
-  //   //if (patch_index == starting_patch_index || background_patches.count(patch_index) > 0)
-  //   //continue;
-  //   for (int distance = 1; distance < MAX_DISTANCE; distance++)
-  //     if (patch_distances[patch_index][distance].get(GRB_DoubleAttr_X) == 1)
-  // 	cout << patch_index << '\t' << distance << endl;
-  // }
-
-  //vector<int> fold_line_positions(popup_graph.getNumFoldLines());
   
-  // if (true) {
-  //   Mat optimized_graph_image = Mat::zeros(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
-  //   //Mat original_fold_line_image(IMAGE_HEIGHT, IMAGE_WIDTH, CV_8UC3);
-  //   map<int, Vec3b> color_table;
-  //   map<int, vector<int> > fold_line_pixels;
-  //   for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
-  //     int fold_line_index = popup_graph.line_segment_fold_line_indices[popup_graph.pixel_line_segment_indices[pixel]];
-  //     if (fold_line_index < 0) {
-  //     }
-  //     else if (fold_line_index < popup_graph.num_original_fold_lines) {
-  // 	if (fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) == 0)
-  // 	  fold_line_pixels[fold_line_index].push_back(pixel);
-  // 	else if (fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) == 0)
-  // 	  optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(255, 0, 0);
-  //       else
-  // 	  optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 255, 0);
-  // 	fold_line_pixels[fold_line_index].push_back(pixel);
-  //     } else {
-  // 	if (color_table.count(fold_line_index) == 0) {
-  //         //int gray_value = rand() % 256;
-  //         //color_table[fold_line_index] = Vec3b(gray_value, gray_value, gray_value);
-  // 	  color_table[fold_line_index] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
-  // 	}
-  // 	optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = color_table[fold_line_index];
-	
-  //       if (fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) == pixel % IMAGE_WIDTH && fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) == 1) {
-  // 	  if (fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) == 0)
-  // 	    optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(255, 0, 0);
-  // 	  else
-  //           optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = Vec3b(0, 255, 0);
-  // 	}
+  if (true) {
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
+      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << endl;
 
-  // 	fold_line_pixels[fold_line_index].push_back(pixel);       
-
-  //         // if (fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) == 0)
-  //         //   color_table[fold_line_index] = Vec3b(255, 255, 255);
-  //         // else
-  //         //   color_table[fold_line_index] = Vec3b(0, 0, 0);
-  //     }
-  //   }
-  //   for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
-  //     if (fold_line_activity_indicators[fold_line_it->first].get(GRB_DoubleAttr_X) == 0)
-  // 	continue;
-  //     int pixel = fold_line_it->second[rand() % fold_line_it->second.size()];
-  //     putText(optimized_graph_image, to_string(fold_line_it->first), Point(pixel % IMAGE_WIDTH, pixel /IMAGE_WIDTH), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(255, 0, 0));
-  //   }
-
-  //   imwrite("Test/optimized_graph_image.bmp", optimized_graph_image);
-  // }
-  
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
-    cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << endl;
-
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-    if (static_cast<int>(fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) + 0.5) == 0)
-      continue;
-    cout << fold_line_index << endl;
-    for (int stability_depth = 0; stability_depth < MAX_STABILITY_DEPTH; stability_depth++) {
-      if (s_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-  	cout << "s: " << stability_depth << endl;
-      if (left_c_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "left c: " << stability_depth << endl;
-      if (right_c_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "right c: " << stability_depth << endl;
-      if (left_cc_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "left cc: " << stability_depth << endl;
-      if (right_cc_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "right cc: " << stability_depth << endl;
-      if (left_d_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "left d: " << stability_depth << endl;
-      if (right_d_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "right d: " << stability_depth << endl;
-      if (left_e_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "left e: " << stability_depth << endl;
-      if (right_e_indicators[fold_line_index][stability_depth].get(GRB_DoubleAttr_X))
-        cout << "right e: " << stability_depth << endl;
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      if (static_cast<int>(fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) + 0.5) == 0)
+	cout << "inactive ";
+      //continue;
+      cout << "fold line index: " << fold_line_index << endl;
+      for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
+	for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++) {
+	  if (static_cast<int>(left_left_stability_indicators[fold_line_index][stability_depth][connection_depth].get(GRB_DoubleAttr_X) + 0.5) == 1)              
+            cout << "left left: " << stability_depth << '\t' << connection_depth << endl;
+	  if (static_cast<int>(left_right_stability_indicators[fold_line_index][stability_depth][connection_depth].get(GRB_DoubleAttr_X) + 0.5) == 1)              
+            cout << "left right: " << stability_depth << '\t' << connection_depth << endl;
+	  if (static_cast<int>(right_right_stability_indicators[fold_line_index][stability_depth][connection_depth].get(GRB_DoubleAttr_X) + 0.5) == 1)    
+            cout << "right right: " << stability_depth << '\t' << connection_depth << endl;
+	  if (static_cast<int>(right_left_stability_indicators[fold_line_index][stability_depth][connection_depth].get(GRB_DoubleAttr_X) + 0.5) == 1)    
+            cout << "right left: " << stability_depth << '\t' << connection_depth << endl;
+	}
+      }
     }
-  }
       
-  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
-    for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++)
-      if (other_fold_line_index != fold_line_index && same_patch_indicators[fold_line_index][other_fold_line_index].get(GRB_DoubleAttr_X) == 1)
-   	cout << fold_line_index << '\t' << other_fold_line_index << endl;
-
+    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
+      for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++)
+	if (other_fold_line_index != fold_line_index && same_patch_indicators[fold_line_index][other_fold_line_index].get(GRB_DoubleAttr_X) == 1)
+	  cout << fold_line_index << '\t' << other_fold_line_index << endl;
+  }
   //  popup_graph.checkFoldLineInfo();
 
   vector<int> optimized_fold_line_positions(popup_graph.getNumFoldLines(), -1);
@@ -1029,6 +927,6 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
     optimized_fold_line_convexities[fold_line_index] = static_cast<int>(fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) + 0.5) == 1;
   }
   popup_graph.setOptimizedFoldLineInfo(optimized_fold_line_positions, optimized_fold_line_convexities);
-  
+
   return true;
 }
