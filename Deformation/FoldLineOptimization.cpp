@@ -443,8 +443,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
 
     vector<vector<GRBVar> > patch_distances(popup_graph.getNumOriginalPatches(), vector<GRBVar>(MAX_DISTANCE + 1));
     for(int patch_index = 0; patch_index < popup_graph.getNumOriginalPatches(); patch_index++) {
-      GRBVar *vars_temp = model.addVars(MAX_DISTANCE);
-      patch_distances[patch_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_DISTANCE);
+      //GRBVar *vars_temp = model.addVars(MAX_DISTANCE);
+      //patch_distances[patch_index] = vector<GRBVar>(vars_temp, vars_temp + MAX_DISTANCE);
       for (int distance = 0; distance <= MAX_DISTANCE; distance++) {
         patch_distances[patch_index][distance] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
       }
@@ -491,8 +491,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
   
   vector<vector<GRBVar> > same_patch_indicators(popup_graph.getNumFoldLines(), vector<GRBVar>(popup_graph.getNumFoldLines()));
   for(int fold_line_index_1 = 0; fold_line_index_1 < popup_graph.getNumFoldLines(); fold_line_index_1++) {
-    GRBVar *vars_temp = model.addVars(popup_graph.getNumFoldLines());
-    same_patch_indicators[fold_line_index_1] = vector<GRBVar>(vars_temp, vars_temp + popup_graph.getNumFoldLines());
+    //GRBVar *vars_temp = model.addVars(popup_graph.getNumFoldLines());
+    //same_patch_indicators[fold_line_index_1] = vector<GRBVar>(vars_temp, vars_temp + popup_graph.getNumFoldLines());
     for(int fold_line_index_2 = 0; fold_line_index_2 < popup_graph.getNumFoldLines(); fold_line_index_2++) {
       same_patch_indicators[fold_line_index_1][fold_line_index_2] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
@@ -537,42 +537,42 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph)
 
   const int MAX_STABILITY_DEPTH = 5;
   const int MAX_CONNECTION_DEPTH = 4;
-  vector<vector<vector<GRBVar> > > left_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<GRBVar> > > left_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1, vector<GRBVar>(MAX_CONNECTION_DEPTH + 1)));
   vector<vector<vector<bool> > > left_left_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
     for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
-      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
-      left_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      //GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      //left_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
       for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
 	left_left_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
   }
-  vector<vector<vector<GRBVar> > > left_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<GRBVar> > > left_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1, vector<GRBVar>(MAX_CONNECTION_DEPTH + 1)));
   vector<vector<vector<bool> > > left_right_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
     for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
-      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
-      left_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      //GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      //left_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
       for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
         left_right_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
   }
-  vector<vector<vector<GRBVar> > > right_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<GRBVar> > > right_left_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1, vector<GRBVar>(MAX_CONNECTION_DEPTH + 1)));
   vector<vector<vector<bool> > > right_left_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
     for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
-      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
-      right_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      //GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      //right_left_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
       for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
         right_left_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
   }
-  vector<vector<vector<GRBVar> > > right_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1));
+  vector<vector<vector<GRBVar> > > right_right_stability_indicators(popup_graph.getNumFoldLines(), vector<vector<GRBVar> >(MAX_STABILITY_DEPTH + 1, vector<GRBVar>(MAX_CONNECTION_DEPTH + 1)));
   vector<vector<vector<bool> > > right_right_stability_mask(popup_graph.getNumFoldLines(), vector<vector<bool> >(MAX_STABILITY_DEPTH + 1, vector<bool>(MAX_CONNECTION_DEPTH + 1, false)));
   for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
     for (int stability_depth = 0; stability_depth <= MAX_STABILITY_DEPTH; stability_depth++) {
-      GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
-      right_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
+      //GRBVar *vars_temp = model.addVars(MAX_CONNECTION_DEPTH + 1);
+      //right_right_stability_indicators[fold_line_index][stability_depth] = vector<GRBVar>(vars_temp, vars_temp + (MAX_CONNECTION_DEPTH + 1));
       for (int connection_depth = 0; connection_depth <= MAX_CONNECTION_DEPTH; connection_depth++)
         right_right_stability_indicators[fold_line_index][stability_depth][connection_depth] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
