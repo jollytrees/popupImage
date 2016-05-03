@@ -18,21 +18,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_pic3->installEventFilter(this);
 
     cv::Mat a(100,100,CV_8UC3);
-        imwrite("pm1130.png", a);
-        
-    cv::Mat img1 = imread("../input/cute_fox.png");
+    imwrite("pm1130.png", a);
+    cv::Mat img1 = imread("../popupImage/input/cute_fox.png");
     ui->label_pic1->setGeometry(QRect(50, 300, img1.cols, img1.rows));
     cv::cvtColor(img1, img1, CV_BGR2RGB);
     QImage image = mat2QImage(img1 , QImage::Format_RGB888);
     ui->label_pic1->setPixmap(QPixmap::fromImage(image));
-    
-    cv::Mat img2 = imread("../input/angrybirds05_illu.png");
+
+    cv::Mat img2 = imread("../popupImage/input/angrybirds05_illu.png");
     ui->label_pic2->setGeometry(QRect(300, 300, img2.cols, img2.rows));
     cv::cvtColor(img2, img2, CV_BGR2RGB);
     image = mat2QImage(img2 , QImage::Format_RGB888);
     ui->label_pic2->setPixmap(QPixmap::fromImage(image));
 
-    cv::Mat img3 = imread("../input/bear_ill.png");
+    cv::Mat img3 = imread("../popupImage/input/bear_ill.png");
     cv::cvtColor(img3, img3, CV_BGR2RGB);
     ui->label_pic3->setGeometry(QRect(560, 300, img3.cols, img3.rows));
     image = mat2QImage(img3 , QImage::Format_RGB888);
@@ -51,14 +50,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //image_segmentation_widget = new ImageSegmentationWidget();
     ui->tabWidget->setCurrentIndex(4);
 
-    //createMenus();
+    createMenus();
 }
 
 MainWindow::~MainWindow(){
     delete obj;
     delete ui;
 }
-/*
+
 void MainWindow::createMenus()
 {
     QMenu *file_menu = menuBar()->addMenu(tr("&File"));
@@ -97,7 +96,7 @@ void MainWindow::loadImage()
         return;
     }
 
-    //ui->image_segmentation_widget->setImage(image);
+    ui->image_segmentation_widget->setImage(image);
     image_width = image.width();
     image_height = image.height();
 }
@@ -117,7 +116,7 @@ void MainWindow::loadSegmentation()
         in_str >> patch_index_mask[pixel];
     in_str.close();
 
-    //ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
+    ui->image_segmentation_widget->setSegmentation(patch_index_mask, image_width, image_height);
 }
 
 void MainWindow::saveSegmentation()
@@ -134,7 +133,7 @@ void MainWindow::saveSegmentation()
         out_str << patch_index_mask[i] << endl;
     out_str.close();
 }
-*/
+
 void MainWindow::onItemClicked_patch(QListWidgetItem *item){
     QVariant variant = item->data(Qt::UserRole);
     int data = variant.toInt();
@@ -395,7 +394,7 @@ void MainWindow::chooseInputImage(){
     ui->tabWidget->setCurrentIndex(1);
     
 }
-/*
+
 void MainWindow::startSegmentation()
 {
     ui->image_segmentation_widget->segmentImage();
@@ -416,4 +415,4 @@ void MainWindow::clearSegmentation()
 
 void MainWindow::confirmSegmentation()
 {
-}*/
+}

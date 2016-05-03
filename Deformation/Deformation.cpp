@@ -22,13 +22,17 @@ using namespace cv;
 int main(int argc, char *argv[])
 {
   //read patch index mask
-  ifstream patch_index_mask_in_str("Test/bear_segmentation.txt");
+  ifstream patch_index_mask_in_str("Test/angrybird_segmentation.txt");
   int IMAGE_WIDTH, IMAGE_HEIGHT;
   patch_index_mask_in_str >> IMAGE_WIDTH >> IMAGE_HEIGHT;
   vector<int> patch_index_mask(IMAGE_WIDTH * IMAGE_HEIGHT);
   for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++)
     patch_index_mask_in_str >> patch_index_mask[pixel];
   patch_index_mask_in_str.close();
+
+  //Mat test_image = Popup::drawIndexMaskImage(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT);
+  //imwrite("Test/angrybird_mask_image.png", test_image);
+  //exit(1);
 
   //remove boundary pixels
   while (true) {
@@ -66,7 +70,7 @@ int main(int argc, char *argv[])
     patch_index_mask[pixel]--;
   
   
-  const int FOLD_LINE_WINDOW_WIDTH = 10;
+  const int FOLD_LINE_WINDOW_WIDTH = 6;
   const int FOLD_LINE_WINDOW_HEIGHT = 10;
 
   //make patch index mask larger
@@ -79,7 +83,9 @@ int main(int argc, char *argv[])
   
   if (true) {
     //Mat toy_example_image = imread("Test/toy_example_3.png");
-    Mat toy_example_image = imread("Test/bear_toy_example_5.png");
+    //Mat toy_example_image = imread("Test/bear_toy_example_5.png");
+    //Mat toy_example_image = imread("Test/angrybird_mask_image.png");
+    Mat toy_example_image = imread("Test/angrybird_toy_example_5.png");
     IMAGE_WIDTH = toy_example_image.cols;
     IMAGE_HEIGHT = toy_example_image.rows;
     patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
@@ -92,11 +98,42 @@ int main(int argc, char *argv[])
         color_index_map[color_index] = index++;
       patch_index_mask[pixel] = color_index_map[color_index];
     }
+
+    const int SCALE = 3;
+    patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH * SCALE, IMAGE_HEIGHT * SCALE);
+    IMAGE_WIDTH *= SCALE;
+    IMAGE_HEIGHT *= SCALE;
   }
   
-  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2 - 5, true);
-  optimizeFoldLines(popup_graph);
-  //optimizeFoldLinePositions(popup_graph);
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2 + 10, true);
+  vector<vector<int> > excluded_fold_line_combinations;
+  int num_new_fold_lines_constraint = 0;
+  int index = 0;
+  while (true) {
+    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint) == false) {
+      num_new_fold_lines_constraint++;
+      excluded_fold_line_combinations.clear();
+      continue;
+    }
+    Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
+    imwrite("Test/optimized_popup_graph_" + to_string(index) + ".png", optimized_popup_graph);
+    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, false, true))
+      break;
+    vector<int> new_fold_lines = popup_graph.getNewFoldLines();
+    num_new_fold_lines_constraint = new_fold_lines.size();
+    if (num_new_fold_lines_constraint == 0)
+      num_new_fold_lines_constraint++;
+    else
+      excluded_fold_line_combinations.push_back(new_fold_lines);
+    cout << "constraint: " << num_new_fold_lines_constraint << endl;
+    for (vector<int>::const_iterator fold_line_it = new_fold_lines.begin(); fold_line_it != new_fold_lines.end(); fold_line_it++)
+      cout << *fold_line_it << '\t';
+    cout << endl;
+    index++;
+    if (index == 10)
+      break;
+  }
+  optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, true);
   Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
   imwrite("Test/optimized_popup_graph.png", optimized_popup_graph);
   

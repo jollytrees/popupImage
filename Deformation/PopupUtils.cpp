@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <map>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace std;
 using namespace cv;
@@ -60,5 +62,40 @@ namespace Popup
       index_mask_image.at<Vec3b>(pixel / IMAGE_WIDTH, pixel % IMAGE_WIDTH) = color_table[index];
     }
     return index_mask_image;
+  }
+
+  void grabCut(const Mat &image, const string &result_filename)
+  {
+    int border = 5;
+    int border2 = border + border;
+    cv::Rect rectangle(border,border,image.cols-border2,image.rows-border2);
+ 
+    cv::Mat result; // segmentation result (4 possible values)
+    cv::Mat bgModel,fgModel; // the models (internally used)
+ 
+    // GrabCut segmentation
+    cv::grabCut(image,    // input image
+                result,   // segmentation result
+                rectangle,// rectangle containing foreground 
+                bgModel,fgModel, // models
+                1,        // number of iterations
+                cv::GC_INIT_WITH_RECT); // use rectangle
+    // Get the pixels marked as likely foreground
+    cv::compare(result,cv::GC_PR_FGD,result,cv::CMP_EQ);
+    // Generate output image
+    cv::Mat foreground(image.size(),CV_8UC3,cv::Scalar(255,255,255));
+    image.copyTo(foreground,result); // bg pixels not copied
+ 
+    // draw rectangle on original image
+    //cv::rect(image, rectangle, cv::Scalar(255,255,255),1);
+    cv::namedWindow("Image");
+    cv::imshow("Image",image);
+ 
+    // display result
+    cv::namedWindow("Segmented Image");
+    cv::imshow("Segmented Image",foreground);
+ 
+    waitKey();
+    imwrite(result_filename, result);
   }
 }

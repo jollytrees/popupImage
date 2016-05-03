@@ -42,7 +42,9 @@ namespace Popup
     std::map<int, std::map<int, std::vector<int> > > getFoldLineLeftPaths() const { return fold_line_left_paths_; };
     std::map<int, std::map<int, std::vector<int> > > getFoldLineRightPaths() const { return fold_line_right_paths_; };
     std::pair<int, int> getFoldLineXRange(const int fold_line_index) const;
+    double getFoldLineScore(const int fold_line_index) const { return fold_lines_[fold_line_index].score; };
     std::map<int, std::map<int, std::set<int> > > getPatchNeighborFoldLines(const char direction, const std::map<int, std::set<int> > &patch_child_patches = std::map<int, std::set<int> >()) const;
+    bool getEnforceSymmetryFlag() const { return ENFORCE_SYMMETRY_; };
     
     cv::Mat drawOriginalPopupGraph();
     cv::Mat drawPopupGraph();
@@ -59,12 +61,14 @@ namespace Popup
 
     void setOptimizedFoldLineInfo(const std::vector<int> &optimized_fold_line_xs, const std::vector<bool> &optimized_fold_line_convexities = std::vector<bool>());
     void getOptimizedFoldLineInfo(std::vector<int> &optimized_fold_line_positions, std::vector<bool> &optimized_fold_line_convexities);
-    void getDesirableFoldLinePositions(std::vector<int> &desirable_fold_line_positions);
+    void getDesirableFoldLinePositions(std::vector<int> &desirable_fold_line_positions) const;
     
     std::map<int, std::set<int> >  getIslandPatchInfo() const;
     std::map<int, std::set<int> > getPatchChildPatches() const { return patch_child_patches_; };
     
     std::set<int> getSymmetryFoldLines();
+    std::vector<std::pair<int, int> > getSymmetricFoldLinePairs() const;
+    std::vector<int> getNewFoldLines() const;
     
     
   private:

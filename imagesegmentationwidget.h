@@ -10,7 +10,7 @@
 class ImageSegmentationWidget : public QWidget
 {
     Q_OBJECT
-/*
+
 public:
      ImageSegmentationWidget(const QImage &image);
      ImageSegmentationWidget(QWidget *parent = 0);
@@ -62,7 +62,7 @@ public slots:
     void restart();
     void refine();
 private slots:
-*/
+
 };
 
 #endif // IMAGESEGMENTATIONWIDGET_H
