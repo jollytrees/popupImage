@@ -22,7 +22,7 @@ using namespace cv;
 int main(int argc, char *argv[])
 {
   //read patch index mask
-  ifstream patch_index_mask_in_str("Test/angrybird_segmentation.txt");
+  ifstream patch_index_mask_in_str("Test/bee_segmentation.txt");
   int IMAGE_WIDTH, IMAGE_HEIGHT;
   patch_index_mask_in_str >> IMAGE_WIDTH >> IMAGE_HEIGHT;
   vector<int> patch_index_mask(IMAGE_WIDTH * IMAGE_HEIGHT);
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   patch_index_mask_in_str.close();
 
   //Mat test_image = Popup::drawIndexMaskImage(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT);
-  //imwrite("Test/angrybird_mask_image.png", test_image);
+  //imwrite("Test/patch_index_mask_image.png", test_image);
   //exit(1);
 
   //remove boundary pixels
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     patch_index_mask[pixel]--;
   
   
-  const int FOLD_LINE_WINDOW_WIDTH = 6;
+  const int FOLD_LINE_WINDOW_WIDTH = 10;
   const int FOLD_LINE_WINDOW_HEIGHT = 10;
 
   //make patch index mask larger
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
   if (true) {
     //Mat toy_example_image = imread("Test/toy_example_3.png");
     //Mat toy_example_image = imread("Test/bear_toy_example_5.png");
-    //Mat toy_example_image = imread("Test/angrybird_mask_image.png");
-    Mat toy_example_image = imread("Test/angrybird_toy_example_5.png");
+    Mat toy_example_image = imread("Test/patch_index_mask_image.png");
+    //Mat toy_example_image = imread("Test/angrybird_toy_example_5.png");
     IMAGE_WIDTH = toy_example_image.cols;
     IMAGE_HEIGHT = toy_example_image.rows;
     patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     IMAGE_HEIGHT *= SCALE;
   }
   
-  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2 + 10, true);
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, true);
   vector<vector<int> > excluded_fold_line_combinations;
   int num_new_fold_lines_constraint = 0;
   int index = 0;

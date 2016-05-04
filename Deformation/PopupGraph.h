@@ -53,7 +53,7 @@ namespace Popup
     std::vector<int> getBackgroundLeftFoldLines() const;
     std::vector<int> getBackgroundRightFoldLines() const;
 
-    int getMinFoldLineGap() const { return FOLD_LINE_WINDOW_WIDTH_ / 2; };
+    int getMinFoldLineGap() const { FOLD_LINE_WINDOW_WIDTH_ / 2; };
 
     void checkFoldLinePairs() const;
     void checkFoldLinePaths() const;

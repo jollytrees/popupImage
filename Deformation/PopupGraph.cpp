@@ -132,7 +132,7 @@ namespace Popup
 	  for (map<int, int>::const_iterator right_window_it = right_window_num_pixels.begin(); right_window_it != right_window_num_pixels.end(); right_window_it++) {
 	    if (left_window_it->first == right_window_it->first || patch_neighbors[left_window_it->first].count(right_window_it->first) == 0)
 	      continue;
-	    double score = 1.0 * (left_window_it->second * right_window_it->second) / pow((FOLD_LINE_WINDOW_HEIGHT_ / 2 * 2 + 1) * (FOLD_LINE_WINDOW_WIDTH_ / 2), 2);
+	    double score = (1.0 * left_window_it->second * right_window_it->second) / pow((FOLD_LINE_WINDOW_HEIGHT_ / 2 * 2 + 1) * (FOLD_LINE_WINDOW_WIDTH_ / 2), 2);
 	    
             fold_lines_.push_back(FoldLine(make_pair(left_window_it->first, right_window_it->first), pixel, score));
 	    patch_position_fold_line_indices[left_window_it->first][right_window_it->first][pixel] = fold_lines_.size() - 1;
@@ -148,7 +148,7 @@ namespace Popup
         vector<bool> position_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, false);
         vector<pair<double, int> > score_fold_line_index_pairs;
 	for (map<int, int>::const_iterator position_it = right_patch_it->second.begin(); position_it != right_patch_it->second.end(); position_it++) {
-	  score_fold_line_index_pairs.push_back(make_pair(fold_lines_[position_it->second].score, position_it->second));
+	  score_fold_line_index_pairs.push_back(make_pair(fold_lines_[position_it->second].score + 0.001 * abs(position_it->first % IMAGE_WIDTH_ - IMAGE_WIDTH_ / 2) / IMAGE_WIDTH_, position_it->second));
 	  position_mask[position_it->first] = true;
 	}
 	sort(score_fold_line_index_pairs.begin(), score_fold_line_index_pairs.end());
@@ -160,6 +160,10 @@ namespace Popup
 	    continue;
 	  
 	  position_mask[position] = false;
+
+	  if (ENFORCE_SYMMETRY_ && abs(position % IMAGE_WIDTH_ - MIDDLE_FOLD_LINE_X_) <= FOLD_LINE_WINDOW_WIDTH_ / 2 + 1)       
+            continue;     
+
 	  vector<int> suppressed_positions;
 	  //suppress other candidates in the same valley on the left side
           {
@@ -218,15 +222,13 @@ namespace Popup
 	    }
 	  }
 
-	  if (ENFORCE_SYMMETRY_ && abs(fold_line.desirable_center % IMAGE_WIDTH_ - MIDDLE_FOLD_LINE_X_) <= FOLD_LINE_WINDOW_WIDTH_ / 2 + 1)
-            continue;
 	  fold_line.positions = suppressed_positions;
 	  selected_fold_lines.push_back(fold_line);
         }
       }
     }
     
-    fold_lines_ = selected_fold_lines;    
+    fold_lines_ = selected_fold_lines;
 
     //keep only one fold line if two fold lines between same pair of patches with opposite direction (i.e. f1 is between (p, q) and f2 is between (q, p)) are on the same side
     {
@@ -1742,12 +1744,11 @@ namespace Popup
     calcLineSegmentInfo();
     findOriginalFoldLines();
     imwrite("Test/original_popup_graph.png", drawOriginalPopupGraph());
-    findAllFoldLines();
     //checkFoldLineInfo();
-    //exit(1);
+    findAllFoldLines();
     imwrite("Test/popup_graph.png", drawPopupGraph());
     findFoldLinePairs();
-    checkFoldLinePairs();
+    //checkFoldLinePairs();
     findFoldLinePaths();
     //    checkFoldLinePaths();
     //exit(1);

@@ -80,6 +80,16 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   }
   model.update();
 
+  vector<GRBVar> right_copy_convexity_indicators(popup_graph.getNumFoldLines());
+  vector<GRBVar> right_copy_Xs(popup_graph.getNumFoldLines());
+  vector<GRBVar> right_copy_Ys(popup_graph.getNumFoldLines());
+  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+    right_copy_convexity_indicators[fold_line_index] = model.addVar(0.0, 1.0, 0, GRB_BINARY, "right copy convexity " + to_string(fold_line_index));
+    right_copy_Xs[fold_line_index] = model.addVar(0.0, IMAGE_WIDTH, 0, GRB_INTEGER, "right copy X " + to_string(fold_line_index));
+    right_copy_Ys[fold_line_index] = model.addVar(0.0, IMAGE_WIDTH, 0, GRB_INTEGER, "right copy Y " + to_string(fold_line_index));
+  }
+  model.update();
+
   //GRBQuadExpr obj(0);
 
   if (optimize_position || check_stability) {
@@ -95,8 +105,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       else if (fold_line_index != popup_graph.getBorderFoldLineIndices().first && fold_line_index != popup_graph.getBorderFoldLineIndices().second && fold_line_index != popup_graph.getMiddleFoldLineIndex())
         model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
     }
-  }   
-
+  }
+  
   if (false) {
     set<int> active_fold_lines;
 
@@ -239,17 +249,6 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     
     //for (int fold_line_index = 0; fold_line_index < popup_graph.num_fold_lines - 2; fold_line_index++)
     //model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] <= fold_line_Xs[popup_graph.num_fold_lines - 1] * fold_line_activity_indicators[popup_graph.num_fold_lines - 1]);
-    
-
-    vector<GRBVar> right_copy_convexity_indicators(popup_graph.getNumFoldLines());
-    vector<GRBVar> right_copy_Xs(popup_graph.getNumFoldLines());
-    vector<GRBVar> right_copy_Ys(popup_graph.getNumFoldLines());
-    for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      right_copy_convexity_indicators[fold_line_index] = model.addVar(0.0, 1.0, 0, GRB_BINARY, "right copy convexity " + to_string(fold_line_index));
-      right_copy_Xs[fold_line_index] = model.addVar(0.0, IMAGE_WIDTH, 0, GRB_INTEGER, "right copy X " + to_string(fold_line_index));
-      right_copy_Ys[fold_line_index] = model.addVar(0.0, IMAGE_WIDTH, 0, GRB_INTEGER, "right copy Y " + to_string(fold_line_index));
-    }
-    model.update();
 
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
       model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");
@@ -1076,8 +1075,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     //if (check_stability)
     model.write("Test/model.lp");
     model.optimize();
-    model.computeIIS();    
-    model.write("Test/iis.ilp");
+    //model.computeIIS();    
+    //model.write("Test/iis.ilp");
     //model.update();
     //model.write("Test/solution.sol");
     //if (model.get(GRB_IntAttr_IsMIP) == 0)
@@ -1141,6 +1140,35 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   }
   popup_graph.setOptimizedFoldLineInfo(optimized_fold_line_positions, optimized_fold_line_convexities);
 
+
+  // for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
+  //   int left_fold_line_index = fold_line_pair_it->first;
+  //   int right_fold_line_index = fold_line_pair_it->second;
+  //   cout << "fold line neighbors: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+  //   cout << right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) - fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  //   cout << right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) - fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  // }
+  // //exit(1);
+  // if (true)
+  //   {
+  //     vector<pair<int, int> > fold_line_pairs_passed = popup_graph.getFoldLinePairsPassed();
+  //     for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs_passed.begin(); fold_line_pair_it != fold_line_pairs_passed.end(); fold_line_pair_it++) {
+  //       int left_fold_line_index = fold_line_pair_it->first;
+  //       int right_fold_line_index = fold_line_pair_it->second;
+  //       cout << "fold line neighbors passed: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+  //       // if (fold_line_pair_it - fold_line_pairs_passed.begin() == 1)
+  //       //   break;
+  //       if (right_fold_line_index >= popup_graph.getNumOriginalFoldLines()) {
+  // 	  cout << fold_line_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) - fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  //         cout << fold_line_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) - fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  //       } else {
+  // 	  cout << right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) - right_copy_Xs[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  //         cout << right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) - right_copy_Ys[right_fold_line_index].get(GRB_DoubleAttr_X) << endl;
+  //       }
+  //     }
+  //   }
+
+  
   // vector<pair<int, int> > symmetric_fold_line_pairs = popup_graph.getSymmetricFoldLinePairs();
   // for (vector<pair<int, int> >::const_iterator symmetric_fold_line_pair_it = symmetric_fold_line_pairs.begin(); symmetric_fold_line_pair_it != symmetric_fold_line_pairs.end(); symmetric_fold_line_pair_it++) {
   //   cout << symmetric_fold_line_pair_it->first << '\t' << symmetric_fold_line_pair_it->second << '\t' << fold_line_activity_indicators[symmetric_fold_line_pair_it->first].get(GRB_DoubleAttr_X) << '\t' << fold_line_activity_indicators[symmetric_fold_line_pair_it->second].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[symmetric_fold_line_pair_it->first].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[symmetric_fold_line_pair_it->second].get(GRB_DoubleAttr_X) << endl;
