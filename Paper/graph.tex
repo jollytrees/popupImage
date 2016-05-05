@@ -1,0 +1,70 @@
+\section{Popup Graph}
+We define two types of popup graphs based on three types of units: \textit{segments}, \textit{regions}, and \textit{fold line candidates}. \textit{Segments} come directly from input image segmentation. Inside each segment, there are usually multiple \textit{regions}, each of which contains one fold line candidate. A fold line candidate is potentially effective fold line in the final design. There are two types of \textit{fold line candidates}. \textit{Intersection fold line candidates} come the intersection between two neighboring \textit{segment}. And \textit{region fold line candidates} come from each region. We first segment the input image (see section \ref{image_segmentation}), then find \textit{intersection fold line candidates} (see section \ref{intersection_fold_line_candidates}), and then find \textit{regions} and corresponding \textit{region fold line candidates} (see section \ref{region_fold_line_candidates}. We incorporate all information to build two types of graphs as explained in \ref{popup_graph_structure}.  Three units and two popup graphs are illustrated in Figure \ref{fig:graph}.
+
+\subsection{Image Segmentation} \label{image_segmentation}
+We take either a vector image or a scalar image as input. For a vector image, we read the segment information from the image directly. For a scalar image, we segment the image using Watershed algorithm.
+
+\subsection{Find Intersection Fold Lines Candidates} \label{intersection_fold_line_candidates}
+For a popup craft, fold lines serve as joints connecting two patches. Most fold lines lie between two neighboring segments and connect them. For any given pair of neighboring fold lines, there could be arbitrary number of fold lines with arbitrary position along the intersection. Ideally, we want one fold line candidate for each possible position, but then the optimization becomes intractable. The opposite extreme is to have only one fold line candidate but allows it to appear anywhere along the intersection. In practice, we first divide the intersection into multiple parts such that it is unlikely for each part to contain more than one fold lines. Then we assign one fold line candidate for each part. We define a \textit{slope} as a part of the intersection where $x$ is monotonically increasing or decreasing over $y$ as shown in Figure \ref{fig:valley}. We find that there is usually at most one fold line in each \textit{slope}. But dividing directly by \textit{slopes}, we borrow the idea of max-suppression. We first pick the position with the best score (defined below) and then suppress positions in the same slope (in cases where the picked position is at the intersection point of two slopes, positions in both slopes will be suppressed). We repeat the process for the remaining positions until are positions are considered. Each picked position will be the desirable position for one fold line candidate and corresponding suppressed positions will be the possible positions for this candidate.
+
+To define the score for a fold line candidate at given position, we look at a local window around that position. The size of the window has clear physical meanings. When we make actual popup crafts out of a hard paper, a fold line has to be long enough so that it connects two patch stably. Also, we want patches beside it to be wide enough so that the fold line is easy to fold by hand. The height of the local window is chosen to be the minimal fold line length and the width of the local window is chosen to be twice of the minimal patch width beside a fold line. For a fold line $f$ to appear at pixel $p$, denote its left segment as $s_l$ and its right segment as $s_r$, the score of the fold line $f$, is determined as \ref{equ:goodness}.
+\begin{equation}
+  S(f, p, s_l, s_r) = \frac{|W_l(p) \cap R(s_l)| * |W_r(p) \cap R(s_r)|}{(0.5 H^f W^f)^2}
+  \label{equ:goodness}
+\end{equation}
+
+% There are two key parameters in this task. $H^f$ is the desirable height of the local window of a fold line and $W^f$ is the desirable width of the local window. Here, the local window is simply a rectangle region on the image. For a pixel $p$ in $\mathcal{S}$, we look at its local window $W(p)$ with height $H^f$ and width $W^f$. There could be more than one segments $W(p)$ and for each pair of them which are adjacent, we can put a fold line between them at $p$. For any such pair, there are two options in terms of which one is left (right). For each option, denote the left segment as $s_l$ and the right segment as $s_r$, the score of the fold line $f$ between them at $p$ is determined as \ref{equ:goodness}.
+% \begin{equation}
+%   S(f, p, s_l, s_r) = \frac{|W_l(p) \cap R(s_l)| * |W_r(p) \cap R(s_r)|}{(0.5 H^f W^f)^2}
+%   \label{equ:goodness}
+% \end{equation}
+% Here $W_l(p)$ and $W_(p)$ are the left half and right half of $W(p)$ respectively, and $R(s)$ is the region of $s$ on the image domain. The intuition for this equation is for a fold line to be more reliable, it should have more left segment pixels on its left and more right segment pixels on its right. The score is in $[0, 1]$ by its definition.
+
+% After we iterated over all pixels and found all such fold line candidates, we use a greedy strategy to filter out the ones with lower score. In filtering process has two stages. In the first stage, the competition is among fold lines between same pair of segments with same direction. For each pair of segments with same direction, we first collect all the fold lines between them and corresponding pixels. We first choose to keep the one with the highest score, and then filter our all the fold lines which can be reached by going either to left or right along the segment boundary starting from the center point of this fold line. We repeat this process for remaining fold lines until all fold lines are considered. The intuition is to choose one fold line with the highest score in each ``valley'' (a ``valley'' is defined vertically on the boundary between this two segments). (See figure \ref{fig:valley}.)
+
+% \begin{figure}[h]
+%   \includegraphics[width = 0.2\textwidth]{Figures/valleys}
+%   \caption{Illustration of valleys. Valleys are defined for same pair of patches and each valley could contain at most one fold line.}
+%   \label{fig:valley}
+% \end{figure}
+
+
+% In the next stage, the competition is among fold lines between same pair of segments with different direction. The intuition here is for some segment pairs, we are certain that which one should appear left (right), and we want to remove the fold line which indicates opposite direction. The process is conducted by checking two fold line between same segment pair but with different direction. If they can reach each other by going up or down along the segment boundary, we remove the one with lower score.
+
+% After the filtering process, initial fold lines are already pretty nice. We further remove some fold lines if they are too close to some other fold lines with higher score. And for background segment, we only use one fold line candidate.
+
+\subsection{Find Region Fold Line Candidates} \label{region_fold_line_candidates}
+Although most fold lines lie on the intersection betweeo segment pairs, some segments themselves have to be folded to make the popup craft foldable (e.g. the fold lines on the arm of the bear example). A segment can be folded for arbitrary number of times at arbitrary position inside the segment. Similar with finding intersection fold line candidates, we divided the segment into multiple regions and associate one fold line candidate with each region. A fold line folds a segment into two halves, and at the same time, divides intersection fold line candidates into two groups. A region is defined such that whereever a fold line is put in the region, the division of intersection fold line candidates does not change. Then it is reasonable to add only one fold line candidate in each region and allows it to appear at any position in the region.
+
+% After finding all initial fold lines, we can define the topology of initial fold lines on each segment. Here we look at the topology for each segment independently because a new fold line candidate only affect one segment. For segment $s$, we define the topology simply based on the connectivity of its initial fold lines on $R(s)$. We separate $R(s)$ into sub-regions in a sense that the topology is the same whereever a new fold line is put in the sub-region. We put a new fold line candidate in each sub-region (not for the ones which has no initial fold lines on its left or right).
+
+\subsection{Structure and Properties} \label{popup_graph_structure}
+A segment-based popup graph has \textit{segments} as nodes and \textit{intersection fold line candidates} as edges connecting two segments. A segment-based popup graph has the following properties:
+
+\textbf{Background Enclosing: } A popup graph has a background segment enclosing all other segments.
+
+\textbf{Directed Acyclic Graph (DAG): } We denote the direction of an edge (fold line candidate) as from its left segment to its right segment. Then the graph excluding the background segment is a DAG.
+
+\textbf{Source and Sink: } The background segment serves as both the source and the sink for all paths.
+
+A candidate-based popup graph has both types of \textit{fold line candidates} as nodes, and their neighboring relations as edges. Two fold lines are regarded as neighbors only when they belong to the same segment and there is no fold line between them. A candidate-based popup graph has the same set of properties:
+
+\textbf{Background Enclosing: } The background segment has one region fold line candidate called \textit{background fold line} which is always active. The \textit{background fold line} divides the background segment into two halves. We call these two halves \textit{left background patch} and \textit{right background patch}. This corresponds to the two halves of most blessing cards.
+
+\textbf{Directed Acyclic Graph (DAG): } The left-right orientation between fold line candidate pairs is well-defined and the the graph excluding the background fold line is also a DAG.
+
+\textbf{Source and Sink: } The background fold line serves as both the source and the sink for all paths.
+
+
+% \subsection{Retrieve Popup Graph Information} \label{popup_graph_information}
+% We can define the graph based on all fold line candidates. A fold line neighbor pair $(f_l, f_r)$ is found by looking at neighbor pixels. (Note that each fold line candidate occupies a region $R(f)$ on the image domain.) For $f_s$ and $f_t$ belonging to the same segment $s$, a fold line path $P(f_s, f_t)$ is defined as the sequence of fold lines of $s$ through which might affect the connectivity of $f_s$ and $f_t$. (See figure \ref{fig:path}.)
+
+% \begin{figure}[h]
+%   \includegraphics[width = 0.3\textwidth]{Figures/path}
+%   \caption{We say fold line sequence \{2, 1, 3\} is a path between fold line 4 and fold line 5. Fold line 4 and fold line 5 will appear on the same final patch if fold line \{2, 1, 3\} are all inactive.}
+%   \label{fig:path}
+% \end{figure}
+
+
+% We add two special fold lines, one for left image border $Lf$ and one for right image border $Rf$, to ease formulation.
+

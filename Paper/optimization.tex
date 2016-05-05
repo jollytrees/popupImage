@@ -1,0 +1,14 @@
+\section{Optimization}
+Based on popup graphs, we only need three sets of key variables to define a popup craft design:
+\begin{enumerate}
+\item $a(f)$: A binary variable indicating the activeness of fold line $f$.
+\item $c(f)$: A binary variable indicating the convexity of fold line $f$ (whether the fold line points outwards ($c(f) = 1$) or inwards ($c(f) = 0$).
+\item $p(f)$: A integer variable indicating the position of fold line $f$.
+\end{enumerate}
+
+The goal is to determine these variables so that the popup graph satisfies four key properties: foldability, connectivity, stability and consistency. Additional properties can be enforced according to user input. We will explain each property and show how to formulate such property in our optimization framework.
+
+\input{foldability}
+\input{connectivity}
+\input{stability}
+\input{consistency}
