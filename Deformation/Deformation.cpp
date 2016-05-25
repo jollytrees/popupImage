@@ -84,8 +84,9 @@ int main(int argc, char *argv[])
   if (true) {
     //Mat toy_example_image = imread("Test/toy_example_3.png");
     //Mat toy_example_image = imread("Test/bear_toy_example_5.png");
-    Mat toy_example_image = imread("Test/patch_index_mask_image.png");
+    //Mat toy_example_image = imread("Test/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Test/angrybird_toy_example_5.png");
+    Mat toy_example_image = imread("Results/goat/goat_rotated.png");
     IMAGE_WIDTH = toy_example_image.cols;
     IMAGE_HEIGHT = toy_example_image.rows;
     patch_index_mask.resize(toy_example_image.cols * toy_example_image.rows);
@@ -98,26 +99,27 @@ int main(int argc, char *argv[])
         color_index_map[color_index] = index++;
       patch_index_mask[pixel] = color_index_map[color_index];
     }
-
-    const int SCALE = 3;
-    patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH * SCALE, IMAGE_HEIGHT * SCALE);
-    IMAGE_WIDTH *= SCALE;
-    IMAGE_HEIGHT *= SCALE;
+    
+    // const int SCALE = 3;
+    // patch_index_mask = Popup::zoomMask(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH * SCALE, IMAGE_HEIGHT * SCALE);
+    // IMAGE_WIDTH *= SCALE;
+    // IMAGE_HEIGHT *= SCALE;
   }
-  
-  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, true);
+
+  const bool ENFORCE_SYMMETRY = false;
+  Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, ENFORCE_SYMMETRY, false);
   vector<vector<int> > excluded_fold_line_combinations;
   int num_new_fold_lines_constraint = 0;
   int index = 0;
   while (true) {
-    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint) == false) {
+    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, 'T') == false) {
       num_new_fold_lines_constraint++;
       excluded_fold_line_combinations.clear();
       continue;
     }
-    Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
-    imwrite("Test/optimized_popup_graph_" + to_string(index) + ".png", optimized_popup_graph);
-    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, false, true))
+    Mat optimized_popup_graph_image = popup_graph.drawOptimizedPopupGraph();
+    imwrite("Test/optimized_popup_graph_" + to_string(index) + ".png", optimized_popup_graph_image);
+    if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, 'S'))
       break;
     vector<int> new_fold_lines = popup_graph.getNewFoldLines();
     num_new_fold_lines_constraint = new_fold_lines.size();
@@ -133,9 +135,15 @@ int main(int argc, char *argv[])
     if (index == 10)
       break;
   }
-  optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, true);
-  Mat optimized_popup_graph = popup_graph.drawOptimizedPopupGraph();
-  imwrite("Test/optimized_popup_graph.png", optimized_popup_graph);
+  //optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, true);
+  //vector<FoldLine> optimized_fold_lines = popup_graph.getFoldLines();
+  
+  Popup::PopupGraph complete_popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2, ENFORCE_SYMMETRY, true);
+  complete_popup_graph.addOptimizedInfo(popup_graph);
+  optimizeFoldLines(complete_popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, 'C');
+  Mat optimized_popup_graph_image = complete_popup_graph.drawOptimizedPopupGraph();  
+  imwrite("Test/optimized_popup_graph.png", optimized_popup_graph_image);  
+
   
   //cout << *popup_graph.background_patches.begin() << endl;
   //exit(1);

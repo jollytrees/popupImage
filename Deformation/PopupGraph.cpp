@@ -303,7 +303,8 @@ namespace Popup
 	  new_fold_lines.push_back(*fold_line_it);
       fold_lines_ = new_fold_lines;
     }
-    
+
+
     //remove fold lines on the original background patch if they are reverse
     if (MIDDLE_FOLD_LINE_X_ > 0) {
       vector<bool> fold_line_validity_mask(fold_lines_.size(), true);
@@ -852,6 +853,7 @@ namespace Popup
   //draw optimized popup graph
   Mat PopupGraph::drawOptimizedPopupGraph()  
   {
+    cout << "draw optimized popup graph" << endl;
     Mat optimized_graph_image = Mat::zeros(IMAGE_HEIGHT_, IMAGE_WIDTH_, CV_8UC3);
     optimized_graph_image.setTo(Vec3b(255, 255, 255));
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
@@ -864,6 +866,7 @@ namespace Popup
     for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++) {
       if (fold_lines_[fold_line_index].optimized_position == -1)      
         continue;
+
       int fold_line_min_y = IMAGE_HEIGHT_ - 1;
       int fold_line_max_y = 0;
       {
@@ -874,6 +877,7 @@ namespace Popup
 	if (fold_line_optimized_positions.size() == 0) {
 	  fold_line_min_y = max(fold_lines_[fold_line_index].desirable_center / IMAGE_WIDTH_ - FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
 	  fold_line_max_y = max(fold_lines_[fold_line_index].desirable_center / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
+	  fold_lines_[fold_line_index].optimized_pixels.push_back(fold_lines_[fold_line_index].desirable_center);
 	  if (false) {
 	    cout << fold_line_index << endl;
 	    cout << fold_lines_[fold_line_index].optimized_position << endl;
@@ -885,19 +889,23 @@ namespace Popup
 	} else if (fold_line_optimized_positions.size() == 1) {
 	  fold_line_min_y = max(fold_line_optimized_positions[0] / IMAGE_WIDTH_ - FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
           fold_line_max_y = max(fold_line_optimized_positions[0] / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, IMAGE_HEIGHT_ - 1);
-	} else {
+	  fold_lines_[fold_line_index].optimized_pixels = fold_line_optimized_positions;
+        } else {
 	  for (vector<int>::const_iterator position_it = fold_line_optimized_positions.begin(); position_it != fold_line_optimized_positions.end(); position_it++) {
 	    fold_line_min_y = min(fold_line_min_y, *position_it / IMAGE_WIDTH_);
 	    fold_line_max_y = max(fold_line_max_y, *position_it / IMAGE_WIDTH_);
 	  }
-	}
+	  fold_lines_[fold_line_index].optimized_pixels = fold_line_optimized_positions;
+        }
       }
       Vec3b fold_line_color = fold_lines_[fold_line_index].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
       for (int y = fold_line_min_y; y <= fold_line_max_y; y++)
 	optimized_graph_image.at<Vec3b>(y, fold_lines_[fold_line_index].optimized_position) = fold_line_color;
       putText(optimized_graph_image, to_string(fold_line_index), Point(fold_lines_[fold_line_index].optimized_position, (fold_line_min_y + fold_line_max_y) / 2), FONT_HERSHEY_SIMPLEX, 0.3, Scalar(0, 0, 255));
+      //      if (fold_line_index == 27) {
+      //cout << fold_line_index << '\t' << fold_lines_[fold_line_index].optimized_pixels.size() << '\t' << fold_lines_[fold_line_index].optimized_position << endl;
     }
-
+    
     map<int, vector<int> > fold_line_pixels;
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
       int fold_line_index = line_segment_fold_line_indices_[pixel_line_segment_indices_[pixel]];
@@ -910,6 +918,8 @@ namespace Popup
       Vec3b fold_line_color = fold_lines_[fold_line_index].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
       optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = fold_line_color;
       fold_line_pixels[fold_line_index].push_back(pixel);
+
+      fold_lines_[fold_line_index].optimized_pixels.push_back(pixel);
     }
 
     for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_pixels.begin(); fold_line_it != fold_line_pixels.end(); fold_line_it++) {
@@ -983,8 +993,8 @@ namespace Popup
 	for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++)
 	  if (fold_line_it->is_original_fold_line == true && fold_line_it->original_patch_pair.second == ORIGINAL_BACKGROUND_PATCH_INDEX_)
 	    fold_line_pairs_.push_back(make_pair(fold_line_it - fold_lines_.begin(), RIGHT_BORDER_FOLD_LINE_INDEX_));
-      
-	fold_line_pairs_.push_back(make_pair(MIDDLE_FOLD_LINE_INDEX_, RIGHT_BORDER_FOLD_LINE_INDEX_));
+	
+        fold_line_pairs_.push_back(make_pair(MIDDLE_FOLD_LINE_INDEX_, RIGHT_BORDER_FOLD_LINE_INDEX_));
       }
     }
 
@@ -1350,20 +1360,23 @@ namespace Popup
     return island_patch_fold_lines_map;
   }
   
-  void PopupGraph::setOptimizedFoldLineInfo(const vector<int> &optimized_fold_line_positions, const vector<bool> &optimized_fold_line_convexities)
+  void PopupGraph::setOptimizedFoldLineInfo(const vector<bool> &optimized_flags, const vector<int> &optimized_fold_line_positions, const vector<bool> &optimized_fold_line_convexities)
   {
     for (vector<FoldLine>::iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+      fold_line_it->optimized_flag = optimized_flags[fold_line_it - fold_lines_.begin()];
       fold_line_it->optimized_position = optimized_fold_line_positions[fold_line_it - fold_lines_.begin()];
       if (optimized_fold_line_convexities.size() > 0)
 	fold_line_it->optimized_convexity = optimized_fold_line_convexities[fold_line_it - fold_lines_.begin()];
     }
   }
   
-  void PopupGraph::getOptimizedFoldLineInfo(vector<int> &optimized_fold_line_positions, vector<bool> &optimized_fold_line_convexities)
+  void PopupGraph::getOptimizedFoldLineInfo(vector<bool> &optimized_flags, vector<int> &optimized_fold_line_positions, vector<bool> &optimized_fold_line_convexities)
   {
+    optimized_flags.assign(fold_lines_.size(), false);
     optimized_fold_line_positions.assign(fold_lines_.size(), -1);
     optimized_fold_line_convexities.assign(fold_lines_.size(), 0);
     for (vector<FoldLine>::iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+      optimized_flags[fold_line_it - fold_lines_.begin()] = fold_line_it->optimized_flag;
       optimized_fold_line_positions[fold_line_it - fold_lines_.begin()] = fold_line_it->optimized_position;
       optimized_fold_line_convexities[fold_line_it - fold_lines_.begin()] = fold_line_it->optimized_convexity;
     }
@@ -1729,15 +1742,103 @@ namespace Popup
     }
     return new_fold_lines;
   }
+
+  void PopupGraph::addOptimizedInfo(const PopupGraph &optimized_popup_graph)
+  {
+    vector<int> optimized_patch_index_mask = optimized_popup_graph.getPatchIndexMask();
+    map<int, int> patch_index_map;
+    map<int, map<int, int> > patch_index_map_counter;
+    for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
+      int patch_index = patch_index_mask_[pixel];
+      if (patch_index == -1)      
+        continue;      
+      int optimized_patch_index = optimized_patch_index_mask[pixel];
+      if (optimized_patch_index == -1)      
+        continue;
+      //cout << "count " << optimized_patch_index << '\t' << patch_index << endl;
+      patch_index_map_counter[optimized_patch_index][patch_index]++;
+    }
+    for (map<int, map<int, int> >::const_iterator optimized_patch_it = patch_index_map_counter.begin(); optimized_patch_it != patch_index_map_counter.end(); optimized_patch_it++) {
+      int max_count_patch_index = -1;
+      int max_count = 0;
+      for (map<int, int>::const_iterator patch_it = optimized_patch_it->second.begin(); patch_it != optimized_patch_it->second.end(); patch_it++) {
+        if (patch_it->second > max_count) {
+	  max_count_patch_index = patch_it->first;
+	  max_count = patch_it->second;
+	  //cout << optimized_patch_it->first << '\t' << patch_it->second << '\t' << patch_it->first << endl;
+        }
+      }
+      patch_index_map[optimized_patch_it->first] = max_count_patch_index;
+    }
+
+    vector<int> island_patch_mask(NUM_ORIGINAL_FOLD_LINES_, true);
+    for (map<int, int>::const_iterator patch_it = patch_index_map.begin(); patch_it != patch_index_map.end(); patch_it++) {
+      //cout << "patch index map: " << patch_it->first << '\t' << patch_it->second << endl;
+      island_patch_mask[patch_it->second] = false;
+    }
+    
+    vector<FoldLine> optimized_fold_lines = optimized_popup_graph.getFoldLines();
+    for (vector<FoldLine>::const_iterator optimized_fold_line_it = optimized_fold_lines.begin(); optimized_fold_line_it != optimized_fold_lines.end(); optimized_fold_line_it++) {
+      if (optimized_fold_line_it - optimized_fold_lines.begin() == optimized_popup_graph.getBorderFoldLineIndices().first || optimized_fold_line_it - optimized_fold_lines.begin() == optimized_popup_graph.getBorderFoldLineIndices().second)
+        continue;
+      if (optimized_fold_line_it->optimized_flag == false || optimized_fold_line_it->optimized_position < 0)
+	continue;
+      int left_patch_index = patch_index_map[optimized_fold_line_it->original_patch_pair.first];
+      int right_patch_index = patch_index_map[optimized_fold_line_it->original_patch_pair.second];
+      //cout << optimized_fold_line_it->optimized_pixels.size() << '\t' << fold_lines_[44].positions.size() << endl;
+      pair<int, int> original_patch_pair(left_patch_index, right_patch_index);
+      vector<bool> position_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, false);
+      for (vector<int>::const_iterator position_it = optimized_fold_line_it->optimized_pixels.begin(); position_it != optimized_fold_line_it->optimized_pixels.end(); position_it++)
+        position_mask[*position_it] = true;
+
+      int max_num_matched_pixels = 0;
+      int matched_fold_line_index = -1;
+      for (vector<FoldLine>::const_iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+        if (fold_line_it->original_patch_pair != original_patch_pair)
+	  continue;
+
+	int num_matched_pixels = 0;
+        for (vector<int>::const_iterator position_it = fold_line_it->positions.begin(); position_it != fold_line_it->positions.end(); position_it++)
+	  if (position_mask[*position_it])
+	    num_matched_pixels++;
+        if (num_matched_pixels > max_num_matched_pixels) {
+	  matched_fold_line_index = fold_line_it - fold_lines_.begin();
+	  max_num_matched_pixels = num_matched_pixels;
+	}
+      }
+      if (matched_fold_line_index == -1) {
+	cout << "there is no matched fold line for " << optimized_fold_line_it - optimized_fold_lines.begin() << endl;
+	exit(1);
+      }
+      //cout << matched_fold_line_index << '\t' << optimized_fold_line_it - optimized_fold_lines.begin() << endl;
+      fold_lines_[matched_fold_line_index].optimized_flag = true;
+      fold_lines_[matched_fold_line_index].optimized_position = optimized_fold_line_it->optimized_position;
+      fold_lines_[matched_fold_line_index].optimized_convexity = optimized_fold_line_it->optimized_convexity;
+    }
+    
+    for (vector<FoldLine>::iterator fold_line_it = fold_lines_.begin(); fold_line_it != fold_lines_.end(); fold_line_it++) {
+      if (fold_line_it - fold_lines_.begin() == getBorderFoldLineIndices().first || fold_line_it - fold_lines_.begin() == getBorderFoldLineIndices().second) 
+        continue;
+      if (fold_line_it->optimized_flag)
+	continue;
+      if (island_patch_mask[fold_line_it->original_patch_pair.first] == false && island_patch_mask[fold_line_it->original_patch_pair.second] == false) {
+	fold_line_it->optimized_flag = true;
+        fold_line_it->optimized_position = -1;
+      }
+    }
+  }
   
-  PopupGraph::PopupGraph(const vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X, const bool ENFORCE_SYMMETRY) : IMAGE_WIDTH_(IMAGE_WIDTH), IMAGE_HEIGHT_(IMAGE_HEIGHT), FOLD_LINE_WINDOW_WIDTH_(FOLD_LINE_WINDOW_WIDTH), FOLD_LINE_WINDOW_HEIGHT_(FOLD_LINE_WINDOW_HEIGHT), MIDDLE_FOLD_LINE_X_(MIDDLE_FOLD_LINE_X), ENFORCE_SYMMETRY_(ENFORCE_SYMMETRY), patch_index_mask_(patch_index_mask)
+  PopupGraph::PopupGraph(const vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X, const bool ENFORCE_SYMMETRY, const bool BUILD_COMPLETE_POPUP_GRAPH) : IMAGE_WIDTH_(IMAGE_WIDTH), IMAGE_HEIGHT_(IMAGE_HEIGHT), FOLD_LINE_WINDOW_WIDTH_(FOLD_LINE_WINDOW_WIDTH), FOLD_LINE_WINDOW_HEIGHT_(FOLD_LINE_WINDOW_HEIGHT), MIDDLE_FOLD_LINE_X_(MIDDLE_FOLD_LINE_X), ENFORCE_SYMMETRY_(ENFORCE_SYMMETRY), patch_index_mask_(patch_index_mask)
   {
     findOriginalBackgroundPatchIndex();
     countNumOriginalPatches();
 
-    findPatchChildPatches();
-    buildSubGraphes();
-    findOriginalBackgroundPatchIndex();
+    if (BUILD_COMPLETE_POPUP_GRAPH == false) {
+      findPatchChildPatches();
+      buildSubGraphes();
+      findOriginalBackgroundPatchIndex();
+    }
+    
     if (ENFORCE_SYMMETRY_)
       enforceSymmetry();
 
@@ -1751,6 +1852,6 @@ namespace Popup
     //checkFoldLinePairs();
     findFoldLinePaths();
     //    checkFoldLinePaths();
-    //exit(1);
+    //    exit(1);
   }
 }
