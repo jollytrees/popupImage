@@ -1,14 +1,25 @@
 \section{Optimization}
-Based on popup graphs, we only need three sets of key variables to define a popup craft design:
+Given a popup graph family, we need to determine the following three sets of variables in order to choose the optimal popup graph.
 \begin{enumerate}
 \item $a(f)$: A binary variable indicating the activeness of fold line $f$.
 \item $c(f)$: A binary variable indicating the convexity of fold line $f$ (whether the fold line points outwards ($c(f) = 1$) or inwards ($c(f) = 0$).
 \item $p(f)$: A integer variable indicating the position of fold line $f$.
 \end{enumerate}
 
-The goal is to determine these variables so that the popup graph satisfies four key properties: foldability, connectivity, stability and consistency. Additional properties can be enforced according to user input. We will explain each property and show how to formulate such property in our optimization framework.
+The goal is to determine these variables so that the popup graph satisfies four key properties: foldability, connectivity, stability and consistency. Additional properties can be enforced according to user input. We can view our task as an optimization problem $G^{OPT} = optimize(\mathcal{G})$ which takes a popup graph set $\mathcal{G}$ as input and outputs the optimal popup graph:
+
+\begin{equation}
+\begin{aligned}
+  G^{OPT} = & argmax_G \quad Consistency(G) \\
+            & s.t. G \in \mathcal{G} \quad and \quad Foldability(G) = TRUE \quad and \quad Connectivity(G) = TRUE \quad and \quad Stability(G) = TRUE \quad and \quad User(G) = TRUE
+\end{aligned}
+\end{equation}
+  
+
+We formulate the optimization problem as a mxied integer programming problme. We will explain how to formulate each property as either quadratic objective terms or quadratic constraint terms and provide heuristics for making the optimization problem tractable.
 
 \input{foldability}
 \input{connectivity}
 \input{stability}
 \input{consistency}
+\input{heuristics}
