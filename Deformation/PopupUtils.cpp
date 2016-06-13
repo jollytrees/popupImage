@@ -4,6 +4,10 @@
 #include <map>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+
+#include "MRF2.2/mrf.h"
+#include "MRF2.2/GCoptimization.h"
 
 using namespace std;
 using namespace cv;
@@ -97,5 +101,94 @@ namespace Popup
  
     waitKey();
     imwrite(result_filename, result);
+  }
+
+
+  void deformPatches(const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int NUM_PATCHES, const vector<int> &patch_index_mask, const vector<int> &enforced_patch_index_mask, vector<int> &deformed_patch_index_mask)
+  {
+    const int ENFORCED_DATA_WEIGHT = 1000;
+    const int ENCOURAGED_DATA_WEIGHT = 10;
+    const int SMOOTHNESS_WEIGHT = 10;
+    const int DATA_WEIGHT = 1;
+    vector<int> data_cost;
+    for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+      int enforced_patch_index = enforced_patch_index_mask[pixel];
+      int patch_index = patch_index_mask[pixel];
+      // if (enforced_patch_index >= NUM_PATCHES) {
+      // 	cout << "enforced: " << enforced_patch_index << '\t' << NUM_PATCHES << endl;
+      // 	exit(1);
+      // }
+      // if (patch_index >= NUM_PATCHES) {
+      //   cout << "original: " << patch_index << '\t' << NUM_PATCHES << endl;
+      //   exit(1);
+      // }
+      
+      if (enforced_patch_index >= 10000) {
+	vector<int> cost(NUM_PATCHES, ENCOURAGED_DATA_WEIGHT);
+	cost[enforced_patch_index - 10000] = 0;
+	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      } else if (enforced_patch_index != -1) {
+        vector<int> cost(NUM_PATCHES, ENFORCED_DATA_WEIGHT);
+        cost[enforced_patch_index] = 0;
+        data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      } else if (patch_index != -1) {
+	vector<int> cost(NUM_PATCHES, DATA_WEIGHT);
+        cost[patch_index] = 0;
+	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      } else {
+	vector<int> cost(NUM_PATCHES, 0);
+	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      }
+    }
+    vector<int> smoothness_cost(NUM_PATCHES * NUM_PATCHES, SMOOTHNESS_WEIGHT);
+    for (int label = 0; label < NUM_PATCHES; label++)
+      smoothness_cost[label * NUM_PATCHES + label] = 0;
+
+    unique_ptr<DataCost> data(new DataCost(&data_cost[0]));
+    unique_ptr<SmoothnessCost> smoothness(new SmoothnessCost(&smoothness_cost[0]));
+    unique_ptr<EnergyFunction> energy(new EnergyFunction(data.get(), smoothness.get()));
+    
+    unique_ptr<Expansion> mrf(new Expansion(IMAGE_WIDTH * IMAGE_HEIGHT, NUM_PATCHES, energy.get()));
+    for (int y = 0; y < IMAGE_HEIGHT; y++) {
+      for (int x = 0; x < IMAGE_WIDTH; x++) {
+        int pixel = y * IMAGE_WIDTH + x;
+        if (x > 0 && false)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel - 1])
+            mrf->setNeighbors(pixel, pixel - 1, 1);
+        if (x < IMAGE_WIDTH - 1)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel + 1])
+	    mrf->setNeighbors(pixel, pixel + 1, 1);
+        if (y > 0 && false)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH])
+	    mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH, 1);
+        if (y < IMAGE_HEIGHT - 1)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH])
+	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH, 1);
+        if (x > 0 && y > 0 && false)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH - 1])
+            mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH - 1, 1);
+        if (x < IMAGE_WIDTH - 1 && y > 0 && false)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH + 1])
+	    mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH + 1, 1);
+        if (x > 0 && y < IMAGE_HEIGHT - 1)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH - 1])
+	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH - 1, 1);
+        if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
+	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH + 1])
+	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH + 1, 1);
+      }
+    }
+
+    mrf->initialize();
+    mrf->clearAnswer();
+            
+    int initial_energy = mrf->totalEnergy();
+    for (int iter = 0; iter < min(NUM_PATCHES, 1); iter++) {
+      float running_time;
+      mrf->optimize(1, running_time);
+    }
+    deformed_patch_index_mask = vector<int>(mrf->getAnswerPtr(), mrf->getAnswerPtr() + IMAGE_WIDTH * IMAGE_HEIGHT);
+    //for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++)
+    //cout << deformed_patch_index_mask[pixel] << endl;
   }
 }

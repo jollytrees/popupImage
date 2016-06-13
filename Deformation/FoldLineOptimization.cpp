@@ -114,105 +114,11 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     }
   }
   
-  if (false) {
+  if (optimization_type == 'C' && false) {
     set<int> active_fold_lines;
 
-    active_fold_lines.insert(popup_graph.getBorderFoldLineIndices().first);
-    active_fold_lines.insert(popup_graph.getBorderFoldLineIndices().second);
-    active_fold_lines.insert(popup_graph.getMiddleFoldLineIndex());
-    active_fold_lines.insert(0);
-    active_fold_lines.insert(8);
-    active_fold_lines.insert(7);
-    active_fold_lines.insert(19);
-    active_fold_lines.insert(1);
-    active_fold_lines.insert(16);
-    active_fold_lines.insert(42);
-    active_fold_lines.insert(67);
-    active_fold_lines.insert(28);
-    active_fold_lines.insert(29);
-    active_fold_lines.insert(30);
-    active_fold_lines.insert(31);
-    active_fold_lines.insert(11);    
-    active_fold_lines.insert(23);
-    active_fold_lines.insert(9);
-    active_fold_lines.insert(21);
-    active_fold_lines.insert(10);
-    active_fold_lines.insert(22);
-    active_fold_lines.insert(43);    
-    active_fold_lines.insert(62);
-    active_fold_lines.insert(13);    
-    active_fold_lines.insert(20);
-    active_fold_lines.insert(4);
-    active_fold_lines.insert(15);
-    active_fold_lines.insert(12);
-    active_fold_lines.insert(27);
-
     set<int> inactive_fold_lines;
-    inactive_fold_lines.insert(66);
-    inactive_fold_lines.insert(53);
-    inactive_fold_lines.insert(35);
-    inactive_fold_lines.insert(49);
-    inactive_fold_lines.insert(36);
-    inactive_fold_lines.insert(68);
-    inactive_fold_lines.insert(72);
-    inactive_fold_lines.insert(37);
-    inactive_fold_lines.insert(45);
-    inactive_fold_lines.insert(69);
-    inactive_fold_lines.insert(45);
-    inactive_fold_lines.insert(46);
-    inactive_fold_lines.insert(54);
-    inactive_fold_lines.insert(38);
-    inactive_fold_lines.insert(65);
-    inactive_fold_lines.insert(50);
-    inactive_fold_lines.insert(51);
-    inactive_fold_lines.insert(57);
-    inactive_fold_lines.insert(61);
-    inactive_fold_lines.insert(63);
-    inactive_fold_lines.insert(40);
-    inactive_fold_lines.insert(47);
-    inactive_fold_lines.insert(55);
-    inactive_fold_lines.insert(33);
-    inactive_fold_lines.insert(41);
-    inactive_fold_lines.insert(48);
-    inactive_fold_lines.insert(56);
-    inactive_fold_lines.insert(39);
-    inactive_fold_lines.insert(44);
-    inactive_fold_lines.insert(58);
-    inactive_fold_lines.insert(59);
-    inactive_fold_lines.insert(52);
-
-    //inactive_fold_lines.insert(48);
-    //inactive_fold_lines.insert(46);
-    // active_fold_lines.insert(8);
-    // active_fold_lines.insert(10);
-    // active_fold_lines.insert(2);
-    // active_fold_lines.insert(9);
-    // active_fold_lines.insert(10);
-    // active_fold_lines.insert(6);
-    // active_fold_lines.insert(7);
-    // active_fold_lines.insert(17);
-    
-    //active_fold_lines.insert(10);
-    //active_fold_lines.insert(11);
-    
-    // active_fold_lines.insert(0);
-    // active_fold_lines.insert(1);
-    // active_fold_lines.insert(2);
-    // active_fold_lines.insert(3);
-    // active_fold_lines.insert(6);
-    // active_fold_lines.insert(7);
-    
-    
-    // active_fold_lines.insert(0);
-    // active_fold_lines.insert(1);
-    // active_fold_lines.insert(3);
-    // active_fold_lines.insert(11);
-    // active_fold_lines.insert(17);
-    // active_fold_lines.insert(2);
-    // active_fold_lines.insert(9);
-    // active_fold_lines.insert(7);
-    // active_fold_lines.insert(8);
-    
+    inactive_fold_lines.insert(15);
     
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       if (active_fold_lines.count(fold_line_index) > 0) {
@@ -227,6 +133,10 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
         cout << "inactive: " << fold_line_index << endl;
         model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
       }
+    model.addConstr(fold_line_positions[35] <= 320);
+    model.addConstr(fold_line_positions[13] <= fold_line_positions[69]);
+    model.addConstr(fold_line_positions[24] <= fold_line_positions[58]);
+    model.addConstr(fold_line_positions[51] <= fold_line_positions[14]);
   }   
   
   //model.addConstr(fold_line_activity_indicators[1] == fold_line_activity_indicators[1]);
@@ -719,8 +629,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
 	continue;
       //checkAndSet(left_left_stability_mask, fold_line_index, 0, 0, "non-background fold line is unstable");
       if (optimization_type == 'C' && optimized_flags[fold_line_index]) {
-	model.addConstr(left_left_stability_indicators[fold_line_index][0][0] == 1, "non-background fold line is unstable");
-	model.addConstr(right_right_stability_indicators[fold_line_index][0][0] == 1, "non-background fold line is unstable");
+	model.addConstr(left_left_stability_indicators[fold_line_index][0][0] == 1, "optimized fold line is stable");
+	model.addConstr(right_right_stability_indicators[fold_line_index][0][0] == 1, "optimized fold line is stable");
 	continue;
       }
       
@@ -1086,7 +996,9 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   // model.addConstr(fold_line_activity_indicators[63] + fold_line_activity_indicators[40] <= 1);
   // model.addConstr(fold_line_activity_indicators[50] + fold_line_activity_indicators[57] <= 1);
   //model.addConstr(obj >= 7);
-
+  //if (optimization_type == 'C')
+  //model.addConstr(fold_line_activity_indicators[17] == 0);
+      
   if (optimization_type == 'T' || optimization_type == 'C')
     model.setObjective((new_fold_line_sum - original_fold_line_sum) * 10000 + position_obj, GRB_MINIMIZE);
   model.addConstr(new_fold_line_sum >= num_new_fold_lines_constraint);
@@ -1118,14 +1030,16 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     //if (check_stability)
     //model.write("Test/model.lp");
     model.optimize();
-    //model.computeIIS();
-    //model.write("Test/iis.ilp");
     //model.update();
     //model.write("Test/solution.sol");
     //if (model.get(GRB_IntAttr_IsMIP) == 0)
     //throw GRBException("Model is not a MIP");
 
     if (model.get(GRB_IntAttr_Status) != GRB_OPTIMAL) {
+      //model.computeIIS();
+      //model.write("Test/iis.ilp");
+      model.write("Test/model.lp");
+      
       cout << "infeasible" << endl;
 
       popup_graph.setOptimizedFoldLineInfo(vector<bool>(popup_graph.getNumFoldLines(), false), vector<int>(popup_graph.getNumFoldLines(), -1));
@@ -1135,14 +1049,21 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   }catch(GRBException e) {
     cout << "Error code = " << e.getErrorCode() << endl;
     cout << e.getMessage() << endl;
-  }catch (...) {printf("Exception...\n");exit(1);}
+  }catch (...) {printf("Exception...\n");
+    exit(1);
+  }
   
   
   if (true) {
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << endl;
+      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << endl;
 
-    // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+      pair<int, int> x_range = popup_graph.getFoldLineXRange(fold_line_index);
+      if (fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) < x_range.first || fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) > x_range.second)
+	cout << fold_line_index << '\t' << x_range.first << '\t' << x_range.second << endl;
+      
+
+      // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
     //   if (static_cast<int>(fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) + 0.5) == 0)
     // 	cout << "inactive ";
       //continue;
@@ -1160,11 +1081,20 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
 	}
       }
     }
+
+    // for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
+    //   int left_fold_line_index = fold_line_pair_it->first;
+    //   int right_fold_line_index = fold_line_pair_it->second;
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))      
+    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))      
+    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+    // }
       
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++)
 	if (other_fold_line_index != fold_line_index && same_patch_indicators[fold_line_index][other_fold_line_index].get(GRB_DoubleAttr_X) == 1)
-	  cout << fold_line_index << '\t' << other_fold_line_index << endl;
+	  cout << "same patch fold line pairs: " << fold_line_index << '\t' << other_fold_line_index << endl;
   }
   //  popup_graph.checkFoldLineInfo();
 
@@ -1199,14 +1129,17 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
 	  for (set<int>::const_iterator fold_line_it = neighbor_patch_it->second.begin(); fold_line_it != neighbor_patch_it->second.end(); fold_line_it++)
 	    patch_fold_lines.insert(*fold_line_it);
 
-	int num_active_fold_lines = 0;
+	set<int> active_fold_line_positions;
 	for (set<int>::const_iterator fold_line_it = patch_fold_lines.begin(); fold_line_it != patch_fold_lines.end(); fold_line_it++)
 	  if (optimized_fold_line_positions[*fold_line_it] != -1)
-	    num_active_fold_lines++;
-	if (num_active_fold_lines == 1) {
+            active_fold_line_positions.insert(optimized_fold_line_positions[*fold_line_it]);
+	if (active_fold_line_positions.size() == 1) {
 	  for (set<int>::const_iterator fold_line_it = patch_fold_lines.begin(); fold_line_it != patch_fold_lines.end(); fold_line_it++) {
-	    optimized_fold_line_positions[*fold_line_it] = -1;
-	    has_change = true;
+	    if (optimized_fold_line_positions[*fold_line_it] != -1) {
+	      cout << "lonely fold line: " << *fold_line_it << endl;
+	      optimized_fold_line_positions[*fold_line_it] = -1;
+	      has_change = true;
+	    }
 	  }
 	}
       }

@@ -27,7 +27,7 @@ namespace Popup
   {
   public:
     
-    PopupGraph(const std::vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X, const bool ENFORCE_SYMMETRY, const bool BUILD_COMPLETE_POPUP_GRAPH);
+    PopupGraph(const std::vector<int> &patch_index_mask, const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int FOLD_LINE_WINDOW_WIDTH, const int FOLD_LINE_WINDOW_HEIGHT, const int MIDDLE_FOLD_LINE_X, const std::set<int> &island_patches, const bool ENFORCE_SYMMETRY, const bool BUILD_COMPLETE_POPUP_GRAPH);
 
     int getImageWidth() const { return IMAGE_WIDTH_; };
     int getImageHeight() const { return IMAGE_HEIGHT_; };
@@ -57,7 +57,7 @@ namespace Popup
     std::vector<int> getBackgroundLeftFoldLines() const;
     std::vector<int> getBackgroundRightFoldLines() const;
 
-    int getMinFoldLineGap() const { return FOLD_LINE_WINDOW_WIDTH_ / 2 * 0 + 1; };
+    int getMinFoldLineGap() const { return FOLD_LINE_WINDOW_WIDTH_ / 2 * 0 + 0; };
 
     void checkFoldLinePairs() const;
     void checkFoldLinePaths() const;
@@ -75,6 +75,9 @@ namespace Popup
     std::vector<int> getNewFoldLines() const;
 
     void addOptimizedInfo(const PopupGraph &optimized_popup_graph);
+
+    void readRenderingInfo();
+    
     
   private:
     const int IMAGE_WIDTH_;
@@ -116,7 +119,7 @@ namespace Popup
     void findAllFoldLines();
     void findFoldLinePairs();
     void findFoldLinePaths();
-    void findPatchChildPatches();
+    void findPatchChildPatches(const std::set<int> &island_patches);
     void buildSubGraphes();
     
       //std::map<int, std::map<int, std::set<int> > > original_patch_fold_lines;
