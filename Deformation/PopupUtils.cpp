@@ -107,13 +107,35 @@ namespace Popup
   void deformPatches(const int IMAGE_WIDTH, const int IMAGE_HEIGHT, const int NUM_PATCHES, const vector<int> &patch_index_mask, const vector<int> &enforced_patch_index_mask, vector<int> &deformed_patch_index_mask)
   {
     const int ENFORCED_DATA_WEIGHT = 1000;
-    const int ENCOURAGED_DATA_WEIGHT = 10;
-    const int SMOOTHNESS_WEIGHT = 10;
-    const int DATA_WEIGHT = 1;
+    const int ENCOURAGED_DATA_WEIGHT = 1;
+    const int SMOOTHNESS_WEIGHT = 5;
+    const int DATA_WEIGHT = 1000;
+    const int WINDOW_WIDTH = 20;
+    const int WINDOW_HEIGHT = 20;
     vector<int> data_cost;
+    vector<bool> fold_line_window_pixel_mask(IMAGE_WIDTH * IMAGE_HEIGHT, false);
+
+    // vector<int> test = patch_index_mask;
+    // for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
+    //   int enforced_patch_index = enforced_patch_index_mask[pixel];
+    //   if (enforced_patch_index >= 0)
+    // 	test[pixel] = enforced_patch_index % 10000;
+    // }
+    // Mat patch_index_image = Popup::drawIndexMaskImage(test, IMAGE_WIDTH, IMAGE_HEIGHT);
+    // imwrite("Test/test.png", patch_index_image);
+    
     for (int pixel = 0; pixel < IMAGE_WIDTH * IMAGE_HEIGHT; pixel++) {
       int enforced_patch_index = enforced_patch_index_mask[pixel];
       int patch_index = patch_index_mask[pixel];
+      if (enforced_patch_index >= 0 && enforced_patch_index < 10000) {
+        int x = pixel % IMAGE_WIDTH;
+	int y = pixel / IMAGE_WIDTH;
+	for (int delta_x = -(WINDOW_WIDTH - 1) / 2; delta_x <= (WINDOW_WIDTH - 1) / 2; delta_x++)
+	  for (int delta_y = -(WINDOW_HEIGHT - 1) / 2; delta_y <= (WINDOW_HEIGHT - 1) / 2; delta_y++)
+	    if (x + delta_x >= 0 && x + delta_x < IMAGE_WIDTH && y + delta_y >= 0 && y + delta_y < IMAGE_HEIGHT)
+	      fold_line_window_pixel_mask[(y + delta_y) * IMAGE_WIDTH + (x + delta_x)] = true;
+      }
+      
       // if (enforced_patch_index >= NUM_PATCHES) {
       // 	cout << "enforced: " << enforced_patch_index << '\t' << NUM_PATCHES << endl;
       // 	exit(1);
@@ -123,14 +145,19 @@ namespace Popup
       //   exit(1);
       // }
       
-      if (enforced_patch_index >= 10000) {
-	vector<int> cost(NUM_PATCHES, ENCOURAGED_DATA_WEIGHT);
-	cost[enforced_patch_index - 10000] = 0;
-	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
-      } else if (enforced_patch_index != -1) {
+      // if (enforced_patch_index >= 10000) {
+      //        vector<int> cost(NUM_PATCHES, ENCOURAGED_DATA_WEIGHT);      
+      //        cost[enforced_patch_index - 10000] = 0;      
+      //        data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      // } else
+      if (enforced_patch_index != -1 && enforced_patch_index < 10000) {
         vector<int> cost(NUM_PATCHES, ENFORCED_DATA_WEIGHT);
         cost[enforced_patch_index] = 0;
         data_cost.insert(data_cost.end(), cost.begin(), cost.end());
+      } else if (enforced_patch_index >= 10000) {
+	vector<int> cost(NUM_PATCHES, ENCOURAGED_DATA_WEIGHT);      
+	cost[enforced_patch_index - 10000] = 0;      
+	data_cost.insert(data_cost.end(), cost.begin(), cost.end());
       } else if (patch_index != -1) {
 	vector<int> cost(NUM_PATCHES, DATA_WEIGHT);
         cost[patch_index] = 0;
@@ -152,29 +179,31 @@ namespace Popup
     for (int y = 0; y < IMAGE_HEIGHT; y++) {
       for (int x = 0; x < IMAGE_WIDTH; x++) {
         int pixel = y * IMAGE_WIDTH + x;
-        if (x > 0 && false)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel - 1])
+	if (fold_line_window_pixel_mask[pixel] == false)
+	  continue;
+        if (x > 0 && true)
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel - 1])
             mrf->setNeighbors(pixel, pixel - 1, 1);
         if (x < IMAGE_WIDTH - 1)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel + 1])
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel + 1])
 	    mrf->setNeighbors(pixel, pixel + 1, 1);
-        if (y > 0 && false)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH])
+        if (y > 0 && true)
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH])
 	    mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH, 1);
         if (y < IMAGE_HEIGHT - 1)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH])
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH])
 	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH, 1);
-        if (x > 0 && y > 0 && false)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH - 1])
+        if (x > 0 && y > 0 && true)
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH - 1])
             mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH - 1, 1);
-        if (x < IMAGE_WIDTH - 1 && y > 0 && false)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH + 1])
+        if (x < IMAGE_WIDTH - 1 && y > 0 && true)
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel - IMAGE_WIDTH + 1])
 	    mrf->setNeighbors(pixel, pixel - IMAGE_WIDTH + 1, 1);
         if (x > 0 && y < IMAGE_HEIGHT - 1)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH - 1])
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH - 1])
 	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH - 1, 1);
         if (x < IMAGE_WIDTH - 1 && y < IMAGE_HEIGHT - 1)
-	  if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH + 1])
+	  //if (patch_index_mask[pixel] == patch_index_mask[pixel + IMAGE_WIDTH + 1])
 	    mrf->setNeighbors(pixel, pixel + IMAGE_WIDTH + 1, 1);
       }
     }

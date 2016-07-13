@@ -76,7 +76,7 @@ namespace Popup
 
     void addOptimizedInfo(const PopupGraph &optimized_popup_graph);
 
-    void readRenderingInfo();
+    void writeRenderingInfo();
     
     
   private:
