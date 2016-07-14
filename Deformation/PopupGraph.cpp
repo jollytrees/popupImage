@@ -899,6 +899,7 @@ namespace Popup
 	  fold_lines_[fold_line_index].optimized_pixels = fold_line_optimized_positions;
         }
       }
+      
       Vec3b fold_line_color = fold_lines_[fold_line_index].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
       for (int y = fold_line_min_y; y <= fold_line_max_y; y++)
 	optimized_graph_image.at<Vec3b>(y, fold_lines_[fold_line_index].optimized_position) = fold_line_color;
@@ -1861,7 +1862,7 @@ namespace Popup
     cout << "write rendering info" << endl;
 
     vector<int> enforced_patch_index_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
-    vector<pair<int, int> > fold_line_endpoint_ys(getNumFoldLines());
+    vector<vector<int> > fold_line_ys(getNumFoldLines());
     for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++) {
       if (fold_lines_[fold_line_index].optimized_position == -1)
         continue;
@@ -1880,7 +1881,7 @@ namespace Popup
             fold_line_optimized_positions.push_back(*position_it);
         if (fold_line_optimized_positions.size() == 0) {
           fold_line_min_y = max(fold_lines_[fold_line_index].desirable_center / IMAGE_WIDTH_ - FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
-          fold_line_max_y = max(fold_lines_[fold_line_index].desirable_center / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
+          fold_line_max_y = min(fold_lines_[fold_line_index].desirable_center / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, IMAGE_WIDTH_ -1);
           fold_lines_[fold_line_index].optimized_pixels.push_back(fold_lines_[fold_line_index].desirable_center);
           if (true) {
             cout << fold_line_index << endl;
@@ -1892,7 +1893,7 @@ namespace Popup
           }
         } else if (fold_line_optimized_positions.size() == 1) {
           fold_line_min_y = max(fold_line_optimized_positions[0] / IMAGE_WIDTH_ - FOLD_LINE_WINDOW_HEIGHT_ / 2, 0);
-          fold_line_max_y = max(fold_line_optimized_positions[0] / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, IMAGE_HEIGHT_ - 1);
+          fold_line_max_y = min(fold_line_optimized_positions[0] / IMAGE_WIDTH_ + FOLD_LINE_WINDOW_HEIGHT_ / 2, IMAGE_HEIGHT_ - 1);
         } else {
           for (vector<int>::const_iterator position_it = fold_line_optimized_positions.begin(); position_it != fold_line_optimized_positions.end(); position_it++) {
             fold_line_min_y = min(fold_line_min_y, *position_it / IMAGE_WIDTH_);
@@ -1900,11 +1901,13 @@ namespace Popup
           }
         }
       }
+
       if (fold_line_max_y - fold_line_min_y < FOLD_LINE_WINDOW_HEIGHT_) {
 	int fold_line_middle_y = (fold_line_max_y + fold_line_min_y) / 2;
 	fold_line_min_y = fold_line_middle_y - FOLD_LINE_WINDOW_HEIGHT_ / 2;
-	fold_line_min_y = fold_line_middle_y + FOLD_LINE_WINDOW_HEIGHT_ / 2;
+	fold_line_max_y = fold_line_middle_y + FOLD_LINE_WINDOW_HEIGHT_ / 2;
       }
+
 
       int left_patch_max_count = 0;
       int right_patch_max_count = 0;
@@ -1985,6 +1988,15 @@ namespace Popup
 	}
       }
 
+      if (ENFORCE_SYMMETRY_ && symmetry_fold_lines_.count(fold_line_index) > 0) {
+	for (int y = fold_line_min_y; y <= fold_line_max_y; y++) {
+	  int pixel = y * IMAGE_WIDTH_ + fold_lines_[fold_line_index].optimized_position;
+	  if (patch_index_mask_[pixel] == left_major_patch_index && patch_index_mask_[pixel + 1] == right_major_patch_index)
+	    fold_line_ys[fold_line_index].push_back(y);
+	}
+	continue;
+      }
+
       int min_y = fold_line_min_y;
       int max_y = fold_line_max_y;
       while (true) {
@@ -2008,18 +2020,20 @@ namespace Popup
 	if (has_change == false)
 	  break;
       }
+      
       if (min_y == fold_line_min_y && max_y == fold_line_max_y) {
 	if (max_y - min_y < FOLD_LINE_WINDOW_HEIGHT_ * 2) {
 	  int fold_line_middle_y = (fold_line_max_y + fold_line_min_y) / 2;
-          fold_line_min_y = fold_line_middle_y - FOLD_LINE_WINDOW_HEIGHT_ / 2;
-          fold_line_min_y = fold_line_middle_y + FOLD_LINE_WINDOW_HEIGHT_ / 2;
+          min_y = fold_line_middle_y - FOLD_LINE_WINDOW_HEIGHT_ / 2;
+          max_y = fold_line_middle_y + FOLD_LINE_WINDOW_HEIGHT_ / 2;
 	} else {
+          min_y += FOLD_LINE_WINDOW_HEIGHT_ / 2;
 	  max_y -= FOLD_LINE_WINDOW_HEIGHT_ / 2;
-	  min_y += FOLD_LINE_WINDOW_HEIGHT_ / 2;
         }
       }
 
-      fold_line_endpoint_ys[fold_line_index] = make_pair(min_y, max_y);
+      for (int y = min_y; y <= max_y; y++)
+	fold_line_ys[fold_line_index].push_back(y);
     }
     
     for (int fold_line_index = getNumOriginalFoldLines(); fold_line_index < getNumFoldLines(); fold_line_index++) {
@@ -2034,14 +2048,10 @@ namespace Popup
 	int line_segment_index = pixel_line_segment_indices_[pixel];
 	if (line_segment_index == -1)
 	  continue;
-	if (line_segment_fold_line_indices_[line_segment_index] == fold_line_index) {
-	  if (y < min_y)
-	    min_y = y;
-	  if (y > max_y)
-	    max_y = y;
-	}
+	if (line_segment_fold_line_indices_[line_segment_index] == fold_line_index)
+          fold_line_ys[fold_line_index].push_back(y);
       }
-      fold_line_endpoint_ys[fold_line_index] = make_pair(min_y, max_y);
+      
     }
 
     vector<int> deformed_patch_index_mask;
@@ -2087,30 +2097,31 @@ namespace Popup
     //   }
     // }
 
-    vector<int> fold_line_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
+    vector<int> new_patch_index_mask = patch_index_mask_;
     for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++) {
       if (fold_line_index == getBorderFoldLineIndices().first || fold_line_index == getBorderFoldLineIndices().second)            
         continue;      
       if (fold_lines_[fold_line_index].optimized_position == -1)            
         continue;
-      for (int y = fold_line_endpoint_ys[fold_line_index].first; y <= fold_line_endpoint_ys[fold_line_index].second; y++) {
-        int pixel = y * IMAGE_WIDTH_ + fold_lines_[fold_line_index].optimized_position;
+      for (vector<int>::const_iterator y_it = fold_line_ys[fold_line_index].begin(); y_it != fold_line_ys[fold_line_index].end(); y_it++) {
+        int pixel = *y_it * IMAGE_WIDTH_ + fold_lines_[fold_line_index].optimized_position;
 	if (fold_line_index == MIDDLE_FOLD_LINE_INDEX_ && patch_index_mask_[pixel] != ORIGINAL_BACKGROUND_PATCH_INDEX_)
 	  continue;
-        fold_line_mask[pixel] = fold_line_index;
-      }    
+        new_patch_index_mask[pixel] = fold_line_index + 10000;
+      }
     }
-
-    vector<int> new_patch_index_mask = patch_index_mask_;
+    
     int new_patch_index = 0;
     vector<bool> visited_pixel_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, false);
-    for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
-      if (visited_pixel_mask[pixel])      
+    for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++)
+      if (new_patch_index_mask[pixel] >= 10000)
+	visited_pixel_mask[pixel] = true;
+    
+    for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {    
+      if (visited_pixel_mask[pixel])
         continue;
-      if (fold_line_mask[pixel] != -1)
-	continue;
       int patch_index = patch_index_mask_[pixel];
-      if (patch_index == -1)      
+      if (patch_index == -1)
         continue;
       vector<int> border_pixels;
       border_pixels.push_back(pixel);
@@ -2121,7 +2132,7 @@ namespace Popup
 	for (vector<int>::const_iterator pixel_it = border_pixels.begin(); pixel_it != border_pixels.end(); pixel_it++) {
 	  vector<int> neighbor_pixels = Popup::findNeighbors(*pixel_it, IMAGE_WIDTH_, IMAGE_HEIGHT_);
           for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++) {
-	    if (visited_pixel_mask[*neighbor_pixel_it] || patch_index_mask_[*neighbor_pixel_it] != patch_index || fold_line_mask[*neighbor_pixel_it] != -1)
+	    if (visited_pixel_mask[*neighbor_pixel_it] || patch_index_mask_[*neighbor_pixel_it] != patch_index)
               continue;
 	    new_border_pixels.push_back(*neighbor_pixel_it);
 	    visited_pixel_mask[*neighbor_pixel_it] = true;
@@ -2132,15 +2143,15 @@ namespace Popup
       }
       new_patch_index++;
     }
-    
+
     map<int, map<pair<int, int>, int> > fold_line_patch_pair_counter;
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
       if (pixel % IMAGE_WIDTH_ == 0 || pixel % IMAGE_WIDTH_ == IMAGE_WIDTH_ - 1)
     	continue;
-      if (fold_line_mask[pixel] == -1)
+      if (new_patch_index_mask[pixel] < 10000)
     	continue;
       
-      int fold_line_index = fold_line_mask[pixel];
+      int fold_line_index = new_patch_index_mask[pixel] - 10000;
 
       int left_patch_index = -1;
       for (int delta_x = -1; delta_x >= -FOLD_LINE_WINDOW_WIDTH_ / 2; delta_x--) {
@@ -2181,16 +2192,17 @@ namespace Popup
     optimized_graph_image.setTo(Vec3b(255, 255, 255));
     map<int, vector<int> > region_pixels;
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
-      if (fold_line_mask[pixel] != -1) {
-	Vec3b color = fold_lines_[fold_line_mask[pixel]].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
-	optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color;
-	region_pixels[fold_line_mask[pixel] + 10000].push_back(pixel);
+      
+      if (new_patch_index_mask[pixel] >= 10000) {
+      	Vec3b color = fold_lines_[new_patch_index_mask[pixel] - 10000].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
+      	optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color;
+      	region_pixels[new_patch_index_mask[pixel]].push_back(pixel);
         continue;
       }
       
       vector<int> neighbor_pixels = Popup::findNeighbors(pixel, IMAGE_WIDTH_, IMAGE_HEIGHT_);
       for (vector<int>::const_iterator neighbor_pixel_it = neighbor_pixels.begin(); neighbor_pixel_it != neighbor_pixels.end(); neighbor_pixel_it++)
-        if (new_patch_index_mask[*neighbor_pixel_it] != new_patch_index_mask[pixel] && fold_line_mask[*neighbor_pixel_it] == -1)
+        if (new_patch_index_mask[*neighbor_pixel_it] != new_patch_index_mask[pixel] && new_patch_index_mask[*neighbor_pixel_it] < 10000)
 	  optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = Vec3b(0, 0, 0);
       region_pixels[new_patch_index_mask[pixel]].push_back(pixel);
     }
@@ -2227,7 +2239,7 @@ namespace Popup
     {
       ofstream fold_line_out_str("Test/output_fold_line.txt");
       for (map<int, pair<int, int> >::const_iterator fold_line_it = fold_line_patch_pair_map.begin(); fold_line_it != fold_line_patch_pair_map.end(); fold_line_it++) {
-	fold_line_out_str << fold_line_it->first << '\t' << fold_line_it->second.first << '\t' << fold_line_it->second.second << '\t' << fold_lines_[fold_line_it->first].optimized_position << '\t' << fold_line_endpoint_ys[fold_line_it->first].first << '\t' << fold_line_endpoint_ys[fold_line_it->first].second << endl;
+	fold_line_out_str << fold_line_it->first << '\t' << fold_line_it->second.first << '\t' << fold_line_it->second.second << endl;
       }
       fold_line_out_str.close();
     }

@@ -83,9 +83,9 @@ int main(int argc, char *argv[])
 
   set<int> island_patches;
   if (true) {
-    Mat toy_example_image = imread("Results/cow/patch_index_mask_image.png");
+    //Mat toy_example_image = imread("Results/cow/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/bear/patch_index_mask_image.png");
-    //Mat toy_example_image = imread("Results/fox/patch_index_mask_image.png");
+    Mat toy_example_image = imread("Results/fox/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/goat/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/angrybird/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/baby/patch_index_mask_image.png");
