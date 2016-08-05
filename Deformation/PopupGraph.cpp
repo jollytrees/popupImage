@@ -2114,7 +2114,7 @@ namespace Popup
     int new_patch_index = 0;
     vector<bool> visited_pixel_mask(IMAGE_WIDTH_ * IMAGE_HEIGHT_, false);
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++)
-      if (new_patch_index_mask[pixel] >= 10000)
+      if (new_patch_index_mask[pixel] >= 10000 + getNumOriginalFoldLines())
 	visited_pixel_mask[pixel] = true;
     
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {    
@@ -2136,7 +2136,8 @@ namespace Popup
               continue;
 	    new_border_pixels.push_back(*neighbor_pixel_it);
 	    visited_pixel_mask[*neighbor_pixel_it] = true;
-	    new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
+	    if (new_patch_index_mask[*neighbor_pixel_it] == -1)
+	      new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
           }
 	}
 	border_pixels = new_border_pixels;
@@ -2191,11 +2192,12 @@ namespace Popup
     Mat optimized_graph_image = Mat::zeros(IMAGE_HEIGHT_, IMAGE_WIDTH_, CV_8UC3);
     optimized_graph_image.setTo(Vec3b(255, 255, 255));
     map<int, vector<int> > region_pixels;
+    map<int, Vec3b> color_map;
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
       
       if (new_patch_index_mask[pixel] >= 10000) {
       	Vec3b color = fold_lines_[new_patch_index_mask[pixel] - 10000].optimized_convexity ? Vec3b(255, 0, 0) : Vec3b(0, 255, 0);
-      	optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color;
+	optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color;
       	region_pixels[new_patch_index_mask[pixel]].push_back(pixel);
         continue;
       }
@@ -2205,6 +2207,10 @@ namespace Popup
         if (new_patch_index_mask[*neighbor_pixel_it] != new_patch_index_mask[pixel] && new_patch_index_mask[*neighbor_pixel_it] < 10000)
 	  optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = Vec3b(0, 0, 0);
       region_pixels[new_patch_index_mask[pixel]].push_back(pixel);
+      
+      //      if (color_map.count(new_patch_index_mask[pixel]) == 0)
+      //	color_map[new_patch_index_mask[pixel]] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+      //optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color_map[new_patch_index_mask[pixel]];
     }
 
     for (map<int, vector<int> >::const_iterator region_it = region_pixels.begin(); region_it != region_pixels.end(); region_it++) {

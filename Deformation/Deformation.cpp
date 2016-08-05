@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
   set<int> island_patches;
   if (true) {
     //Mat toy_example_image = imread("Results/cow/patch_index_mask_image.png");
-    Mat toy_example_image = imread("Results/bear/patch_index_mask_image.png");
-    //Mat toy_example_image = imread("Results/fox/patch_index_mask_image.png");
+    //Mat toy_example_image = imread("Results/bear/patch_index_mask_image.png");
+    Mat toy_example_image = imread("Results/fox/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/goat/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/angrybird/patch_index_mask_image.png");
     //Mat toy_example_image = imread("Results/baby/patch_index_mask_image.png");
@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
     }
   }
 
-  const bool ENFORCE_SYMMETRY = true;
-  const int MIDDLE_FOLD_LINE_X = IMAGE_WIDTH / 2 - 10;
+  const bool ENFORCE_SYMMETRY = false;
+  const int MIDDLE_FOLD_LINE_X = IMAGE_WIDTH / 2;
   Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, MIDDLE_FOLD_LINE_X, island_patches, ENFORCE_SYMMETRY, false);
   vector<vector<int> > excluded_fold_line_combinations;
   int num_new_fold_lines_constraint = 0;
