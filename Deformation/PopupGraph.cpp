@@ -2097,7 +2097,7 @@ namespace Popup
     //   }
     // }
 
-    vector<int> new_patch_index_mask = patch_index_mask_;
+    vector<int> new_patch_index_mask = vector<int>(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
     for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++) {
       if (fold_line_index == getBorderFoldLineIndices().first || fold_line_index == getBorderFoldLineIndices().second)            
         continue;      
@@ -2208,9 +2208,9 @@ namespace Popup
 	  optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = Vec3b(0, 0, 0);
       region_pixels[new_patch_index_mask[pixel]].push_back(pixel);
       
-      //      if (color_map.count(new_patch_index_mask[pixel]) == 0)
-      //	color_map[new_patch_index_mask[pixel]] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
-      //optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color_map[new_patch_index_mask[pixel]];
+      if (color_map.count(new_patch_index_mask[pixel]) == 0)
+      	color_map[new_patch_index_mask[pixel]] = Vec3b(rand() % 256, rand() % 256, rand() % 256);
+      optimized_graph_image.at<Vec3b>(pixel / IMAGE_WIDTH_, pixel % IMAGE_WIDTH_) = color_map[new_patch_index_mask[pixel]];
     }
 
     for (map<int, vector<int> >::const_iterator region_it = region_pixels.begin(); region_it != region_pixels.end(); region_it++) {
