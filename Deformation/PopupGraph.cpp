@@ -2098,7 +2098,7 @@ namespace Popup
     // }
 
     vector<int> new_patch_index_mask = vector<int>(IMAGE_WIDTH_ * IMAGE_HEIGHT_, -1);
-    for (int fold_line_index = 0; fold_line_index < getNumFoldLines(); fold_line_index++) {
+    for (int fold_line_index = getNumOriginalFoldLines(); fold_line_index < getNumFoldLines(); fold_line_index++) {
       if (fold_line_index == getBorderFoldLineIndices().first || fold_line_index == getBorderFoldLineIndices().second)            
         continue;      
       if (fold_lines_[fold_line_index].optimized_position == -1)            
@@ -2136,8 +2136,7 @@ namespace Popup
               continue;
 	    new_border_pixels.push_back(*neighbor_pixel_it);
 	    visited_pixel_mask[*neighbor_pixel_it] = true;
-	    if (new_patch_index_mask[*neighbor_pixel_it] == -1)
-	      new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
+	    new_patch_index_mask[*neighbor_pixel_it] = new_patch_index;
           }
 	}
 	border_pixels = new_border_pixels;
@@ -2145,6 +2144,15 @@ namespace Popup
       new_patch_index++;
     }
 
+    for (int fold_line_index = 0; fold_line_index < getNumOriginalFoldLines(); fold_line_index++) {
+      if (fold_lines_[fold_line_index].optimized_position == -1)            
+        continue;
+      for (vector<int>::const_iterator y_it = fold_line_ys[fold_line_index].begin(); y_it != fold_line_ys[fold_line_index].end(); y_it++) {
+        int pixel = *y_it * IMAGE_WIDTH_ + fold_lines_[fold_line_index].optimized_position;
+        new_patch_index_mask[pixel] = fold_line_index + 10000;
+      }
+    }
+    
     map<int, map<pair<int, int>, int> > fold_line_patch_pair_counter;
     for (int pixel = 0; pixel < IMAGE_WIDTH_ * IMAGE_HEIGHT_; pixel++) {
       if (pixel % IMAGE_WIDTH_ == 0 || pixel % IMAGE_WIDTH_ == IMAGE_WIDTH_ - 1)
@@ -2155,7 +2163,7 @@ namespace Popup
       int fold_line_index = new_patch_index_mask[pixel] - 10000;
 
       int left_patch_index = -1;
-      for (int delta_x = -1; delta_x >= -FOLD_LINE_WINDOW_WIDTH_ / 2; delta_x--) {
+      for (int delta_x = -1; delta_x >= -FOLD_LINE_WINDOW_WIDTH_; delta_x--) {
 	if (pixel % IMAGE_WIDTH_ + delta_x < 0)
 	  break;
 	if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.first) {
@@ -2164,7 +2172,7 @@ namespace Popup
 	}
       }
       int right_patch_index = -1;
-      for (int delta_x = 1; delta_x <= FOLD_LINE_WINDOW_WIDTH_ / 2; delta_x++) {
+      for (int delta_x = 1; delta_x <= FOLD_LINE_WINDOW_WIDTH_; delta_x++) {
         if (pixel % IMAGE_WIDTH_ + delta_x == IMAGE_WIDTH_)
           break;
         if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.second) {
@@ -2172,6 +2180,7 @@ namespace Popup
           break;
         }
       }
+      
       if (left_patch_index != -1 && right_patch_index != -1)
 	fold_line_patch_pair_counter[fold_line_index][make_pair(left_patch_index, right_patch_index)]++;
     }
