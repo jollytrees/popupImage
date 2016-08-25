@@ -40,3 +40,9 @@ DEFINE_string(output_prefix, "", "The output prefix (to distinguish different re
 **Examples:**
 
 ./PopupDesign -patch_index_mask_image_path="Examples/bear/patch_index_mask_image.png" -enforce_symmetry=true -middle_fold_line_x_offset=-10 -output_folder="Results" -output_prefix="bear_" -min_fold_line_gap=1 -fold_line_window_width=15 -fold_line_window_height=15
+
+./PopupDesign -patch_index_mask_image_path="Examples/goat/patch_index_mask_image.png" -enforce_symmetry=false -output_folder="Results" -output_prefix="goat_"
+
+./PopupDesign -patch_index_mask_image_path="Examples/cow/patch_index_mask_image.png" -enforce_symmetry=false -output_folder="Results" -output_prefix="cow_"
+
+./PopupDesign -patch_index_mask_image_path="Examples/bee/patch_index_mask_image.png" -enforce_symmetry=false -output_folder="Results" -output_prefix="bee_"
