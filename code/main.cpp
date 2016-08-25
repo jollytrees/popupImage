@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   const int IMAGE_WIDTH = patch_index_mask_image.cols;
   const int IMAGE_HEIGHT = patch_index_mask_image.rows;
   const int MIDDLE_FOLD_LINE_X = IMAGE_WIDTH / 2 + FLAGS_middle_fold_line_x_offset;
-
+  
   const int FOLD_LINE_WINDOW_WIDTH = FLAGS_fold_line_window_width;    
   const int FOLD_LINE_WINDOW_HEIGHT = FLAGS_fold_line_window_height;  
   const int MIN_FOLD_LINE_GAP = FLAGS_min_fold_line_gap;

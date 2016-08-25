@@ -93,8 +93,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   //GRBQuadExpr obj(0);
 
   vector<bool> optimized_flags;
+  vector<int> optimized_fold_line_xs;
   if (true) {
-    vector<int> optimized_fold_line_xs;
     vector<bool> optimized_fold_line_convexities;
     popup_graph.getOptimizedFoldLineInfo(optimized_flags, optimized_fold_line_xs, optimized_fold_line_convexities);
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
@@ -117,9 +117,9 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   
   if (optimization_type == 'C' && false) {
     set<int> active_fold_lines;
-
+    active_fold_lines.insert(42);
     set<int> inactive_fold_lines;
-    inactive_fold_lines.insert(15);
+    inactive_fold_lines.insert(30);
     
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       if (active_fold_lines.count(fold_line_index) > 0) {
@@ -134,10 +134,10 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
         cout << "inactive: " << fold_line_index << endl;
         model.addConstr(fold_line_activity_indicators[fold_line_index] == 0);
       }
-    model.addConstr(fold_line_positions[35] <= 320);
-    model.addConstr(fold_line_positions[13] <= fold_line_positions[69]);
-    model.addConstr(fold_line_positions[24] <= fold_line_positions[58]);
-    model.addConstr(fold_line_positions[51] <= fold_line_positions[14]);
+    //model.addConstr(fold_line_positions[35] <= 320);
+    //model.addConstr(fold_line_positions[13] <= fold_line_positions[69]);
+    //model.addConstr(fold_line_positions[24] <= fold_line_positions[58]);
+    //model.addConstr(fold_line_positions[51] <= fold_line_positions[14]);
   }   
   
   //model.addConstr(fold_line_activity_indicators[1] == fold_line_activity_indicators[1]);
@@ -169,9 +169,9 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     //model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] <= fold_line_Xs[popup_graph.num_fold_lines - 1] * fold_line_activity_indicators[popup_graph.num_fold_lines - 1]);
 
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");
+      model.addQConstr(fold_line_convexity_indicators[fold_line_index] * fold_line_activity_indicators[fold_line_index] == (1 - right_copy_convexity_indicators[fold_line_index]) * fold_line_activity_indicators[fold_line_index], "right copy");      
       model.addConstr(fold_line_Xs[fold_line_index] + fold_line_Ys[fold_line_index] == right_copy_Xs[fold_line_index] + right_copy_Ys[fold_line_index], "right copy");
-      
+
       if (fold_line_index < popup_graph.getNumOriginalFoldLines()) {
 	model.addQConstr(fold_line_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Xs[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
         model.addQConstr(fold_line_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index] == right_copy_Ys[fold_line_index] * fold_line_activity_indicators[fold_line_index], "right copy");
@@ -193,8 +193,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       // 	model.addQConstr((1 - right_copy_convexity_indicators[left_fold_line_index]) * fold_line_activity_indicators[right_fold_line_index] + right_copy_convexity_indicators[left_fold_line_index] * (1 - fold_line_activity_indicators[right_fold_line_index]) == fold_line_convexity_indicators[right_fold_line_index], "convexity");
     }
 
-    const int MIN_FOLD_LINE_GAP = optimization_type == 'C' ? 0 : popup_graph.getMinFoldLineGap();
-    //const int MIN_FOLD_LINE_GAP = popup_graph.getMinFoldLineGap();
+    //const int MIN_FOLD_LINE_GAP = optimization_type == 'C' ? 0 : popup_graph.getMinFoldLineGap();
+    const int MIN_FOLD_LINE_GAP = popup_graph.getMinFoldLineGap();
     
     for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
       //break;
@@ -213,7 +213,29 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       // 	pair<int, int> x_range = popup_graph.getFoldLineXRange(right_fold_line_index);
       //   cout << x_range.first << '\t' << x_range.second << endl;
       // }
-      //break;
+      
+      if (optimization_type == 'C' && false) {
+	set<int> active_fold_lines;
+        // active_fold_lines.insert(9);
+        // active_fold_lines.insert(30);
+        // active_fold_lines.insert(15);
+        // active_fold_lines.insert(32);
+        // active_fold_lines.insert(44);
+        // active_fold_lines.insert(43);
+	// active_fold_lines.insert(8);    
+        // active_fold_lines.insert(12);
+        // active_fold_lines.insert(14);        
+        // active_fold_lines.insert(28);
+        // active_fold_lines.insert(31);
+	// active_fold_lines.insert(16);
+	for (int i = 0; i < popup_graph.getNumFoldLines(); i++)
+	  if (optimized_flags[i] == true)
+	    active_fold_lines.insert(i);
+	if (active_fold_lines.count(left_fold_line_index) > 0 && active_fold_lines.count(right_fold_line_index) > 0) {
+	  cout << "fold line neighbors: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+	  continue;
+	}
+      }
       model.addQConstr(right_copy_Xs[left_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]) == fold_line_Xs[right_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]), "X == X");
       model.addQConstr(right_copy_Ys[left_fold_line_index] * (1 - right_copy_convexity_indicators[left_fold_line_index]) <= (fold_line_Ys[right_fold_line_index] - MIN_FOLD_LINE_GAP) * (1 - right_copy_convexity_indicators[left_fold_line_index]), "Y <= Y");
       model.addQConstr(right_copy_Ys[left_fold_line_index] * right_copy_convexity_indicators[left_fold_line_index] == fold_line_Ys[right_fold_line_index] * right_copy_convexity_indicators[left_fold_line_index], "Y == Y");
@@ -308,7 +330,7 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       }
     
       if (true) {
-        const int SYMMETRY_POSITION_TOLERANCE = 2;
+        const int SYMMETRY_POSITION_TOLERANCE = optimization_type == 'C' ? 2 : 2;
         for (set<int>::const_iterator fold_line_it = symmetry_fold_lines.begin(); fold_line_it != symmetry_fold_lines.end(); fold_line_it++) {
           model.addConstr(fold_line_positions[*fold_line_it] == popup_graph.getMiddleFoldLineX(), "symmetry");
         }
@@ -1007,7 +1029,7 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   if (optimization_type == 'T')  
     model.setObjective((new_fold_line_sum - original_fold_line_weighted_sum) * 10000 + position_obj, GRB_MINIMIZE);
   if (optimization_type == 'C')  
-    model.setObjective((new_fold_line_sum - original_fold_line_sum * 2) * 10000 + position_obj, GRB_MINIMIZE);
+    model.setObjective((new_fold_line_sum - original_fold_line_sum * 2 - original_fold_line_weighted_sum) * 10000 + position_obj, GRB_MINIMIZE);
   model.addConstr(new_fold_line_sum >= num_new_fold_lines_constraint);
   
   //if (optimization_type == 'C')
@@ -1045,10 +1067,10 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     //throw GRBException("Model is not a MIP");
 
     if (model.get(GRB_IntAttr_Status) != GRB_OPTIMAL) {
-      // if (optimization_type == 'C') {
-      // 	model.computeIIS();
-      // 	model.write("Test/iis.ilp");
-      // }
+      if (optimization_type == 'C' && false) {
+       	model.computeIIS();
+       	model.write("Test/iis.ilp");
+      }
       model.write("Test/model.lp");
       
       cout << "infeasible" << endl;
@@ -1067,7 +1089,7 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   
   if (true) {
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << endl;
+      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << optimized_fold_line_xs[fold_line_index] << '\t' << optimized_flags[fold_line_index] << endl;
       
       pair<int, int> x_range = popup_graph.getFoldLineXRange(fold_line_index);
       if (fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) < x_range.first || fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) > x_range.second)
@@ -1093,14 +1115,14 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       }
     }
 
-    // for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
-    //   int left_fold_line_index = fold_line_pair_it->first;
-    //   int right_fold_line_index = fold_line_pair_it->second;
-    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))      
-    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
-    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))      
-    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
-    // }
+    for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
+      int left_fold_line_index = fold_line_pair_it->first;
+      int right_fold_line_index = fold_line_pair_it->second;
+      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))      
+        cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))      
+        cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+    }
       
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++)
@@ -1158,7 +1180,14 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
         break;
     }
   }
-  popup_graph.setOptimizedFoldLineInfo(vector<bool>(popup_graph.getNumFoldLines(), true), optimized_fold_line_positions, optimized_fold_line_convexities);
+
+  cout << "optimized info: " << endl;
+  cout << optimization_type << endl;
+  for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
+    cout << fold_line_index << '\t' << optimized_fold_line_positions[fold_line_index] << '\t' << optimized_fold_line_convexities[fold_line_index] << endl;
+
+  if (optimization_type != 'S')
+    popup_graph.setOptimizedFoldLineInfo(vector<bool>(popup_graph.getNumFoldLines(), true), optimized_fold_line_positions, optimized_fold_line_convexities);
 
 
   // for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
