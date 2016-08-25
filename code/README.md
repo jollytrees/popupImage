@@ -2,13 +2,13 @@
 
 ### Requirements
 
-0. OpenCV
-1. Gurobi
-2. gflags
+* OpenCV
+* Gurobi
+* gflags
 
 ### Instruction
 
-To compile the program:
+**To compile the program:**
 
 0. mkdir build
 1. cd build
@@ -16,7 +16,7 @@ To compile the program:
 3. make
 
 
-Options:
+**Options:**
 
 DEFINE_string(patch_index_mask_image_path, "Examples/bee/patch_index_mask_image.png", "The patch index mask image path. Patch index mask image is a color image with different colors indicating different patches. (A patch with gray color is treated as an island patch (such as eye patches).");
 
@@ -37,5 +37,6 @@ DEFINE_string(output_folder, "Examples", "The output folder.");
 DEFINE_string(output_prefix, "", "The output prefix (to distinguish different results.");
 
 
-Examples:
+**Examples:**
+
 ./PopupDesign -patch_index_mask_image_path="Examples/bear/patch_index_mask_image.png" -enforce_symmetry=true -middle_fold_line_x_offset=-10 -output_folder="Results" -output_prefix="bear_" -min_fold_line_gap=1 -fold_line_window_width=15 -fold_line_window_height=15
