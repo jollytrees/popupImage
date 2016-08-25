@@ -19,13 +19,21 @@ To compile the program:
 Options:
 
 DEFINE_string(patch_index_mask_image_path, "Examples/bee/patch_index_mask_image.png", "The patch index mask image path. Patch index mask image is a color image with different colors indicating different patches. (A patch with gray color is treated as an island patch (such as eye patches).");
+
 DEFINE_bool(enforce_symmetry, false, "Whether symmetry is enforced or not.");
+
 DEFINE_int32(middle_fold_line_x_offset, 0, "Denote where the fold line should be put (image_width /  2 + offset).");
+
 DEFINE_int32(fold_line_window_width, 10, "The preferable window width for a fold line.");
+
 DEFINE_int32(fold_line_window_height, 10, "The preferable window height for a fold line.");
+
 DEFINE_int32(min_fold_line_gap, 5, "The minimum distance between two neighboring fold lines.");
+
 DEFINE_bool(write_intermediate_results, true, "Whether intermediate results are saved or not.");
+
 DEFINE_string(output_folder, "Examples", "The output folder.");
+
 DEFINE_string(output_prefix, "", "The output prefix (to distinguish different results.");
 
 
