@@ -72,6 +72,14 @@ int main(int argc, char *argv[])
   bool is_stable = false;
   const int MAX_NUM_ATTEMPTS = 10;
   while (true) {
+    //set desired properties here:
+    //popup_graph.setOptimizedFoldLineInfo(fold_line_index, optimized_activity, optimized_convexity, optimized_positions);
+    //-1 indicates leaving the property unset
+    //activity = 0, 1 or -1
+    //convexity = 0, 1 or -1 (fold lines pointing inwards has 1 as convexity)
+    //position = POSITIVE INTEGER or -1 (theoretically it could be a real number but current implementation only supports integers)
+    //you could also pass in three vectors containing all the properties like this:
+    //popup_graph.setOptimizedFoldLineInfo(optimized_fold_line_activities, optimized_fold_line_convexities, optimized_fold_line_positions);
     if (optimizeFoldLines(popup_graph, excluded_fold_line_combinations, num_new_fold_lines_constraint, 'T') == false) {
       num_new_fold_lines_constraint++;
       excluded_fold_line_combinations.clear();

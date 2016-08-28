@@ -7,8 +7,8 @@ namespace Popup
 {
   struct FoldLine //fold line structure
   {
-  FoldLine(const std::pair<int, int> _original_patch_pair, const int _desirable_center, const double _score) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), desirable_center(_desirable_center), score(_score), optimized_flag(false) {};
-  FoldLine(const std::pair<int, int> _original_patch_pair, const std::vector<int> &_positions) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), positions(_positions), optimized_flag(false) {};
+  FoldLine(const std::pair<int, int> _original_patch_pair, const int _desirable_center, const double _score) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), desirable_center(_desirable_center), score(_score), optimized_activity(-1), optimized_convexity(-1), optimized_position(-1) {};
+  FoldLine(const std::pair<int, int> _original_patch_pair, const std::vector<int> &_positions) : is_original_fold_line(_original_patch_pair.first != _original_patch_pair.second), original_patch_pair(_original_patch_pair), positions(_positions), optimized_activity(-1), optimized_convexity(-1), optimized_position(-1) {};
     bool is_original_fold_line; //whether this fold line is between two original patches or not
     //int original_patch_index; //the index of the fold line's original patch
     std::pair<int, int> original_patch_pair; //(left_original_patch, right_original_patch) pair. For new fold lines, left_original_patch == right_original_patch.
@@ -17,10 +17,10 @@ namespace Popup
     std::vector<int> positions; //the x range of this fold line
     std::set<int> line_segment_indices; //line segments for this fold line (used only for original fold lines in case two original fold lines have overlap)
     //std::map<int, double> x_score_map; //scores for different x positions
-    int optimized_flag;
+    int optimized_activity;
+    int optimized_convexity;
     int optimized_position; //optimized x position for the fold line (-1 for inactive fold lines)
     std::vector<int> optimized_pixels; //optimized pixel positions for the fold line
-    bool optimized_convexity; //optimized convexity for the fold line
   };
 
   class PopupGraph
@@ -46,6 +46,7 @@ namespace Popup
     std::pair<int, int> getFoldLineXRange(const int fold_line_index) const;
     double getFoldLineScore(const int fold_line_index) const { return fold_lines_[fold_line_index].score; };
     std::map<int, std::map<int, std::set<int> > > getPatchNeighborFoldLines(const char direction, const std::map<int, std::set<int> > &patch_child_patches = std::map<int, std::set<int> >()) const;
+    std::map<int, std::set<int> > getPatchFoldLines() const;
     bool getEnforceSymmetryFlag() const { return ENFORCE_SYMMETRY_; };
     std::vector<FoldLine> getFoldLines() const { return fold_lines_; };
     std::vector<int> getPatchIndexMask() const { return patch_index_mask_; };
@@ -63,8 +64,9 @@ namespace Popup
     void checkFoldLinePaths() const;
     void checkFoldLineInfo() const;
 
-    void setOptimizedFoldLineInfo(const std::vector<bool> &optimized_flags, const std::vector<int> &optimized_fold_line_xs, const std::vector<bool> &optimized_fold_line_convexities = std::vector<bool>());
-    void getOptimizedFoldLineInfo(std::vector<bool> &optimized_flags, std::vector<int> &optimized_fold_line_positions, std::vector<bool> &optimized_fold_line_convexities);
+    void setOptimizedFoldLineInfo(const std::vector<int> &optimized_fold_line_activities, const std::vector<int> &optimized_fold_line_convexities, const std::vector<int> &optimized_fold_line_positions);
+    void setOptimizedFoldLineInfo(const int fold_line_index, const int optimized_activity, const int optimized_convexity = -1, const int optimized_position = -1);
+    void getOptimizedFoldLineInfo(std::vector<int> &optimized_fold_line_activities, std::vector<int> &optimized_fold_line_convexities, std::vector<int> &optimized_fold_line_positions);
     void getDesirableFoldLinePositions(std::vector<int> &desirable_fold_line_positions) const;
     
     std::map<int, std::set<int> >  getIslandPatchInfo() const;
