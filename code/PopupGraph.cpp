@@ -34,7 +34,7 @@ namespace Popup
     //max_x += 1;
     //min_x -= FOLD_LINE_WINDOW_WIDTH_ / 2;
     //max_x += FOLD_LINE_WINDOW_WIDTH_ / 2;
-    cout << "min max x: " << min_x << '\t' << max_x << endl;
+    //cout << "min max x: " << min_x << '\t' << max_x << endl;
     return make_pair(min_x, max_x);
   }
 

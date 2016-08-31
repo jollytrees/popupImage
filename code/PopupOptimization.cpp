@@ -1119,11 +1119,11 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   
   if (true) {
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
-      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << right_copy_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << right_copy_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << right_copy_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << denoted_fold_line_positions[fold_line_index] << endl;
+      cout << fold_line_index << '\t' << fold_line_activity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Xs[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_Ys[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << right_copy_convexity_indicators[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) << '\t' << denoted_fold_line_positions[fold_line_index] << endl;
       
-      pair<int, int> x_range = popup_graph.getFoldLineXRange(fold_line_index);
+      //pair<int, int> x_range = popup_graph.getFoldLineXRange(fold_line_index);
       //if (fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) < x_range.first || fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X) > x_range.second)
-	cout << fold_line_index << '\t' << x_range.first << '\t' << x_range.second << endl;
+      //cout << fold_line_index << '\t' << x_range.first << '\t' << x_range.second << endl;
       
 
       // for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
@@ -1145,19 +1145,19 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       }
     }
 
-    for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
-      int left_fold_line_index = fold_line_pair_it->first;
-      int right_fold_line_index = fold_line_pair_it->second;
+    // for (vector<pair<int, int> >::const_iterator fold_line_pair_it = fold_line_pairs.begin(); fold_line_pair_it != fold_line_pairs.end(); fold_line_pair_it++) {
+    //   int left_fold_line_index = fold_line_pair_it->first;
+    //   int right_fold_line_index = fold_line_pair_it->second;
       
-      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) != fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))
-        cout << "postion inconsistency: " << left_fold_line_index << '\t' << right_fold_line_index << endl;      
-      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) != fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))            
-        cout << "postion inconsistency: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
-      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))            
-        cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;      
-      if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))            
-        cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
-    }
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) != fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))
+    //     cout << "postion inconsistency: " << left_fold_line_index << '\t' << right_fold_line_index << endl;      
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) != fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))            
+    //     cout << "postion inconsistency: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 1 && right_copy_Xs[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Xs[right_fold_line_index].get(GRB_DoubleAttr_X))            
+    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;      
+    //   if (right_copy_convexity_indicators[left_fold_line_index].get(GRB_DoubleAttr_X) == 0 && right_copy_Ys[left_fold_line_index].get(GRB_DoubleAttr_X) > fold_line_Ys[right_fold_line_index].get(GRB_DoubleAttr_X))            
+    //     cout << "postion conflict: " << left_fold_line_index << '\t' << right_fold_line_index << endl;
+    // }
       
     for (int fold_line_index = 0; fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++)
       for (int other_fold_line_index = 0; other_fold_line_index < popup_graph.getNumFoldLines(); other_fold_line_index++)
