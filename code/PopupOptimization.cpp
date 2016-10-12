@@ -386,9 +386,12 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
   // model.addConstr(fold_line_activity_indicators[35] == 1);
   //model.addConstr(fold_line_Xs[10] <= 100);
 
+  //cout << popup_graph.getNumOriginalPatches() << endl;
+  //exit(1);
+  
   GRBLinExpr island_obj(0);
   //connectivity
-  if (true && optimization_type == 'T') {
+  if (true && optimization_type == 'T' && popup_graph.getNumOriginalPatches() > 2) {
     vector<GRBVar> island_patch_indicators(popup_graph.getNumOriginalPatches());
     for(int patch_index = 0; patch_index < popup_graph.getNumOriginalPatches(); patch_index++)
       island_patch_indicators[patch_index] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "island patch " + to_string(patch_index));
