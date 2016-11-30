@@ -1217,6 +1217,37 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
 	  }
 	}
       }
+	    
+	          for (int fold_line_index = popup_graph.getNumOriginalFoldLines(); fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
+        if (fold_line_index == popup_graph.getMiddleFoldLineIndex() || fold_line_index == popup_graph.getBorderFoldLineIndices().first || fold_line_index == popup_graph.getBorderFoldLineIndices().second)      
+          continue;
+	if (optimized_fold_line_activities[fold_line_index] == 0) 
+          continue;
+        bool has_left_path = false;
+	{
+	  for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_left_paths.at(fold_line_index).begin(); fold_line_it != fold_line_left_paths.at(fold_line_index).end(); fold_line_it++) {
+            if (optimized_fold_line_activities[fold_line_it->first] == 1) {
+              has_left_path = true;
+	      break;
+	    }
+	  }
+	}
+	bool has_right_path = false;
+        {
+	  for (map<int, vector<int> >::const_iterator fold_line_it = fold_line_right_paths.at(fold_line_index).begin(); fold_line_it != fold_line_right_paths.at(fold_line_index).end(); fold_line_it++) {
+            if (optimized_fold_line_activities[fold_line_it->first] == 1) {
+              has_right_path = true;
+              break;
+            }
+          }
+        }
+	if (has_left_path == false || has_right_path == false) {
+          cout << "lonely fold line: " << fold_line_index << endl;              
+	  optimized_fold_line_activities[fold_line_index] = 0;            
+	  has_change = true;
+	}
+      }
+
       if (has_change == false)
         break;
     }
