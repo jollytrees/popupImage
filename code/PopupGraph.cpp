@@ -2336,7 +2336,7 @@ namespace Popup
       for (int delta_x = -1; delta_x >= -FOLD_LINE_WINDOW_WIDTH_; delta_x--) {
 	if (pixel % IMAGE_WIDTH_ + delta_x < 0)
 	  break;
-	if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.first) {
+	if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.first && new_patch_index_mask[pixel + delta_x] < 10000) {
 	  left_patch_index = new_patch_index_mask[pixel + delta_x];
 	  break;
 	}
@@ -2345,7 +2345,7 @@ namespace Popup
       for (int delta_x = 1; delta_x <= FOLD_LINE_WINDOW_WIDTH_; delta_x++) {
         if (pixel % IMAGE_WIDTH_ + delta_x == IMAGE_WIDTH_)
           break;
-        if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.second) {
+	if (patch_index_mask_[pixel + delta_x] == fold_lines_[fold_line_index].original_patch_pair.second && new_patch_index_mask[pixel + delta_x] < 10000) {
           right_patch_index = new_patch_index_mask[pixel + delta_x];
           break;
         }
