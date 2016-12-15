@@ -639,6 +639,8 @@ namespace Popup
             continue;
           int line_segment_index = pixel_line_segment_indices_[pixel];
           int neighbor_line_segment_index = pixel_line_segment_indices_[neighbor_pixel];
+	  if (line_segment_fold_line_indices_[neighbor_line_segment_index] >= 0)	  
+	    continue;
           int left_fold_lines = (line_segment_left_fold_lines[line_segment_index] & (~line_segment_right_fold_lines[neighbor_line_segment_index])) | line_segment_left_fold_lines[neighbor_line_segment_index];      
       
           if (line_segment_left_fold_lines[neighbor_line_segment_index] != left_fold_lines) {
@@ -656,6 +658,8 @@ namespace Popup
             continue;
           int line_segment_index = pixel_line_segment_indices_[pixel];
           int neighbor_line_segment_index = pixel_line_segment_indices_[neighbor_pixel];
+	  if (line_segment_fold_line_indices_[neighbor_line_segment_index] >= 0)	  
+	    continue;     
           int right_fold_lines = (line_segment_right_fold_lines[line_segment_index] & (~line_segment_left_fold_lines[neighbor_line_segment_index])) | line_segment_right_fold_lines[neighbor_line_segment_index];
       
           if (line_segment_right_fold_lines[neighbor_line_segment_index] != right_fold_lines) {
