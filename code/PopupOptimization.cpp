@@ -108,9 +108,10 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       else if (denoted_fold_line_convexities[fold_line_index] == 1)
         model.addConstr(fold_line_convexity_indicators[fold_line_index] == 1);
       
-      if (denoted_fold_line_positions[fold_line_index] >= 0)
-	model.addConstr(fold_line_positions[fold_line_index] == denoted_fold_line_positions[fold_line_index]);
-      
+      if (denoted_fold_line_positions[fold_line_index] >= 0) {
+	model.addConstr(fold_line_positions[fold_line_index] <= denoted_fold_line_positions[fold_line_index] + 1);	
+        model.addConstr(fold_line_positions[fold_line_index] >= denoted_fold_line_positions[fold_line_index] - 1);
+      }      
       // if (optimization_type == 'T') {
       // 	cout << "there should not be an optimized fold line " << fold_line_index << endl;
       // 	exit(1);
@@ -1203,12 +1204,14 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
 	set<int> fold_lines = patch_fold_lines.at(patch_index);
 	
 	int num_active_fold_lines = 0;
-	for (set<int>::const_iterator fold_line_it = fold_lines.begin(); fold_line_it != fold_lines.end(); fold_line_it++)
+	for (set<int>::const_iterator fold_line_it = fold_lines.begin(); fold_line_it != fold_lines.end(); fold_line_it++)		
           if (optimized_fold_line_activities[*fold_line_it] == 1)
 	    num_active_fold_lines++;
 	  
 	if (num_active_fold_lines == 1) {
 	  for (set<int>::const_iterator fold_line_it = fold_lines.begin(); fold_line_it != fold_lines.end(); fold_line_it++) {
+	    if (denoted_fold_line_activities[*fold_line_it] != -1)                          	    
+	      continue;	      
 	    if (optimized_fold_line_activities[*fold_line_it] == 1) {
 	      cout << "lonely fold line: " << *fold_line_it << endl;
 	      optimized_fold_line_activities[*fold_line_it] = 0;
@@ -1221,6 +1224,8 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
       for (int fold_line_index = popup_graph.getNumOriginalFoldLines(); fold_line_index < popup_graph.getNumFoldLines(); fold_line_index++) {
         if (fold_line_index == popup_graph.getMiddleFoldLineIndex() || fold_line_index == popup_graph.getBorderFoldLineIndices().first || fold_line_index == popup_graph.getBorderFoldLineIndices().second)      
           continue;
+	if (denoted_fold_line_activities[fold_line_index] != -1)                      	
+	  continue;      
 	if (optimized_fold_line_activities[fold_line_index] == 0) 
           continue;
         bool has_left_path = false;
