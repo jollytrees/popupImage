@@ -1192,7 +1192,7 @@ bool optimizeFoldLines(Popup::PopupGraph &popup_graph, const vector<vector<int> 
     optimized_fold_line_positions[fold_line_index] = fold_line_positions[fold_line_index].get(GRB_DoubleAttr_X);
   }
 
-  if (optimization_type == 'C') {
+  if (true) {
 
     map<int, set<int> > patch_fold_lines = popup_graph.getPatchFoldLines();
     while (true) {
