@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
       patch_index_mask[pixel] = color_index_map[color_index];
     }
   }
-  
+
   Popup::PopupGraph popup_graph(patch_index_mask, IMAGE_WIDTH, IMAGE_HEIGHT, FOLD_LINE_WINDOW_WIDTH, FOLD_LINE_WINDOW_HEIGHT, IMAGE_WIDTH / 2 - 5, true);
   optimizeFoldLines(popup_graph);
   //optimizeFoldLinePositions(popup_graph);

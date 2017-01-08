@@ -116,11 +116,11 @@ namespace Popup
 	{
 	  for (int delta_y = -FOLD_LINE_WINDOW_HEIGHT_ / 2; delta_y <= FOLD_LINE_WINDOW_HEIGHT_ / 2; delta_y++) {
 	    for (int delta_x = -FOLD_LINE_WINDOW_WIDTH_ / 2; delta_x <= FOLD_LINE_WINDOW_WIDTH_ / 2; delta_x++) {
-	      if (delta_x == 0 || patch_index_mask_[(y + delta_y) * IMAGE_WIDTH_ + (x + delta_x)] == -1)
-		continue;
 	      if (x + delta_x < 0 || x + delta_x >= IMAGE_WIDTH_ || y + delta_y < 0 || y + delta_y >= IMAGE_HEIGHT_)
 		continue;
-	      if (delta_x < 0)
+	      if (delta_x == 0 || patch_index_mask_[(y + delta_y) * IMAGE_WIDTH_ + (x + delta_x)] == -1)
+                continue;
+              if (delta_x < 0)
 		left_window_num_pixels[patch_index_mask_[(y + delta_y) * IMAGE_WIDTH_ + (x + delta_x)]]++;
 	      else
 		right_window_num_pixels[patch_index_mask_[(y + delta_y) * IMAGE_WIDTH_ + (x + delta_x)]]++;
@@ -1536,7 +1536,6 @@ namespace Popup
     buildSubGraphes();
     if (ENFORCE_SYMMETRY_)
       enforceSymmetry();
-
     calcLineSegmentInfo();
     findOriginalFoldLines();
     imwrite("Test/original_popup_graph.png", drawOriginalPopupGraph());
