@@ -6,8 +6,6 @@
 #include <set>
 #include <tuple>
 
-#include "MRF2.2/mrf.h"
-#include "MRF2.2/GCoptimization.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
