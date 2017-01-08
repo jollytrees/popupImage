@@ -1,0 +1,23 @@
+\subsection{Foldability}
+\textbf{Foldability Definition: }
+
+\textbf{Variable Definition: }
+We associate a set of variables $c(f)$ determining the convexity of $f$, that is . A set of variables $X(f)$ determining the X coordinate of $f$, and $Y(f)$ determining the Y coordinate of $f$.
+
+There is $x(f) + y(f) = p_u(f)$ ($p(f) = (p_u(f), p_v(f))$).
+
+The orientation constraints involve $c(f)$. For fold line neighbor pair $(f_l, f_r)$, there is:
+\begin{equation}
+  \begin{aligned}
+    & c(f_l) = 1 - c(f_r) & \text{ if } a(f_r) = 1 \\
+    & c(f_l) = c(f_r) & \text{ otherwise } \\
+  \end{aligned}
+\end{equation}
+
+The position constraints is formed as:
+\begin{equation}
+  \begin{aligned}
+    & x(f_l) < x(f_r) \quad & y(f_l) = y(f_r) & \text{ if } c(f_r) = 1 \\
+    & x(f_l) = x(f_r) \quad & y(f_l) < y(f_r) & \text{ otherwise } \\
+  \end{aligned}
+\end{equation}

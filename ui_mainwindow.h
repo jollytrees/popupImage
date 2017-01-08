@@ -69,7 +69,7 @@ public:
     QRadioButton *radio_final;
     QWidget *tab_7;
     QWidget *tab_3;
-    //ImageSegmentationWidget *image_segmentation_widget;
+    ImageSegmentationWidget *image_segmentation_widget;
     OGLWidget *openGLWidget;
     QSlider *horizontalSlider;
     QLineEdit *lineEdit;
@@ -167,9 +167,9 @@ public:
 
         tab_3 = new QWidget();
         tab_3->setObjectName(QStringLiteral("tab_3"));
-        //image_segmentation_widget = new ImageSegmentationWidget(tab_3);
-        //image_segmentation_widget->setObjectName(QStringLiteral("image_segmentation_widget"));
-        //image_segmentation_widget->setGeometry(QRect(50, 70, 731, 600));
+        image_segmentation_widget = new ImageSegmentationWidget(tab_3);
+        image_segmentation_widget->setObjectName(QStringLiteral("image_segmentation_widget"));
+        image_segmentation_widget->setGeometry(QRect(50, 70, 731, 600));
         tabWidget->addTab(tab_3, QString());
         tabWidget->setTabText(tabWidget->indexOf(tab_3), QStringLiteral("Image Segmentation"));
         segmentation_button_group = new QGroupBox(tab_3);

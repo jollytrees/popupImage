@@ -68,14 +68,14 @@ private:
     void processPopup();
 
     //image segmentation
-    //void createMenus();
+    void createMenus();
 
 private slots:
 public slots:
     //image segmentation
-    /*void loadImage();
+    void loadImage();
     void saveSegmentation();
-    void loadSegmentation();*/
+    void loadSegmentation();
 
     void chooseInputImage();
     void chooseBasePatch();
@@ -89,10 +89,10 @@ public slots:
     void setScalse(int);
 
     //image segmentation
-    /*void startSegmentation();
+    void startSegmentation();
     void refineSegmentation();
     void clearSegmentation();
-    void confirmSegmentation();*/
+    void confirmSegmentation();
 };
 
 #endif // MAINWINDOW_H

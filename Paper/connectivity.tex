@@ -1,0 +1,21 @@
+\subsection{connectivity}
+Due to the fact that the number of segments is small in our image-based design process, we prefer one intriguing structure containing all segments instead of multiple separated simple structures.. For this reason, we enforce two type connectivity here. First, each patch should have at least one path from both left background patch and right background patch. Second, after taking background patches away, the rest graph should have only one connected component. The connectivity property is incorporated into the optimization formulation as follows.
+
+As new fold lines will never be cut, the connectivity property is considered based on initial patches. The first type of connectivity is enforced by simply adding a constraint that each initial patch (except the background patch) has at least one active left initial fold line and one active right initial fold line. The proof is trivial as the graph has non-loop property. We re-phrase the second connectivity constraint as there exists at least one connection between any pair of patches (background patches are excluded). Here the connection exists when:
+
+\begin{enumerate}
+\item For a pair of neighboring patches, at least one fold line between them is active.
+\item For a pair of non-neighboring patches, they both have connection with at least one other patch.
+\end{enumerate}
+
+Due to the symmetric definition of connection, we can simplify the constraint as there exists at least one connection between each patch and one denoted patch $s$. The denoted patch is a randomly picked non-background patch. Then we define the connection depth for each patch as the length of the shortest path to patch $s$. We use binary variable $c_{pd}$ to indicate whether patch $p$ has connection depth $d$ ($d \in [1, MAX\_DEPTH]$). Based on $c_{pd}$, the connectivity constraint is formulated as $\sum_d{c_{pd}} = 1$. According to the definition of connection, $c_{pd}$ subjects to:
+
+\begin{equation*}
+  \begin{cases}
+    c_{p1} \leq \sum_{f \in F(p, s)}a(f) & \text{ If patch $p$ is a neighbor of $s$} \\
+    c_{p1} = 0 & \text{ If patch $p$ is not a neighbor of $s$} \\
+    c_{pd} <= \sum_{q \in N(p)}(c_{q(d-1)}\sum_{f \in F(p, q)}a(f))
+  \end{cases}
+\end{equation*}
+
+Note that some patches do not have active fold lines because they lie inside another patch (see the eyes in the bear example). We call them ``island patches''. For island patches, connectivity no longer holds. For this reason, we add another set of binary variables $i(p)$ to indicate whether a patch is an island patch or not. We modify the above connectivity constraints so that they are disabled for island patches. And an island patch has no fold line, so there should be $a(f) <= 1 - i(p) \quad \forall f \in F(p)$.

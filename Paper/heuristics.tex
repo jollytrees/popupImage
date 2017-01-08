@@ -1,0 +1,41 @@
+\subsection{Heuristics}
+
+Optimization \ref{equ:optimization} gives us optimized popup graph which is foldable, connected, stable and consistent with the input image. However, the optimization problem is intractable to any existing solvers in many cases due to the large number of variables and constraints (most of which are brought for the stability constraint). So instead of optimization \ref{equ:optimization} directly, we decouple the optimization process to decrease the complexity by the following two heuristics:
+
+\textbf{Stability Constraint Decoupling: }
+The stability constraint brings in $(\#f)^3$ auxilliary variables and constraints which cause the most difficulty. Our approach is to ignore stability while optimizing other terms and then check whether the returned solution satisfies the stability constraint. If the solution is not stable, we conduct the optimization again while excluding the unstable solution. We repeat the process until we find a stable solution. To find a stable solution with fewer such attempts, we guide the process by adding another objective term. Our observation is that a good popup graph design has two attributes: 1) most intersection fold lines are active as they add connections between segments which make the popup graph more intriguing and stable, and 2) a region fold line becomes active only when it is essential to make the popup graph foldable. We use $f_i$ to denote an intersection fold line and $f_r$ a region fold line, then the objective term is $max(\sum{a(f_i)} - \sum{a(f_r)})$. This term is associated with an arbitrary large weight so that it has higher priority than the consistency objective. We denote this variation of $G = optimize^t(\mathcal{G})$ as $G = optimize^t(\mathcal{G})$ indicating only topology is considered without the stability constraint.
+%The stability check can also be viewed as a variation of $optimize^s(\mathcal{G})$ where only stability constraint is considered, $\mathcal{G} = {G}$ is a set contains only the popup graph we want to check, and the return value is a boolean value indicating whether the constraint holds or not.
+
+\textbf{Child Segment: }
+A child segment a segment which lies on the same plane with its parent segment and has no fold line (like the eye of the bear). Child-parent segment pair happens when two segments have different textures but are supposed to be on the same plane. A child segment has no active fold line and thus is neither connected, or stable. So we ignore child segments when optimizing the rest graph and add them back after the optimization. For this purpose, we detect segments which are enclosed by another segment. We treat them as child segments and ignore them in the optimization. Note that, such detected segments are not always real child patches (like the nose of the bear). We address this issue by simply conduct the optimization with the rest part of the graph fixed. This time, we only consider foldability constraint. We call this optimization $optimize^c(\mathcal{G})$. Users can also denote other child patches.
+
+Putting these two heuristics together, we reach algorithm \ref{alg:optimization}.
+
+
+\begin{algorithm}
+  \SetAlgoLined
+  \SetKwInOut{Input}{input}
+  \SetKwInOut{Output}{output}
+  
+  \Input{A scalar image or vector image $I$}
+  \Output{A foldable, connected and stable graph design which is consistent with the input image or a failure flag.}
+  Initialization: $\mathcal{G} = buildPopupGraphSet(I)$
+
+   $\mathcal{G}' = \{G | G \in \mathcal{G} \quad and \quad \text{G has no child patch\}}$;\\
+   $max\_iters = 10, iter = 0$;\\
+   \While{true}{
+     $G^t = optimize^t(\mathcal{G}')$;\\
+     \If{$stable(G^t)$}{
+       break{};\\
+     }
+    $\mathcal{G'} = \mathcal{G'} \ G^t$;\\
+    $iter = iter + 1$;\\
+    \If{$iter > max\_iters$}{
+      \Return{FAILURE};
+    }
+  }
+  $\mathcal{G}^t = \{G \approx G^t | G \in \mathcal{G}\}$;\\
+  $G^{OPT} = optimize^c(\mathcal{G}^t)$;\\
+  \Return{$G^{OPT}$};
+  \caption{Popup Graph Optimization}
+\end{algorithm}
